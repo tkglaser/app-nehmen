@@ -12,10 +12,18 @@ import { EditEntryDialogComponent } from '../edit-entry-dialog/edit-entry-dialog
     styleUrls: ['./todays-entries.component.scss']
 })
 export class TodaysEntriesComponent implements OnInit {
-    displayedColumns: string[] = ['calories', 'description', 'timestamp', 'actions'];
+    displayedColumns: string[] = [
+        'calories',
+        'description',
+        'timestamp',
+        'actions'
+    ];
     dataSource$: Observable<Entry[]>;
 
-    constructor(private entriesService: EntryService,private dialog: MatDialog) {}
+    constructor(
+        private entriesService: EntryService,
+        private dialog: MatDialog
+    ) {}
 
     ngOnInit() {
         this.dataSource$ = this.entriesService.selectTodaysEntries();

@@ -9,23 +9,21 @@ import { LocalStorageService } from './local-storage.service';
 import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
 
-function isToday(date: Date): boolean {
+function isToday(date: number): boolean {
     const todaysDate = new Date().setHours(0, 0, 0, 0);
-    const input = new Date(date.valueOf()).setHours(0, 0, 0, 0);
+    const input = new Date(date).setHours(0, 0, 0, 0);
     return input === todaysDate;
 }
 
-const sortByDateDesc = map((entries: Entry[]) =>
-    entries.sort((a, b) => {
-        if (a.timestamp < b.timestamp) {
-            return 1;
-        } else if (a.timestamp > b.timestamp) {
-            return -1;
-        } else {
-            return 0;
-        }
-    })
-);
+const byDateDescending = (a: Entry, b: Entry) => {
+    if (a.timestamp < b.timestamp) {
+        return 1;
+    } else if (a.timestamp > b.timestamp) {
+        return -1;
+    } else {
+        return 0;
+    }
+};
 
 const key_entries = 'calory_entries';
 
@@ -50,7 +48,7 @@ export class EntryService {
                 calories: +entry.calories,
                 description: entry.description,
                 id: this.nextId(),
-                timestamp: new Date()
+                timestamp: new Date().getTime()
             }
         ];
         this.postNewState(newState);
@@ -64,7 +62,14 @@ export class EntryService {
         const otherEntries = this.entries.value.filter(
             e => e.id !== entryUpdate.id
         );
-        const newState = [...otherEntries, { ...origEntry, ...entryUpdate }];
+        const newState = [
+            ...otherEntries,
+            {
+                ...origEntry,
+                calories: +entryUpdate.calories,
+                description: entryUpdate.description
+            }
+        ];
         this.postNewState(newState);
     }
 
@@ -74,13 +79,14 @@ export class EntryService {
     }
 
     selectAllEntries(): Observable<Entry[]> {
-        return this.entries.pipe(sortByDateDesc);
+        return this.entries.pipe(
+            map(entries => entries.sort(byDateDescending))
+        );
     }
 
     selectTodaysEntries(): Observable<Entry[]> {
         return this.selectAllEntries().pipe(
-            map(entries => entries.filter(entry => isToday(entry.timestamp))),
-            sortByDateDesc
+            map(entries => entries.filter(entry => isToday(entry.timestamp)))
         );
     }
 
@@ -99,6 +105,7 @@ export class EntryService {
     }
 
     private postNewState(newState: Entry[]) {
+        console.log('STATE', newState);
         this.localStorageService.set(key_entries, newState);
         this.entries.next(newState);
     }

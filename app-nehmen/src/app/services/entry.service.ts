@@ -33,7 +33,12 @@ export class EntryService {
     addEntry(entry: EntryAdd) {
         const newState = [
             ...this.entries.value,
-            { ...entry, id: this.nextId(), timestamp: new Date() }
+            {
+                calories: +entry.calories,
+                description: entry.description,
+                id: this.nextId(),
+                timestamp: new Date()
+            }
         ];
         this.postNewState(newState);
     }

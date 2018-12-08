@@ -3,14 +3,18 @@
         <mat-card-content>
             <div class="row">
                 <div class="col">
-                    <mat-form-field class="full-width">
-                        <input
-                            matInput
-                            placeholder="Calories..."
-                            formControlName="calories"
-                        />
+                    <mat-slider
+                        class="full-width"
+                        [max]="1000"
+                        [min]="50"
+                        [step]="50"
+                        [thumbLabel]="true"
+                        [tickInterval]="50"
+                        formControlName="calories"
+                    >
+                    </mat-slider>
                         <mat-error
-                            *ngIf="
+                            *ngIf="entryForm.touched &&
                                 entryForm.controls['calories'].hasError(
                                     'required'
                                 )
@@ -19,7 +23,7 @@
                             Calories <strong>required</strong>
                         </mat-error>
                         <mat-error
-                            *ngIf="
+                            *ngIf="entryForm.touched &&
                                 entryForm.controls['calories'].hasError(
                                     'pattern'
                                 )
@@ -27,8 +31,10 @@
                         >
                             Numbers <strong>only</strong>
                         </mat-error>
-                    </mat-form-field>
+                    <!-- </mat-form-field> -->
                 </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     <mat-form-field class="full-width">
                         <input
@@ -37,7 +43,7 @@
                             formControlName="description"
                         />
                         <mat-error
-                            *ngIf="
+                            *ngIf="entryForm.touched &&
                                 entryForm.controls['description'].hasError(
                                     'required'
                                 )
@@ -50,7 +56,12 @@
             </div>
         </mat-card-content>
         <mat-card-actions>
-            <button mat-raised-button color="primary" type="submit" [disabled]="entryForm.invalid">
+            <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="entryForm.invalid"
+            >
                 <mat-icon>add</mat-icon>
             </button>
         </mat-card-actions>

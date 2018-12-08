@@ -13,7 +13,8 @@ import {
     MatSelectModule,
     MatRadioModule,
     MatDialogModule,
-    MatTableModule
+    MatTableModule,
+    MatSliderModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -61,6 +62,7 @@ import { UniqueIdService } from './services/unique-id.service';
         MatRadioModule,
         MatDialogModule,
         MatTableModule,
+        MatSliderModule,
 
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {

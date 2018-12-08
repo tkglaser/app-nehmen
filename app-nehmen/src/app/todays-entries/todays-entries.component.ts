@@ -26,7 +26,7 @@ export class TodaysEntriesComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.dataSource$ = this.entriesService.selectTodaysEntries();
+        this.dataSource$ = this.entriesService.selectAllEntries();
     }
 
     onRowClick(entry: Entry) {

@@ -15,13 +15,16 @@ import {
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MainNavComponent } from './main-nav/main-nav.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AddEntryComponent } from './add-entry/add-entry.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { EntryService } from './services/entry.service';
+import { ConfigService } from './services/config.service';
+import { LocalStorageService } from './services/local-storage.service';
 
 @NgModule({
     declarations: [
@@ -48,7 +51,7 @@ import { ReactiveFormsModule } from '@angular/forms';
         MatRadioModule,
         ReactiveFormsModule
     ],
-    providers: [],
+    providers: [EntryService, ConfigService, LocalStorageService],
     bootstrap: [AppComponent]
 })
 export class AppModule {}

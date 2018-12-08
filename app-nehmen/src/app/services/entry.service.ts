@@ -13,6 +13,18 @@ function isToday(date: Date): boolean {
     return input === todaysDate;
 }
 
+const sortByDateDesc = map((entries: Entry[]) =>
+    entries.sort((a, b) => {
+        if (a.timestamp < b.timestamp) {
+            return 1;
+        } else if (a.timestamp > b.timestamp) {
+            return -1;
+        } else {
+            return 0;
+        }
+    })
+);
+
 let entryId = 0;
 
 const key = 'calory_entries';
@@ -43,18 +55,25 @@ export class EntryService {
         this.postNewState(newState);
     }
 
+    editEntry(entry: Entry) {
+        const otherEntries = this.entries.value.filter(e => e.id !== entry.id);
+        const newState = [...otherEntries, entry];
+        this.postNewState(newState);
+    }
+
     removeEntry(id: string) {
         const newState = this.entries.value.filter(entry => entry.id !== id);
         this.postNewState(newState);
     }
 
     selectAllEntries(): Observable<Entry[]> {
-        return this.entries.asObservable();
+        return this.entries.pipe(sortByDateDesc);
     }
 
     selectTodaysEntries(): Observable<Entry[]> {
         return this.selectAllEntries().pipe(
-            map(entries => entries.filter(entry => isToday(entry.timestamp)))
+            map(entries => entries.filter(entry => isToday(entry.timestamp))),
+            sortByDateDesc
         );
     }
 

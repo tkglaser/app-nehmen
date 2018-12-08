@@ -11,18 +11,17 @@ import { EntryService } from '../services/entry.service';
 })
 export class AddEntryComponent {
     entryForm = this.fb.group({
-        calories: 0,
-        description: ''
+        calories: ['', [Validators.required, Validators.pattern('^[0-9]*$')]],
+        description: ['', [Validators.required]]
     });
 
-    constructor(
-        private fb: FormBuilder,
-        private entryService: EntryService,
-        private router: Router
-    ) {}
+    constructor(private fb: FormBuilder, private entryService: EntryService) {}
 
     onSubmit() {
         this.entryService.addEntry(this.entryForm.value);
-        this.router.navigate(['dashboard']);
+        this.entryForm.reset(
+            { calories: '', description: '' },
+            { onlySelf: false }
+        );
     }
 }

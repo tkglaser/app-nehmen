@@ -11,7 +11,8 @@ import {
     MatMenuModule,
     MatInputModule,
     MatSelectModule,
-    MatRadioModule
+    MatRadioModule,
+    MatDialogModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -27,13 +28,15 @@ import { ConfigService } from './services/config.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { EditEntryDialogComponent } from './edit-entry-dialog/edit-entry-dialog.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         MainNavComponent,
         DashboardComponent,
-        AddEntryComponent
+        AddEntryComponent,
+        EditEntryDialogComponent
     ],
     imports: [
         BrowserModule,
@@ -51,10 +54,12 @@ import { environment } from '../environments/environment';
         MatInputModule,
         MatSelectModule,
         MatRadioModule,
+        MatDialogModule,
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
     ],
     providers: [EntryService, ConfigService, LocalStorageService],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
+    entryComponents: [EditEntryDialogComponent]
 })
 export class AppModule {}

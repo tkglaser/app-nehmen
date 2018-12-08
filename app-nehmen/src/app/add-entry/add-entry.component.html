@@ -21,10 +21,17 @@
                         >
                             Calories <strong>required</strong>
                         </mat-error>
+                        <mat-error
+                            *ngIf="
+                                entryForm.controls['calories'].hasError(
+                                    'pattern'
+                                )
+                            "
+                        >
+                            Numbers <strong>only</strong>
+                        </mat-error>
                     </mat-form-field>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col">
                     <mat-form-field class="full-width">
                         <input
@@ -46,8 +53,8 @@
             </div>
         </mat-card-content>
         <mat-card-actions>
-            <button mat-raised-button color="primary" type="submit">
-                Submit
+            <button mat-raised-button color="primary" type="submit" [disabled]="entryForm.invalid">
+                <mat-icon>add</mat-icon>
             </button>
         </mat-card-actions>
     </mat-card>

@@ -25,6 +25,8 @@ import { AddEntryComponent } from './add-entry/add-entry.component';
 import { EntryService } from './services/entry.service';
 import { ConfigService } from './services/config.service';
 import { LocalStorageService } from './services/local-storage.service';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
     declarations: [
@@ -49,7 +51,8 @@ import { LocalStorageService } from './services/local-storage.service';
         MatInputModule,
         MatSelectModule,
         MatRadioModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
     ],
     providers: [EntryService, ConfigService, LocalStorageService],
     bootstrap: [AppComponent]

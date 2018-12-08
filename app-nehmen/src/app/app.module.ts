@@ -12,7 +12,8 @@ import {
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTableModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -29,6 +30,8 @@ import { LocalStorageService } from './services/local-storage.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { EditEntryDialogComponent } from './edit-entry-dialog/edit-entry-dialog.component';
+import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
+import { UniqueIdService } from './services/unique-id.service';
 
 @NgModule({
     declarations: [
@@ -36,13 +39,15 @@ import { EditEntryDialogComponent } from './edit-entry-dialog/edit-entry-dialog.
         MainNavComponent,
         DashboardComponent,
         AddEntryComponent,
-        EditEntryDialogComponent
+        EditEntryDialogComponent,
+        TodaysEntriesComponent
     ],
     imports: [
         BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
         LayoutModule,
+
         MatToolbarModule,
         MatButtonModule,
         MatSidenavModule,
@@ -55,11 +60,20 @@ import { EditEntryDialogComponent } from './edit-entry-dialog/edit-entry-dialog.
         MatSelectModule,
         MatRadioModule,
         MatDialogModule,
+        MatTableModule,
+
         ReactiveFormsModule,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: environment.production
+        })
     ],
-    providers: [EntryService, ConfigService, LocalStorageService],
+    providers: [
+        EntryService,
+        ConfigService,
+        LocalStorageService,
+        UniqueIdService
+    ],
     bootstrap: [AppComponent],
-    entryComponents: [EditEntryDialogComponent]
+    entryComponents: [EditEntryDialogComponent, TodaysEntriesComponent]
 })
 export class AppModule {}

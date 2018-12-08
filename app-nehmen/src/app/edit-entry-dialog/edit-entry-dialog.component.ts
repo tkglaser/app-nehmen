@@ -5,6 +5,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Entry } from '../models/entry.model';
 import { EntryService } from '../services/entry.service';
 import { EntryAdd } from '../models/entry-add.model';
+import { EntryUpdate } from '../models/entry-update.model';
 
 @Component({
     templateUrl: './edit-entry-dialog.component.html',
@@ -26,7 +27,15 @@ export class EditEntryDialogComponent {
         this.entryForm.patchValue(data.entry);
     }
 
-    onSubmit() {}
+    onSubmit() {
+        const formValue: EntryUpdate = this.entryForm.value;
+        this.entriesService.editEntry({
+            id: formValue.id,
+            calories: +formValue.calories,
+            description: formValue.description
+        });
+        this.dialogRef.close();
+    }
 
     onClone() {
         const formValue: EntryAdd = this.entryForm.value;

@@ -6,6 +6,8 @@ import { EntryAdd } from '../models/entry-add.model';
 import { Entry } from '../models/entry.model';
 import { ConfigService } from './config.service';
 import { LocalStorageService } from './local-storage.service';
+import { EntryUpdate } from '../models/entry-update.model';
+import { UniqueIdService } from './unique-id.service';
 
 function isToday(date: Date): boolean {
     const todaysDate = new Date().setHours(0, 0, 0, 0);
@@ -25,9 +27,7 @@ const sortByDateDesc = map((entries: Entry[]) =>
     })
 );
 
-let entryId = 0;
-
-const key = 'calory_entries';
+const key_entries = 'calory_entries';
 
 @Injectable({
     providedIn: 'root'
@@ -37,9 +37,10 @@ export class EntryService {
 
     constructor(
         private config: ConfigService,
-        private localStorageService: LocalStorageService
+        private localStorageService: LocalStorageService,
+        private uuid: UniqueIdService
     ) {
-        this.entries.next(localStorageService.get(key, []));
+        this.entries.next(localStorageService.get(key_entries, []));
     }
 
     addEntry(entry: EntryAdd) {
@@ -55,9 +56,15 @@ export class EntryService {
         this.postNewState(newState);
     }
 
-    editEntry(entry: Entry) {
-        const otherEntries = this.entries.value.filter(e => e.id !== entry.id);
-        const newState = [...otherEntries, entry];
+    editEntry(entryUpdate: EntryUpdate) {
+        const origEntry = this.entries.value.find(e => e.id === entryUpdate.id);
+        if (!origEntry) {
+            return;
+        }
+        const otherEntries = this.entries.value.filter(
+            e => e.id !== entryUpdate.id
+        );
+        const newState = [...otherEntries, { ...origEntry, ...entryUpdate }];
         this.postNewState(newState);
     }
 
@@ -92,11 +99,11 @@ export class EntryService {
     }
 
     private postNewState(newState: Entry[]) {
-        this.localStorageService.set(key, newState);
+        this.localStorageService.set(key_entries, newState);
         this.entries.next(newState);
     }
 
     private nextId() {
-        return `newEntry_${entryId++}`;
+        return `newEntry_${this.uuid.newGuid()}`;
     }
 }

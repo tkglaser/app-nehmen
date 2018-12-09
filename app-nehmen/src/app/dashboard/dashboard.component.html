@@ -1,10 +1,8 @@
-<div class="grid-container">
-    <mat-card>
-        <mat-card-title>{{ caloriesLeft$ | async }}</mat-card-title>
-        <mat-card-content>
-            Calories left
-        </mat-card-content>
-    </mat-card>
-    <app-add-entry></app-add-entry>
-    <app-todays-entries></app-todays-entries>
-</div>
+<mat-card>
+    <mat-card-title>{{ caloriesLeft$ | async }}</mat-card-title>
+    <mat-card-content>
+        Calories left
+    </mat-card-content>
+</mat-card>
+<app-add-entry></app-add-entry>
+<app-todays-entries></app-todays-entries>

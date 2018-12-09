@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
@@ -21,6 +21,8 @@ export class AddEntryComponent implements OnInit {
 
     options$: Observable<AutoSuggestion[]>;
 
+    @ViewChild('form') form;
+
     constructor(private fb: FormBuilder, private entryService: EntryService) {}
 
     ngOnInit(): void {
@@ -40,5 +42,6 @@ export class AddEntryComponent implements OnInit {
             { calories: '', description: '' },
             { onlySelf: false }
         );
+        this.form.resetForm();
     }
 }

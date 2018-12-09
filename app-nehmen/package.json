@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start-prod": "http-server -p 8080 -c-1 dist/app-nehmen",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",

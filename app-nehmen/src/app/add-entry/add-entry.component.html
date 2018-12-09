@@ -5,7 +5,7 @@
                 <div class="col">
                     <mat-slider
                         class="full-width"
-                        [max]="1000"
+                        [max]="1500"
                         [min]="50"
                         [step]="50"
                         [thumbLabel]="true"
@@ -13,24 +13,22 @@
                         formControlName="calories"
                     >
                     </mat-slider>
-                        <mat-error
-                            *ngIf="entryForm.touched &&
-                                entryForm.controls['calories'].hasError(
-                                    'required'
-                                )
-                            "
-                        >
-                            Calories <strong>required</strong>
-                        </mat-error>
-                        <mat-error
-                            *ngIf="entryForm.touched &&
-                                entryForm.controls['calories'].hasError(
-                                    'pattern'
-                                )
-                            "
-                        >
-                            Numbers <strong>only</strong>
-                        </mat-error>
+                    <mat-error
+                        *ngIf="
+                            entryForm.touched &&
+                            entryForm.controls['calories'].hasError('required')
+                        "
+                    >
+                        Calories <strong>required</strong>
+                    </mat-error>
+                    <mat-error
+                        *ngIf="
+                            entryForm.touched &&
+                            entryForm.controls['calories'].hasError('pattern')
+                        "
+                    >
+                        Numbers <strong>only</strong>
+                    </mat-error>
                     <!-- </mat-form-field> -->
                 </div>
             </div>
@@ -43,7 +41,8 @@
                             formControlName="description"
                         />
                         <mat-error
-                            *ngIf="entryForm.touched &&
+                            *ngIf="
+                                entryForm.touched &&
                                 entryForm.controls['description'].hasError(
                                     'required'
                                 )
@@ -56,6 +55,9 @@
             </div>
         </mat-card-content>
         <mat-card-actions>
+            <mat-slide-toggle formControlName="exercise"
+                >Exercise</mat-slide-toggle
+            >
             <button
                 mat-raised-button
                 color="primary"

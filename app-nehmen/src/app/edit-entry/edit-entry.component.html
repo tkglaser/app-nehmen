@@ -1,0 +1,103 @@
+<div class="form-container">
+    <form [formGroup]="entryForm" novalidate>
+        <h2>Edit Entry</h2>
+        <mat-card class="shipping-card">
+            <mat-card-content>
+                <div class="row">
+                    <div class="col">
+                        {{ entryForm.get('calories').value }} Calories
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <mat-slider
+                            class="full-width"
+                            [max]="1500"
+                            [min]="50"
+                            [step]="50"
+                            [thumbLabel]="true"
+                            [tickInterval]="50"
+                            formControlName="calories"
+                        >
+                        </mat-slider>
+                        <mat-error
+                            *ngIf="
+                                entryForm.touched &&
+                                entryForm.controls['calories'].hasError(
+                                    'required'
+                                )
+                            "
+                        >
+                            Calories <strong>required</strong>
+                        </mat-error>
+                        <mat-error
+                            *ngIf="
+                                entryForm.touched &&
+                                entryForm.controls['calories'].hasError(
+                                    'pattern'
+                                )
+                            "
+                        >
+                            Numbers <strong>only</strong>
+                        </mat-error>
+                        <!-- </mat-form-field> -->
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <mat-form-field class="full-width">
+                            <input
+                                matInput
+                                placeholder="Descriptions..."
+                                formControlName="description"
+                            />
+                            <mat-error
+                                *ngIf="
+                                    entryForm.touched &&
+                                    entryForm.controls['description'].hasError(
+                                        'required'
+                                    )
+                                "
+                            >
+                                Description <strong>required</strong>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <mat-slide-toggle formControlName="exercise"
+                    >Exercise</mat-slide-toggle
+                >
+            </mat-card-content>
+            <mat-card-actions>
+                <button
+                    mat-flat-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="entryForm.invalid"
+                    (click)="onSubmit()"
+                >
+                    Save
+                </button>
+                <button
+                    mat-flat-button
+                    type="submit"
+                    [disabled]="entryForm.invalid"
+                    (click)="onClone()"
+                >
+                    Clone
+                </button>
+                <button mat-flat-button type="button" (click)="onCancel()">
+                    Cancel
+                </button>
+                <button
+                    mat-flat-button
+                    color="warn"
+                    type="button"
+                    (click)="onDelete()"
+                >
+                    Delete
+                </button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</div>

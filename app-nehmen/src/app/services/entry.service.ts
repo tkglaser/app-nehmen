@@ -48,7 +48,8 @@ export class EntryService {
                 calories: +entry.calories,
                 description: entry.description,
                 id: this.nextId(),
-                timestamp: new Date().getTime()
+                timestamp: new Date().getTime(),
+                exercise: entry.exercise
             }
         ];
         this.postNewState(newState);
@@ -67,7 +68,8 @@ export class EntryService {
             {
                 ...origEntry,
                 calories: +entryUpdate.calories,
-                description: entryUpdate.description
+                description: entryUpdate.description,
+                exercise: entryUpdate.exercise
             }
         ];
         this.postNewState(newState);
@@ -84,9 +86,21 @@ export class EntryService {
         );
     }
 
+    selectEntry(id: string): Observable<Entry> {
+        return this.entries.pipe(
+            map(entries => entries.find(e => e.id === id))
+        );
+    }
+
     selectTodaysEntries(): Observable<Entry[]> {
         return this.selectAllEntries().pipe(
             map(entries => entries.filter(entry => isToday(entry.timestamp)))
+        );
+    }
+
+    selectOlderEntries(): Observable<Entry[]> {
+        return this.selectAllEntries().pipe(
+            map(entries => entries.filter(entry => !isToday(entry.timestamp)))
         );
     }
 
@@ -97,7 +111,7 @@ export class EntryService {
         ).pipe(
             map(([totalCalories, todaysEntries]) => {
                 const usedCalories = todaysEntries
-                    .map(e => e.calories)
+                    .map(e => e.exercise ? -e.calories : e.calories)
                     .reduce((a, b) => a + b, 0);
                 return totalCalories - usedCalories;
             })
@@ -105,12 +119,11 @@ export class EntryService {
     }
 
     private postNewState(newState: Entry[]) {
-        console.log('STATE', newState);
         this.localStorageService.set(key_entries, newState);
         this.entries.next(newState);
     }
 
     private nextId() {
-        return `newEntry_${this.uuid.newGuid()}`;
+        return `local_${this.uuid.newGuid()}`;
     }
 }

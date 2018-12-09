@@ -12,7 +12,8 @@ import { EntryService } from '../services/entry.service';
 export class AddEntryComponent {
     entryForm = this.fb.group({
         calories: ['', [Validators.required, Validators.pattern('^[0-9]*$')]],
-        description: ['', [Validators.required]]
+        description: ['', [Validators.required]],
+        exercise: false
     });
 
     constructor(private fb: FormBuilder, private entryService: EntryService) {}

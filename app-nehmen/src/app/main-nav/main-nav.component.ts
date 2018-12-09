@@ -1,20 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
+import { MatSidenav } from '@angular/material';
 
 @Component({
-  selector: 'app-main-nav',
-  templateUrl: './main-nav.component.html',
-  styleUrls: ['./main-nav.component.scss'],
+    selector: 'app-main-nav',
+    templateUrl: './main-nav.component.html',
+    styleUrls: ['./main-nav.component.scss']
 })
 export class MainNavComponent {
+    isHandset$: Observable<boolean> = this.breakpointObserver
+        .observe(Breakpoints.Handset)
+        .pipe(map(result => result.matches));
 
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
-    .pipe(
-      map(result => result.matches)
-    );
+    @ViewChild('drawer') drawer: MatSidenav;
 
-  constructor(private breakpointObserver: BreakpointObserver) {}
+    constructor(private breakpointObserver: BreakpointObserver) {}
 
+    onNavClick() {
+        if (this.drawer.mode === 'over') {
+            this.drawer.close();
+        }
+    }
 }

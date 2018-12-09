@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { MatDialog } from '@angular/material';
 
 import { EntryService } from '../services/entry.service';
 import { Entry } from '../models/entry.model';
-import { EditEntryDialogComponent } from '../edit-entry-dialog/edit-entry-dialog.component';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-todays-entries',
@@ -18,21 +17,20 @@ export class TodaysEntriesComponent implements OnInit {
         'timestamp',
         'actions'
     ];
-    dataSource$: Observable<Entry[]>;
+    dataSourceToday$: Observable<Entry[]>;
+    dataSourceOlder$: Observable<Entry[]>;
 
     constructor(
         private entriesService: EntryService,
-        private dialog: MatDialog
+        private router: Router
     ) {}
 
     ngOnInit() {
-        this.dataSource$ = this.entriesService.selectAllEntries();
+        this.dataSourceToday$ = this.entriesService.selectTodaysEntries();
+        this.dataSourceOlder$ = this.entriesService.selectOlderEntries();
     }
 
     onRowClick(entry: Entry) {
-        this.dialog.open(EditEntryDialogComponent, {
-            width: '350px',
-            data: { entry }
-        });
+        this.router.navigate(['edit', entry.id]);
     }
 }

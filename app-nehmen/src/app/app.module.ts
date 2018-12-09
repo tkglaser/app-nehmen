@@ -12,9 +12,9 @@ import {
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
-    MatDialogModule,
     MatTableModule,
-    MatSliderModule
+    MatSliderModule,
+    MatSlideToggleModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -30,9 +30,9 @@ import { ConfigService } from './services/config.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { EditEntryDialogComponent } from './edit-entry-dialog/edit-entry-dialog.component';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 import { UniqueIdService } from './services/unique-id.service';
+import { EditEntryComponent } from './edit-entry/edit-entry.component';
 
 @NgModule({
     declarations: [
@@ -40,8 +40,8 @@ import { UniqueIdService } from './services/unique-id.service';
         MainNavComponent,
         DashboardComponent,
         AddEntryComponent,
-        EditEntryDialogComponent,
-        TodaysEntriesComponent
+        TodaysEntriesComponent,
+        EditEntryComponent
     ],
     imports: [
         BrowserModule,
@@ -60,9 +60,9 @@ import { UniqueIdService } from './services/unique-id.service';
         MatInputModule,
         MatSelectModule,
         MatRadioModule,
-        MatDialogModule,
         MatTableModule,
         MatSliderModule,
+        MatSlideToggleModule,
 
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
@@ -76,6 +76,6 @@ import { UniqueIdService } from './services/unique-id.service';
         UniqueIdService
     ],
     bootstrap: [AppComponent],
-    entryComponents: [EditEntryDialogComponent, TodaysEntriesComponent]
+    entryComponents: [TodaysEntriesComponent]
 })
 export class AppModule {}

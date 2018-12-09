@@ -29,7 +29,7 @@
               "src/manifest.json"
             ],
             "styles": [
-              "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
+              "src/material-theme.scss",
               "src/styles.scss"
             ],
             "scripts": []

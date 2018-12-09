@@ -22,6 +22,7 @@ export class AddEntryComponent implements OnInit {
     options$: Observable<AutoSuggestion[]>;
 
     @ViewChild('form') form;
+    @ViewChild('addbtn') addbtn;
 
     constructor(private fb: FormBuilder, private entryService: EntryService) {}
 
@@ -34,6 +35,7 @@ export class AddEntryComponent implements OnInit {
 
     onAutocomplete(event: MatAutocompleteSelectedEvent) {
         this.entryForm.patchValue(event.option.value);
+        this.addbtn.focus();
     }
 
     onSubmit() {

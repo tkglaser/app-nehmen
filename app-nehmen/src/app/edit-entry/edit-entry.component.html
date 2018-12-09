@@ -5,21 +5,9 @@
             <mat-card-content>
                 <div class="row">
                     <div class="col">
-                        {{ entryForm.get('calories').value }} Calories
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <mat-slider
-                            class="full-width"
-                            [max]="1500"
-                            [min]="50"
-                            [step]="50"
-                            [thumbLabel]="true"
-                            [tickInterval]="50"
+                        <app-log-slider
                             formControlName="calories"
-                        >
-                        </mat-slider>
+                        ></app-log-slider>
                         <mat-error
                             *ngIf="
                                 entryForm.touched &&

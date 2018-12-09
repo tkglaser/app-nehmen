@@ -3,16 +3,40 @@
         <mat-card-content>
             <div class="row">
                 <div class="col">
-                    <mat-slider
-                        class="full-width"
-                        [max]="1500"
-                        [min]="50"
-                        [step]="50"
-                        [thumbLabel]="true"
-                        [tickInterval]="50"
-                        formControlName="calories"
-                    >
-                    </mat-slider>
+                    <mat-form-field class="full-width">
+                        <input
+                            matInput
+                            placeholder="Descriptions..."
+                            formControlName="description"
+                            [matAutocomplete]="auto"
+                        />
+                        <mat-autocomplete
+                            #auto="matAutocomplete"
+                            (optionSelected)="onAutocomplete($event)"
+                        >
+                            <mat-option
+                                *ngFor="let option of (options$ | async)"
+                                [value]="option"
+                            >
+                                {{ option.description }} ({{ option.calories }})
+                            </mat-option>
+                        </mat-autocomplete>
+                        <mat-error
+                            *ngIf="
+                                entryForm.touched &&
+                                entryForm.controls['description'].hasError(
+                                    'required'
+                                )
+                            "
+                        >
+                            Description <strong>required</strong>
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <app-log-slider formControlName="calories"></app-log-slider>
                     <mat-error
                         *ngIf="
                             entryForm.touched &&
@@ -30,27 +54,6 @@
                         Numbers <strong>only</strong>
                     </mat-error>
                     <!-- </mat-form-field> -->
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <mat-form-field class="full-width">
-                        <input
-                            matInput
-                            placeholder="Descriptions..."
-                            formControlName="description"
-                        />
-                        <mat-error
-                            *ngIf="
-                                entryForm.touched &&
-                                entryForm.controls['description'].hasError(
-                                    'required'
-                                )
-                            "
-                        >
-                            Description <strong>required</strong>
-                        </mat-error>
-                    </mat-form-field>
                 </div>
             </div>
         </mat-card-content>

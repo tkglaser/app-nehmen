@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import {
     MatToolbarModule,
     MatButtonModule,
@@ -14,11 +14,13 @@ import {
     MatRadioModule,
     MatTableModule,
     MatSliderModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatAutocompleteModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
 import { ReactiveFormsModule } from '@angular/forms';
+import localeEnGb from '@angular/common/locales/en-GB';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -33,6 +35,10 @@ import { environment } from '../environments/environment';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 import { UniqueIdService } from './services/unique-id.service';
 import { EditEntryComponent } from './edit-entry/edit-entry.component';
+import { LogSliderComponent } from './log-slider/log-slider.component';
+import { registerLocaleData } from '@angular/common';
+
+registerLocaleData(localeEnGb, 'en-GB');
 
 @NgModule({
     declarations: [
@@ -41,7 +47,8 @@ import { EditEntryComponent } from './edit-entry/edit-entry.component';
         DashboardComponent,
         AddEntryComponent,
         TodaysEntriesComponent,
-        EditEntryComponent
+        EditEntryComponent,
+        LogSliderComponent
     ],
     imports: [
         BrowserModule,
@@ -63,6 +70,7 @@ import { EditEntryComponent } from './edit-entry/edit-entry.component';
         MatTableModule,
         MatSliderModule,
         MatSlideToggleModule,
+        MatAutocompleteModule,
 
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
@@ -73,7 +81,8 @@ import { EditEntryComponent } from './edit-entry/edit-entry.component';
         EntryService,
         ConfigService,
         LocalStorageService,
-        UniqueIdService
+        UniqueIdService,
+        { provide: LOCALE_ID, useValue: 'en-GB' }
     ],
     bootstrap: [AppComponent],
     entryComponents: [TodaysEntriesComponent]

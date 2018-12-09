@@ -1,22 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { startWith, switchMap } from 'rxjs/operators';
+import { MatAutocompleteSelectedEvent } from '@angular/material';
 
 import { EntryService } from '../services/entry.service';
+import { AutoSuggestion } from '../models/auto-suggestion.model';
 
 @Component({
     selector: 'app-add-entry',
     templateUrl: './add-entry.component.html',
     styleUrls: ['./add-entry.component.scss']
 })
-export class AddEntryComponent {
+export class AddEntryComponent implements OnInit {
     entryForm = this.fb.group({
         calories: ['', [Validators.required, Validators.pattern('^[0-9]*$')]],
         description: ['', [Validators.required]],
         exercise: false
     });
 
+    options$: Observable<AutoSuggestion[]>;
+
     constructor(private fb: FormBuilder, private entryService: EntryService) {}
+
+    ngOnInit(): void {
+        this.options$ = this.entryForm.get('description').valueChanges.pipe(
+            startWith(''),
+            switchMap(value => this.entryService.selectAutoSuggestions(value))
+        );
+    }
+
+    onAutocomplete(event: MatAutocompleteSelectedEvent) {
+        this.entryForm.patchValue(event.option.value);
+    }
 
     onSubmit() {
         this.entryService.addEntry(this.entryForm.value);

@@ -38,6 +38,7 @@ import { EditEntryComponent } from './edit-entry/edit-entry.component';
 import { LogSliderComponent } from './log-slider/log-slider.component';
 import { registerLocaleData } from '@angular/common';
 import { SettingsComponent } from './settings/settings.component';
+import { IndexDbService } from './services/index-db.service';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -84,6 +85,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         ConfigService,
         LocalStorageService,
         UniqueIdService,
+        IndexDbService,
         { provide: LOCALE_ID, useValue: 'en-GB' }
     ],
     bootstrap: [AppComponent],

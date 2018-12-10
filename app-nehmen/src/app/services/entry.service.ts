@@ -9,6 +9,7 @@ import { LocalStorageService } from './local-storage.service';
 import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
+import { IndexDbService } from './index-db.service';
 
 function isToday(date: number): boolean {
     const todaysDate = new Date().setHours(0, 0, 0, 0);
@@ -51,22 +52,28 @@ export class EntryService {
     constructor(
         private config: ConfigService,
         private localStorageService: LocalStorageService,
+        private db: IndexDbService,
         private uuid: UniqueIdService
     ) {
-        this.entries.next(localStorageService.get(key_entries, []));
+        this.init();
+    }
+
+    private async init() {
+        await this.migrate();
+        const entries = await this.db.getAllEntries();
+        this.entries.next(entries);
     }
 
     addEntry(entry: EntryAdd) {
-        const newState = [
-            ...this.entries.value,
-            {
-                calories: +entry.calories,
-                description: entry.description,
-                id: this.nextId(),
-                timestamp: new Date().getTime(),
-                exercise: entry.exercise
-            }
-        ];
+        const newEntry = {
+            calories: +entry.calories,
+            description: entry.description,
+            id: this.nextId(),
+            timestamp: new Date().getTime(),
+            exercise: entry.exercise
+        };
+        const newState = [...this.entries.value, newEntry];
+        this.db.upsertEntry(newEntry);
         this.postNewState(newState);
     }
 
@@ -78,20 +85,20 @@ export class EntryService {
         const otherEntries = this.entries.value.filter(
             e => e.id !== entryUpdate.id
         );
-        const newState = [
-            ...otherEntries,
-            {
-                ...origEntry,
-                calories: +entryUpdate.calories,
-                description: entryUpdate.description,
-                exercise: entryUpdate.exercise
-            }
-        ];
+        const newEntry = {
+            ...origEntry,
+            calories: +entryUpdate.calories,
+            description: entryUpdate.description,
+            exercise: entryUpdate.exercise
+        };
+        const newState = [...otherEntries, newEntry];
+        this.db.upsertEntry(newEntry);
         this.postNewState(newState);
     }
 
     removeEntry(id: string) {
         const newState = this.entries.value.filter(entry => entry.id !== id);
+        this.db.removeEntry(id);
         this.postNewState(newState);
     }
 
@@ -168,11 +175,18 @@ export class EntryService {
     }
 
     private postNewState(newState: Entry[]) {
-        this.localStorageService.set(key_entries, newState);
         this.entries.next(newState);
     }
 
     private nextId() {
         return `local_${this.uuid.newGuid()}`;
+    }
+
+    private async migrate() {
+        const legacy = this.localStorageService.get<Entry[]>(key_entries, []);
+        if (legacy && legacy.length) {
+            legacy.forEach(async entry => await this.db.upsertEntry(entry));
+            this.localStorageService.delete(key_entries);
+        }
     }
 }

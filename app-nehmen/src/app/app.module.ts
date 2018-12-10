@@ -29,7 +29,6 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AddEntryComponent } from './add-entry/add-entry.component';
 import { EntryService } from './services/entry.service';
 import { ConfigService } from './services/config.service';
-import { LocalStorageService } from './services/local-storage.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
@@ -83,7 +82,6 @@ registerLocaleData(localeEnGb, 'en-GB');
     providers: [
         EntryService,
         ConfigService,
-        LocalStorageService,
         UniqueIdService,
         IndexDbService,
         { provide: LOCALE_ID, useValue: 'en-GB' }

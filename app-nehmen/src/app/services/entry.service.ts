@@ -5,7 +5,6 @@ import { map } from 'rxjs/operators';
 import { EntryAdd } from '../models/entry-add.model';
 import { Entry } from '../models/entry.model';
 import { ConfigService } from './config.service';
-import { LocalStorageService } from './local-storage.service';
 import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
@@ -51,7 +50,6 @@ export class EntryService {
 
     constructor(
         private config: ConfigService,
-        private localStorageService: LocalStorageService,
         private db: IndexDbService,
         private uuid: UniqueIdService
     ) {
@@ -59,7 +57,6 @@ export class EntryService {
     }
 
     private async init() {
-        await this.migrate();
         const entries = await this.db.getAllEntries();
         this.entries.next(entries);
     }
@@ -180,13 +177,5 @@ export class EntryService {
 
     private nextId() {
         return `local_${this.uuid.newGuid()}`;
-    }
-
-    private async migrate() {
-        const legacy = this.localStorageService.get<Entry[]>(key_entries, []);
-        if (legacy && legacy.length) {
-            legacy.forEach(async entry => await this.db.upsertEntry(entry));
-            this.localStorageService.delete(key_entries);
-        }
     }
 }

@@ -18,7 +18,6 @@ export class TodaysEntriesComponent implements OnInit {
         'actions'
     ];
     dataSourceToday$: Observable<Entry[]>;
-    dataSourceOlder$: Observable<Entry[]>;
 
     constructor(
         private entriesService: EntryService,
@@ -27,7 +26,6 @@ export class TodaysEntriesComponent implements OnInit {
 
     ngOnInit() {
         this.dataSourceToday$ = this.entriesService.selectTodaysEntries();
-        this.dataSourceOlder$ = this.entriesService.selectOlderEntries();
     }
 
     onRowClick(entry: Entry) {

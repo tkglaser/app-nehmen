@@ -29,37 +29,3 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 </table>
-
-<p>&nbsp;</p>
-
-<h3 class="mat-h3">Older</h3>
-<table mat-table [dataSource]="dataSourceOlder$" class="mat-elevation-z8">
-    <ng-container matColumnDef="calories">
-        <th mat-header-cell *matHeaderCellDef>Cal</th>
-        <td mat-cell *matCellDef="let element">{{ element.exercise ? -element.calories : element.calories }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef>Desc</th>
-        <td mat-cell *matCellDef="let element">{{ element.description }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="timestamp">
-        <th mat-header-cell *matHeaderCellDef>Time</th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.timestamp | date: 'shortDate' }}
-        </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="onRowClick(element)">
-                <mat-icon>edit</mat-icon>
-            </button>
-        </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-</table>

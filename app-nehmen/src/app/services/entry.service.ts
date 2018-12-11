@@ -8,13 +8,8 @@ import { ConfigService } from './config.service';
 import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
-import { IndexDbService } from './index-db.service';
-
-function isToday(date: number): boolean {
-    const todaysDate = new Date().setHours(0, 0, 0, 0);
-    const input = new Date(date).setHours(0, 0, 0, 0);
-    return input === todaysDate;
-}
+import { getAllEntries, upsertEntry, removeEntry } from './index-db.service';
+import { isToday, dayString } from '../utils/date.utils';
 
 function groupKey(e: Entry): string {
     return `${e.description}#${e.calories}`;
@@ -40,8 +35,6 @@ const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
     }
 };
 
-const key_entries = 'calory_entries';
-
 @Injectable({
     providedIn: 'root'
 })
@@ -50,27 +43,28 @@ export class EntryService {
 
     constructor(
         private config: ConfigService,
-        private db: IndexDbService,
         private uuid: UniqueIdService
     ) {
         this.init();
     }
 
     private async init() {
-        const entries = await this.db.getAllEntries();
+        const entries = await getAllEntries();
         this.entries.next(entries);
     }
 
     addEntry(entry: EntryAdd) {
-        const newEntry = {
+        const now = new Date();
+        const newEntry: Entry = {
             calories: +entry.calories,
             description: entry.description,
             id: this.nextId(),
-            timestamp: new Date().getTime(),
+            timestamp: now.getTime(),
+            day: dayString(now),
             exercise: entry.exercise
         };
         const newState = [...this.entries.value, newEntry];
-        this.db.upsertEntry(newEntry);
+        upsertEntry(newEntry);
         this.postNewState(newState);
     }
 
@@ -89,13 +83,13 @@ export class EntryService {
             exercise: entryUpdate.exercise
         };
         const newState = [...otherEntries, newEntry];
-        this.db.upsertEntry(newEntry);
+        upsertEntry(newEntry);
         this.postNewState(newState);
     }
 
     removeEntry(id: string) {
         const newState = this.entries.value.filter(entry => entry.id !== id);
-        this.db.removeEntry(id);
+        removeEntry(id);
         this.postNewState(newState);
     }
 

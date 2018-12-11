@@ -3,5 +3,6 @@ export interface Entry {
     calories: number;
     description: string;
     timestamp: number;
+    day: string;
     exercise: boolean;
 }

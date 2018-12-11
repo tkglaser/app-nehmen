@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { pluck, distinctUntilChanged } from 'rxjs/operators';
 
 import { Config } from '../models/config.model';
-import { IndexDbService } from './index-db.service';
+import { setSetting, getSetting } from './index-db.service';
 
 const key_max_calories = 'max_calories';
 
@@ -13,7 +13,7 @@ const key_max_calories = 'max_calories';
 export class ConfigService {
     private settings = new BehaviorSubject<Config>({ maxCalories: 1700 });
 
-    constructor(private db: IndexDbService) {
+    constructor() {
         this.init();
     }
 
@@ -27,14 +27,11 @@ export class ConfigService {
     setMaxCalories(value: number) {
         const newState = { ...this.settings.value, maxCalories: value };
         this.settings.next(newState);
-        this.db.setSetting(key_max_calories, value);
+        setSetting(key_max_calories, value);
     }
 
     private async init() {
-        const maxCalories = await this.db.getSetting<number>(
-            key_max_calories,
-            1700
-        );
+        const maxCalories = await getSetting<number>(key_max_calories, 1700);
         this.settings.next({ maxCalories });
     }
 }

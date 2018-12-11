@@ -7,7 +7,7 @@ const settings = 'settings';
 
 const caloryEntriesByDayIndex = 'by_day';
 
-const dbPromise = idb.open('app-nehmen-calorie-counter', 2, upgradeDB => {
+const dbPromise = idb.open('app-nehmen-calorie-counter', 3, upgradeDB => {
     if (upgradeDB.oldVersion < 1) {
         upgradeDB.createObjectStore(settings);
         upgradeDB.createObjectStore(caloryEntries, { keyPath: 'id' });
@@ -106,11 +106,11 @@ export async function getEntryByDayOlderThan(
 
 export async function getSetting<T>(key: string, defaultValue: T) {
     const db = await dbPromise;
-    return db
+    const value = await db
         .transaction(settings)
         .objectStore<T>(settings)
-        .get(key)
-        .then(v => v || defaultValue);
+        .get(key);
+    return value || defaultValue;
 }
 
 export async function setSetting(key, val) {

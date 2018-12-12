@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, of, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { EntryAdd } from '../models/entry-add.model';
@@ -8,12 +8,15 @@ import { ConfigService } from './config.service';
 import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
-import { getAllEntries, upsertEntry, removeEntry } from './index-db.service';
-import { isToday, dayString } from '../utils/date.utils';
-
-function groupKey(e: Entry): string {
-    return `${e.description}#${e.calories}`;
-}
+import { dayString } from '../utils/date.utils';
+import {
+    getAllEntries,
+    db,
+    upsertEntry,
+    removeEntry,
+    getAutoSuggestionEntries,
+    getEntryByDay
+} from '../db';
 
 const byDateDescending = (a: Entry, b: Entry) => {
     if (a.timestamp < b.timestamp) {
@@ -41,15 +44,12 @@ const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
 export class EntryService {
     private entries = new BehaviorSubject<Entry[]>([]);
 
-    constructor(
-        private config: ConfigService,
-        private uuid: UniqueIdService
-    ) {
+    constructor(private config: ConfigService, private uuid: UniqueIdService) {
         this.init();
     }
 
     private async init() {
-        const entries = await getAllEntries();
+        const entries = await getEntryByDay(db, new Date());
         this.entries.next(entries);
     }
 
@@ -64,7 +64,7 @@ export class EntryService {
             exercise: entry.exercise
         };
         const newState = [...this.entries.value, newEntry];
-        upsertEntry(newEntry);
+        upsertEntry(db, newEntry);
         this.postNewState(newState);
     }
 
@@ -83,13 +83,13 @@ export class EntryService {
             exercise: entryUpdate.exercise
         };
         const newState = [...otherEntries, newEntry];
-        upsertEntry(newEntry);
+        upsertEntry(db, newEntry);
         this.postNewState(newState);
     }
 
     removeEntry(id: string) {
         const newState = this.entries.value.filter(entry => entry.id !== id);
-        removeEntry(id);
+        removeEntry(db, id);
         this.postNewState(newState);
     }
 
@@ -106,14 +106,9 @@ export class EntryService {
     }
 
     selectTodaysEntries(): Observable<Entry[]> {
+        const today = dayString(new Date());
         return this.selectAllEntries().pipe(
-            map(entries => entries.filter(entry => isToday(entry.timestamp)))
-        );
-    }
-
-    selectOlderEntries(): Observable<Entry[]> {
-        return this.selectAllEntries().pipe(
-            map(entries => entries.filter(entry => !isToday(entry.timestamp)))
+            map(entries => entries.filter(entry => entry.day === today))
         );
     }
 
@@ -132,36 +127,14 @@ export class EntryService {
     }
 
     selectAutoSuggestions(key: string): Observable<AutoSuggestion[]> {
-        if ((key || '').length < 3) {
+        if ((key || '').length < 2) {
             return of([]);
         }
         if (typeof key === 'object') {
             return of([]);
         }
-        const keyLower = key.toLowerCase();
-        return this.selectAllEntries().pipe(
-            map(entries =>
-                entries.filter(e =>
-                    (e.description || '').toLowerCase().includes(keyLower)
-                )
-            ),
-            map(entries =>
-                entries.reduce((group, current) => {
-                    if (!group.has(groupKey(current))) {
-                        group.set(groupKey(current), {
-                            calories: current.calories,
-                            description: current.description,
-                            exercise: current.exercise,
-                            frequency: 1
-                        });
-                    } else {
-                        group.get(groupKey(current)).frequency++;
-                    }
-                    return group;
-                }, new Map<string, AutoSuggestion>())
-            ),
-            map(groupMap => Array.from(groupMap.values())),
-            map(groups => groups.sort(byFrequencyDescending))
+        return from(getAutoSuggestionEntries(db, key)).pipe(
+            map(entries => entries.sort(byFrequencyDescending))
         );
     }
 

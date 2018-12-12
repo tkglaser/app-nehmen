@@ -21,6 +21,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
 import { ReactiveFormsModule } from '@angular/forms';
 import localeEnGb from '@angular/common/locales/en-GB';
+import { registerLocaleData } from '@angular/common';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -29,13 +31,11 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AddEntryComponent } from './add-entry/add-entry.component';
 import { EntryService } from './services/entry.service';
 import { ConfigService } from './services/config.service';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 import { UniqueIdService } from './services/unique-id.service';
 import { EditEntryComponent } from './edit-entry/edit-entry.component';
 import { LogSliderComponent } from './log-slider/log-slider.component';
-import { registerLocaleData } from '@angular/common';
 import { SettingsComponent } from './settings/settings.component';
 
 registerLocaleData(localeEnGb, 'en-GB');

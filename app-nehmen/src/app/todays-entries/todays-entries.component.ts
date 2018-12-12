@@ -12,8 +12,8 @@ import { Router } from '@angular/router';
 })
 export class TodaysEntriesComponent implements OnInit {
     displayedColumns: string[] = [
-        'calories',
         'description',
+        'calories',
         'timestamp',
         'actions'
     ];

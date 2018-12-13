@@ -29,9 +29,9 @@ const byDateDescending = (a: Entry, b: Entry) => {
 };
 
 const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
-    if (a.frequency > b.frequency) {
+    if (a.frequency < b.frequency) {
         return 1;
-    } else if (a.frequency < b.frequency) {
+    } else if (a.frequency > b.frequency) {
         return -1;
     } else {
         return 0;

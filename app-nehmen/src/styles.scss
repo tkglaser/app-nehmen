@@ -12,3 +12,18 @@ body {
 .full-width {
     width: 100%;
 }
+
+table.mat-table[mat-table] {
+    width: 100%;
+
+    td.mat-cell[mat-cell]:not(:first-of-type),
+    th.mat-header-cell[mat-header-cell]:not(:first-of-type) {
+        padding-left: 10px;
+        &.col-action {
+            width: 10px;
+        }
+        &.right {
+            text-align: right;
+        }
+    }
+}

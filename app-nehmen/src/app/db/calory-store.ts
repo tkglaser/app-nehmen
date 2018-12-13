@@ -38,6 +38,17 @@ export async function getEntryByDay(dbPromise: Promise<DB>, date: Date) {
         .getAll(IDBKeyRange.only(dateStr));
 }
 
+export async function hasEntriesOlderThan(dbPromise: Promise<DB>, date: Date) {
+    const dateStr = dayString(date);
+    const db = await dbPromise;
+    const count = await db
+        .transaction(caloryEntriesStore)
+        .objectStore<Entry>(caloryEntriesStore)
+        .index(caloryEntriesByDayIndex)
+        .count(IDBKeyRange.lowerBound(dateStr, true));
+    return count > 0;
+}
+
 export async function getAutoSuggestionEntries(
     dbPromise: Promise<DB>,
     search: string

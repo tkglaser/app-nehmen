@@ -28,24 +28,26 @@ export async function getAllEntries(dbPromise: Promise<DB>) {
         .getAll();
 }
 
-export async function getEntryByDay(dbPromise: Promise<DB>, date: Date) {
-    const dateStr = dayString(date);
+export async function getEntryByDay(dbPromise: Promise<DB>, date: string) {
     const db = await dbPromise;
     return db
         .transaction(caloryEntriesStore)
         .objectStore<Entry>(caloryEntriesStore)
         .index(caloryEntriesByDayIndex)
-        .getAll(IDBKeyRange.only(dateStr));
+        .getAll(IDBKeyRange.only(date));
 }
 
-export async function hasEntriesOlderThan(dbPromise: Promise<DB>, date: Date) {
-    const dateStr = dayString(date);
+export async function hasEntriesOlderThan(
+    dbPromise: Promise<DB>,
+    date: string
+) {
     const db = await dbPromise;
     const count = await db
         .transaction(caloryEntriesStore)
         .objectStore<Entry>(caloryEntriesStore)
         .index(caloryEntriesByDayIndex)
-        .count(IDBKeyRange.lowerBound(dateStr, true));
+        .count(IDBKeyRange.upperBound(date, true));
+    console.log(date, count);
     return count > 0;
 }
 

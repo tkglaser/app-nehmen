@@ -37,6 +37,7 @@ import { UniqueIdService } from './services/unique-id.service';
 import { EditEntryComponent } from './edit-entry/edit-entry.component';
 import { LogSliderComponent } from './log-slider/log-slider.component';
 import { SettingsComponent } from './settings/settings.component';
+import { DayEntriesComponent } from './day-entries/day-entries.component';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -49,7 +50,8 @@ registerLocaleData(localeEnGb, 'en-GB');
         TodaysEntriesComponent,
         EditEntryComponent,
         LogSliderComponent,
-        SettingsComponent
+        SettingsComponent,
+        DayEntriesComponent
     ],
     imports: [
         BrowserModule,

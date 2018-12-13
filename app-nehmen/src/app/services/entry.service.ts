@@ -8,17 +8,17 @@ import { ConfigService } from './config.service';
 import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
-import { dayString } from '../utils/date.utils';
+import { dayString, todayString } from '../utils/date.utils';
 import {
-    getAllEntries,
     db,
     upsertEntry,
     removeEntry,
     getAutoSuggestionEntries,
-    getEntryByDay
+    getEntryByDay,
+    hasEntriesOlderThan
 } from '../db';
 
-const byDateDescending = (a: Entry, b: Entry) => {
+const byTimestampDescending = (a: Entry, b: Entry) => {
     if (a.timestamp < b.timestamp) {
         return 1;
     } else if (a.timestamp > b.timestamp) {
@@ -49,7 +49,7 @@ export class EntryService {
     }
 
     private async init() {
-        const entries = await getEntryByDay(db, new Date());
+        const entries = await getEntryByDay(db, todayString());
         this.entries.next(entries);
     }
 
@@ -95,7 +95,7 @@ export class EntryService {
 
     selectAllEntries(): Observable<Entry[]> {
         return this.entries.pipe(
-            map(entries => entries.sort(byDateDescending))
+            map(entries => entries.sort(byTimestampDescending))
         );
     }
 
@@ -110,6 +110,16 @@ export class EntryService {
         return this.selectAllEntries().pipe(
             map(entries => entries.filter(entry => entry.day === today))
         );
+    }
+
+    selectDayEntries(day: string) {
+        return from(getEntryByDay(db, day)).pipe(
+            map(entries => entries.sort(byTimestampDescending))
+        );
+    }
+
+    hasMoreBeforeThatDay(day: string) {
+        return from(hasEntriesOlderThan(db, day));
     }
 
     selectCaloriesLeft() {

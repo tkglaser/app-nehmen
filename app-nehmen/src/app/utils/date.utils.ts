@@ -9,3 +9,17 @@ export function dayString(date: Date | number): string {
     }
     return moment(internalDate).format('YYYY-MM-DD');
 }
+
+export function todayString() {
+    return moment().format('YYYY-MM-DD');
+}
+
+export function prevDay(day: string): string {
+    const newDay = moment(day).subtract(1, 'day');
+    return newDay.format('YYYY-MM-DD');
+}
+
+export function nextDay(day: string): string {
+    const newDay = moment(day).add(1, 'day');
+    return newDay.format('YYYY-MM-DD');
+}

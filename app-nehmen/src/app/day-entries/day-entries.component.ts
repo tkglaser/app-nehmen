@@ -37,7 +37,7 @@ export class DayEntriesComponent implements OnInit {
 
     onIdChange(id: string) {
         this.currentDay = id === 'today' ? todayString() : id;
-        this.canGoNext = id !== todayString();
+        this.canGoNext = this.currentDay !== todayString();
         this.entryService
             .hasMoreBeforeThatDay(this.currentDay)
             .subscribe(hasPrev => (this.canGoPrev = hasPrev));

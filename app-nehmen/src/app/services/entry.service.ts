@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, of, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, filter, switchMap, switchMapTo } from 'rxjs/operators';
 
 import { EntryAdd } from '../models/entry-add.model';
 import { Entry } from '../models/entry.model';
@@ -14,9 +14,11 @@ import {
     upsertEntry,
     removeEntry,
     getAutoSuggestionEntries,
-    getEntryByDay,
-    hasEntriesOlderThan
+    getEntriesByDay,
+    hasEntriesOlderThan,
+    getEntryById
 } from '../db';
+import { take } from '../db/utils';
 
 const byTimestampDescending = (a: Entry, b: Entry) => {
     if (a.timestamp < b.timestamp) {
@@ -42,15 +44,15 @@ const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
     providedIn: 'root'
 })
 export class EntryService {
-    private entries = new BehaviorSubject<Entry[]>([]);
+    private entriesToday = new BehaviorSubject<Entry[]>([]);
 
     constructor(private config: ConfigService, private uuid: UniqueIdService) {
-        this.init();
+        this.loadToday();
     }
 
-    private async init() {
-        const entries = await getEntryByDay(db, todayString());
-        this.entries.next(entries);
+    private async loadToday() {
+        const entries = await getEntriesByDay(db, todayString());
+        this.entriesToday.next(entries);
     }
 
     addEntry(entry: EntryAdd) {
@@ -63,57 +65,43 @@ export class EntryService {
             day: dayString(now),
             exercise: entry.exercise
         };
-        const newState = [...this.entries.value, newEntry];
         upsertEntry(db, newEntry);
-        this.postNewState(newState);
+        this.loadToday();
     }
 
     editEntry(entryUpdate: EntryUpdate) {
-        const origEntry = this.entries.value.find(e => e.id === entryUpdate.id);
-        if (!origEntry) {
-            return;
-        }
-        const otherEntries = this.entries.value.filter(
-            e => e.id !== entryUpdate.id
-        );
-        const newEntry = {
-            ...origEntry,
-            calories: +entryUpdate.calories,
-            description: entryUpdate.description,
-            exercise: entryUpdate.exercise
-        };
-        const newState = [...otherEntries, newEntry];
-        upsertEntry(db, newEntry);
-        this.postNewState(newState);
+        this.selectEntry(entryUpdate.id)
+            .pipe(
+                filter(entry => !!entry),
+                switchMap(origEntry => {
+                    const newEntry = {
+                        ...origEntry,
+                        calories: +entryUpdate.calories,
+                        description: entryUpdate.description,
+                        exercise: entryUpdate.exercise
+                    };
+                    return from(upsertEntry(db, newEntry));
+                }),
+                switchMapTo(from(this.loadToday()))
+            )
+            .subscribe();
     }
 
     removeEntry(id: string) {
-        const newState = this.entries.value.filter(entry => entry.id !== id);
         removeEntry(db, id);
-        this.postNewState(newState);
-    }
-
-    selectAllEntries(): Observable<Entry[]> {
-        return this.entries.pipe(
-            map(entries => entries.sort(byTimestampDescending))
-        );
+        this.loadToday();
     }
 
     selectEntry(id: string): Observable<Entry> {
-        return this.entries.pipe(
-            map(entries => entries.find(e => e.id === id))
-        );
+        return from(getEntryById(db, id));
     }
 
     selectTodaysEntries(): Observable<Entry[]> {
-        const today = dayString(new Date());
-        return this.selectAllEntries().pipe(
-            map(entries => entries.filter(entry => entry.day === today))
-        );
+        return this.entriesToday;
     }
 
     selectDayEntries(day: string) {
-        return from(getEntryByDay(db, day)).pipe(
+        return from(getEntriesByDay(db, day)).pipe(
             map(entries => entries.sort(byTimestampDescending))
         );
     }
@@ -123,10 +111,7 @@ export class EntryService {
     }
 
     selectCaloriesLeft() {
-        return combineLatest(
-            this.config.maxCalories(),
-            this.selectTodaysEntries()
-        ).pipe(
+        return combineLatest(this.config.maxCalories(), this.entriesToday).pipe(
             map(([totalCalories, todaysEntries]) => {
                 const usedCalories = todaysEntries
                     .map(e => (e.exercise ? -e.calories : e.calories))
@@ -146,10 +131,6 @@ export class EntryService {
         return from(getAutoSuggestionEntries(db, key)).pipe(
             map(entries => entries.sort(byFrequencyDescending))
         );
-    }
-
-    private postNewState(newState: Entry[]) {
-        this.entries.next(newState);
     }
 
     private nextId() {

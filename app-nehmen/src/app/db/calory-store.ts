@@ -28,7 +28,15 @@ export async function getAllEntries(dbPromise: Promise<DB>) {
         .getAll();
 }
 
-export async function getEntryByDay(dbPromise: Promise<DB>, date: string) {
+export async function getEntryById(dbPromise: Promise<DB>, key: string) {
+    const db = await dbPromise;
+    return db
+        .transaction(caloryEntriesStore)
+        .objectStore<Entry>(caloryEntriesStore)
+        .get(key);
+}
+
+export async function getEntriesByDay(dbPromise: Promise<DB>, date: string) {
     const db = await dbPromise;
     return db
         .transaction(caloryEntriesStore)

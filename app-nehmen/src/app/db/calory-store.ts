@@ -73,6 +73,7 @@ export async function getAutoSuggestionEntries(
         .openCursor(null, 'prev');
 
     await take<Entry>(allEntries, 1000, entry => {
+        console.log(entry.timestamp)
         if ((entry.description || '').toLowerCase().includes(searchLower)) {
             if (!result.has(groupKey(entry))) {
                 result.set(groupKey(entry), {

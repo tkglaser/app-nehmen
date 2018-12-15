@@ -4,7 +4,6 @@ import {
     map,
     filter,
     switchMap,
-    switchMapTo,
     shareReplay
 } from 'rxjs/operators';
 
@@ -24,7 +23,6 @@ import {
     hasEntriesOlderThan,
     getEntryById
 } from '../db';
-import { take } from '../db/utils';
 
 const byTimestampDescending = (a: Entry, b: Entry) => {
     if (a.timestamp < b.timestamp) {
@@ -88,7 +86,7 @@ export class EntryService {
                     };
                     return from(upsertEntry(db, newEntry));
                 }),
-                switchMapTo(from(this.loadToday()))
+                switchMap(() => from(this.loadToday()))
             )
             .subscribe();
     }

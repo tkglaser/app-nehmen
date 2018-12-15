@@ -9,15 +9,15 @@ export const settingsStore = 'settings';
 export const caloryEntriesByDayIndex = 'by_day';
 export const caloryEntriesByTimestampIndex = 'by_timestamp_desc';
 
-export const db = idb.open('app-nehmen-calorie-counter', 3, upgradeDB => {
+export const db = idb.open('app-nehmen-calorie-counter', 4, upgradeDB => {
     if (upgradeDB.oldVersion < 1) {
         upgradeV1(upgradeDB);
     }
     if (upgradeDB.oldVersion < 2) {
         upgradeV2(upgradeDB);
     }
-    if (upgradeDB.oldVersion < 3) {
-        upgradeV3(upgradeDB);
+    if (upgradeDB.oldVersion < 4) {
+        upgradeV4(upgradeDB);
     }
 });
 
@@ -38,8 +38,14 @@ async function upgradeV2(upgradeDB: UpgradeDB) {
     entryStore.createIndex(caloryEntriesByDayIndex, 'day');
 }
 
-function upgradeV3(upgradeDB: UpgradeDB) {
-    upgradeDB.transaction
-        .objectStore(caloryEntriesStore)
-        .createIndex('by_timestamp_desc', 'timestamp');
+function upgradeV4(upgradeDB: UpgradeDB) {
+    if (
+        !upgradeDB.transaction
+            .objectStore(caloryEntriesStore)
+            .indexNames.contains(caloryEntriesByTimestampIndex)
+    ) {
+        upgradeDB.transaction
+            .objectStore(caloryEntriesStore)
+            .createIndex(caloryEntriesByTimestampIndex, 'timestamp');
+    }
 }

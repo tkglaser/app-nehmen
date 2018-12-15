@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest, of, from } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
 import {
-    map,
-    filter,
-    switchMap,
-    shareReplay
-} from 'rxjs/operators';
+    BehaviorSubject,
+    Observable,
+    combineLatest,
+    of,
+    from,
+    Subscription
+} from 'rxjs';
+import { map, filter, switchMap, shareReplay } from 'rxjs/operators';
 
 import { EntryAdd } from '../models/entry-add.model';
 import { Entry } from '../models/entry.model';
@@ -23,6 +25,7 @@ import {
     hasEntriesOlderThan,
     getEntryById
 } from '../db';
+import { ClockService } from './clock.service';
 
 const byTimestampDescending = (a: Entry, b: Entry) => {
     if (a.timestamp < b.timestamp) {
@@ -47,16 +50,35 @@ const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
 @Injectable({
     providedIn: 'root'
 })
-export class EntryService {
+export class EntryService implements OnDestroy {
     private entriesToday = new BehaviorSubject<Entry[]>([]);
+    private reloader: Subscription;
 
-    constructor(private config: ConfigService, private uuid: UniqueIdService) {
-        this.loadToday();
+    constructor(
+        private config: ConfigService,
+        private uuid: UniqueIdService,
+        private clockService: ClockService
+    ) {
+        this.init();
+    }
+
+    private init() {
+        this.reloader = this.clockService
+            .today()
+            .pipe(
+                switchMap(today => from(getEntriesByDay(db, today))),
+                map(entries => entries.sort(byTimestampDescending))
+            )
+            .subscribe(entries => this.entriesToday.next(entries));
+    }
+
+    ngOnDestroy(): void {
+        this.reloader.unsubscribe();
     }
 
     private async loadToday() {
         const entries = await getEntriesByDay(db, todayString());
-        this.entriesToday.next(entries);
+        this.entriesToday.next(entries.sort(byTimestampDescending));
     }
 
     addEntry(entry: EntryAdd) {

@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, LOCALE_ID } from '@angular/core';
+import { NgModule, LOCALE_ID, ErrorHandler } from '@angular/core';
 import {
     MatToolbarModule,
     MatButtonModule,
@@ -15,7 +15,8 @@ import {
     MatTableModule,
     MatSliderModule,
     MatSlideToggleModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatSnackBarModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -39,6 +40,9 @@ import { LogSliderComponent } from './log-slider/log-slider.component';
 import { SettingsComponent } from './settings/settings.component';
 import { DayEntriesComponent } from './day-entries/day-entries.component';
 import { EntriesTableComponent } from './entries-table/entries-table.component';
+import { ClockService } from './services/clock.service';
+import { LoggingService } from './services/logging.service';
+import { GlobalErrorHandler } from './services/global-error.handler';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -76,6 +80,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         MatSliderModule,
         MatSlideToggleModule,
         MatAutocompleteModule,
+        MatSnackBarModule,
 
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
@@ -86,6 +91,12 @@ registerLocaleData(localeEnGb, 'en-GB');
         EntryService,
         ConfigService,
         UniqueIdService,
+        ClockService,
+        LoggingService,
+        {
+            provide: ErrorHandler,
+            useClass: GlobalErrorHandler
+        },
         { provide: LOCALE_ID, useValue: 'en-GB' }
     ],
     bootstrap: [AppComponent],

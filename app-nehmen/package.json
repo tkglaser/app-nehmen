@@ -6,6 +6,8 @@
     "start": "ng serve",
     "start-prod": "npm run build && http-server -p 8080 -c-1 dist/app-nehmen",
     "build": "ng build --prod",
+    "build-gh": "ng build --prod --base-href \"https://www.tkglaser.net/app-nehmen/\"",
+    "deploy-gh":"node_modules/.bin/ngh",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

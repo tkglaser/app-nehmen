@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 
 import { EntryService } from '../services/entry.service';
 import { Entry } from '../models/entry.model';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-todays-entries',
@@ -21,7 +20,6 @@ export class TodaysEntriesComponent implements OnInit {
 
     constructor(
         private entriesService: EntryService,
-        private router: Router
     ) {}
 
     ngOnInit() {

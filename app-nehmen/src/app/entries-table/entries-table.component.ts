@@ -11,7 +11,7 @@ import { Entry } from '../models/entry.model';
 })
 export class EntriesTableComponent {
     @Input()
-    dataSource: Entry[] | Observable<Entry[]>;
+    dataSource: Observable<Entry[]>;
 
     displayedColumns: string[] = [
         'description',

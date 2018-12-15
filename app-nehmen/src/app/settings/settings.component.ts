@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { ConfigService } from '../services/config.service';
+import { SelectOption } from '../models/select-option.model';
+import { DayOfWeek } from '../models/day-of-week.model';
 
 @Component({
     selector: 'app-settings',
@@ -12,8 +14,22 @@ import { ConfigService } from '../services/config.service';
 })
 export class SettingsComponent implements OnInit, OnDestroy {
     configForm = this.fb.group({
-        maxCalories: ['', [Validators.required, Validators.pattern('^[0-9]*$')]]
+        maxCalories: [
+            '',
+            [Validators.required, Validators.pattern('^[0-9]*$')]
+        ],
+        cheatDay: ''
     });
+    cheatDayOptions: SelectOption<DayOfWeek | 'none'>[] = [
+        { id: 'none', text: 'No Cheat Day' },
+        { id: 'mon', text: 'Monday' },
+        { id: 'tue', text: 'Tuesday' },
+        { id: 'wed', text: 'Wednesday' },
+        { id: 'thu', text: 'Thursday' },
+        { id: 'fri', text: 'Friday' },
+        { id: 'sat', text: 'Saturday' },
+        { id: 'sun', text: 'Sunday' }
+    ];
     subscriptions = new Subscription();
 
     constructor(
@@ -25,10 +41,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.subscriptions.add(
             this.configService
-                .maxCalories()
-                .subscribe(maxCal =>
-                    this.configForm.patchValue({ maxCalories: maxCal })
-                )
+                .getSettings()
+                .subscribe(value => this.configForm.patchValue(value))
         );
     }
 
@@ -38,7 +52,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     onSubmit() {
         const formValue = this.configForm.value;
-        this.configService.setMaxCalories(formValue.maxCalories);
+        this.configService.setSettings(formValue);
         this.router.navigate(['dashboard']);
     }
 }

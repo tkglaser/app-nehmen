@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { DayOfWeek } from '../models/day-of-week.model';
 
 export function dayString(date: Date | number): string {
     let internalDate: Date;
@@ -22,4 +23,17 @@ export function prevDay(day: string): string {
 export function nextDay(day: string): string {
     const newDay = moment(day).add(1, 'day');
     return newDay.format('YYYY-MM-DD');
+}
+
+export function isDayOfWeekToday(dayOfWeek: DayOfWeek) {
+    const today = moment().isoWeekday();
+    return (
+        (today === 1 && dayOfWeek === 'mon') ||
+        (today === 2 && dayOfWeek === 'tue') ||
+        (today === 3 && dayOfWeek === 'wed') ||
+        (today === 4 && dayOfWeek === 'thu') ||
+        (today === 5 && dayOfWeek === 'fri') ||
+        (today === 6 && dayOfWeek === 'sat') ||
+        (today === 7 && dayOfWeek === 'sun')
+    );
 }

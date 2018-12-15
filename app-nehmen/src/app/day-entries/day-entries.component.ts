@@ -13,12 +13,6 @@ import { todayString, nextDay, prevDay } from '../utils/date.utils';
     styleUrls: ['./day-entries.component.scss']
 })
 export class DayEntriesComponent implements OnInit {
-    displayedColumns: string[] = [
-        'description',
-        'calories',
-        'timestamp',
-        'actions'
-    ];
     dataSource$: Observable<Entry[]>;
     currentDay: string;
     canGoNext = true;
@@ -42,10 +36,6 @@ export class DayEntriesComponent implements OnInit {
             .hasMoreBeforeThatDay(this.currentDay)
             .subscribe(hasPrev => (this.canGoPrev = hasPrev));
         this.dataSource$ = this.entryService.selectDayEntries(this.currentDay);
-    }
-
-    onRowClick(entry: Entry) {
-        this.router.navigate(['edit', entry.id]);
     }
 
     onGoPrev() {

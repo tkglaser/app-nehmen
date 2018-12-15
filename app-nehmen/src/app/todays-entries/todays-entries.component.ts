@@ -17,7 +17,7 @@ export class TodaysEntriesComponent implements OnInit {
         'timestamp',
         'actions'
     ];
-    dataSourceToday$: Observable<Entry[]>;
+    dataSource$: Observable<Entry[]>;
 
     constructor(
         private entriesService: EntryService,
@@ -25,10 +25,6 @@ export class TodaysEntriesComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.dataSourceToday$ = this.entriesService.selectTodaysEntries();
-    }
-
-    onRowClick(entry: Entry) {
-        this.router.navigate(['edit', entry.id]);
+        this.dataSource$ = this.entriesService.selectTodaysEntries();
     }
 }

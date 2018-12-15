@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, of, from } from 'rxjs';
-import { map, filter, switchMap, switchMapTo } from 'rxjs/operators';
+import {
+    map,
+    filter,
+    switchMap,
+    switchMapTo,
+    shareReplay
+} from 'rxjs/operators';
 
 import { EntryAdd } from '../models/entry-add.model';
 import { Entry } from '../models/entry.model';
@@ -102,7 +108,8 @@ export class EntryService {
 
     selectDayEntries(day: string) {
         return from(getEntriesByDay(db, day)).pipe(
-            map(entries => entries.sort(byTimestampDescending))
+            map(entries => entries.sort(byTimestampDescending)),
+            shareReplay(1)
         );
     }
 

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 import { Entry } from '../models/entry.model';
 
@@ -11,7 +11,7 @@ import { Entry } from '../models/entry.model';
 })
 export class EntriesTableComponent {
     @Input()
-    dataSource: Observable<Entry[]>;
+    dataSource: Observable<Entry[]> = new BehaviorSubject<Entry[]>([]);
 
     displayedColumns: string[] = [
         'description',

@@ -1,9 +1,12 @@
 import { DB, Cursor } from 'idb';
 
 import { Entry } from '../models/entry.model';
-import { caloryEntriesStore, caloryEntriesByDayIndex } from './index-db';
-import { dayString } from '../utils/date.utils';
-import { forEach } from './utils';
+import {
+    caloryEntriesStore,
+    caloryEntriesByDayIndex,
+    caloryEntriesByTimestampIndex
+} from './index-db';
+import { forEach, take } from './utils';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
 
 export async function upsertEntry(dbPromise: Promise<DB>, entry: Entry) {
@@ -18,14 +21,6 @@ export async function removeEntry(dbPromise: Promise<DB>, key: string) {
     const tx = db.transaction(caloryEntriesStore, 'readwrite');
     tx.objectStore<Entry>(caloryEntriesStore).delete(key);
     return tx.complete;
-}
-
-export async function getAllEntries(dbPromise: Promise<DB>) {
-    const db = await dbPromise;
-    return db
-        .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
-        .getAll();
 }
 
 export async function getEntryById(dbPromise: Promise<DB>, key: string) {
@@ -55,7 +50,6 @@ export async function hasEntriesOlderThan(
         .objectStore<Entry>(caloryEntriesStore)
         .index(caloryEntriesByDayIndex)
         .count(IDBKeyRange.upperBound(date, true));
-    console.log(date, count);
     return count > 0;
 }
 
@@ -75,9 +69,10 @@ export async function getAutoSuggestionEntries(
     const allEntries = await db
         .transaction(caloryEntriesStore)
         .objectStore<Entry>(caloryEntriesStore)
-        .openCursor();
+        .index(caloryEntriesByTimestampIndex)
+        .openCursor(null, 'prev');
 
-    await forEach<Entry>(allEntries, entry => {
+    await take<Entry>(allEntries, 1000, entry => {
         if ((entry.description || '').toLowerCase().includes(searchLower)) {
             if (!result.has(groupKey(entry))) {
                 result.set(groupKey(entry), {

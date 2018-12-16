@@ -30,19 +30,23 @@ import { AppComponent } from './app.component';
 import { MainNavComponent } from './main-nav/main-nav.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AddEntryComponent } from './add-entry/add-entry.component';
-import { EntryService } from './services/entry.service';
-import { ConfigService } from './services/config.service';
 import { environment } from '../environments/environment';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
-import { UniqueIdService } from './services/unique-id.service';
 import { EditEntryComponent } from './edit-entry/edit-entry.component';
 import { LogSliderComponent } from './log-slider/log-slider.component';
 import { SettingsComponent } from './settings/settings.component';
 import { DayEntriesComponent } from './day-entries/day-entries.component';
 import { EntriesTableComponent } from './entries-table/entries-table.component';
-import { ClockService } from './services/clock.service';
-import { LoggingService } from './services/logging.service';
 import { GlobalErrorHandler } from './services/global-error.handler';
+import {
+    EntryService,
+    ConfigService,
+    ClockService,
+    UniqueIdService,
+    LoggingService,
+    DropboxService
+} from './services';
+import { AuthComponent } from './auth/auth.component';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -57,7 +61,8 @@ registerLocaleData(localeEnGb, 'en-GB');
         LogSliderComponent,
         SettingsComponent,
         DayEntriesComponent,
-        EntriesTableComponent
+        EntriesTableComponent,
+        AuthComponent
     ],
     imports: [
         BrowserModule,
@@ -93,6 +98,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         UniqueIdService,
         ClockService,
         LoggingService,
+        DropboxService,
         {
             provide: ErrorHandler,
             useClass: GlobalErrorHandler

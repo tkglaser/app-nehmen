@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { EntryService } from '../services/entry.service';
 import { Entry } from '../models/entry.model';
-import { ConfigService } from '../services/config.service';
+import { EntryService, ConfigService, DropboxService } from '../services';
 
 @Component({
     selector: 'app-dashboard',
@@ -17,12 +16,14 @@ export class DashboardComponent implements OnInit {
 
     constructor(
         private entriesService: EntryService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private dropboxService: DropboxService
     ) {}
 
     ngOnInit(): void {
         this.caloriesLeft$ = this.entriesService.selectCaloriesLeft();
         this.entries$ = this.entriesService.selectTodaysEntries();
         this.isCheatDay$ = this.configService.isCheatDay();
+        // this.dropboxService.login();
     }
 }

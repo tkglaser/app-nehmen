@@ -4,6 +4,27 @@
         <mat-card-content>
             <div class="row">
                 <div class="col">
+                    <mat-form-field class="full-width">
+                        <input
+                            matInput
+                            placeholder="Description..."
+                            formControlName="description"
+                        />
+                        <mat-error
+                            *ngIf="
+                                entryForm.touched &&
+                                entryForm.controls['description'].hasError(
+                                    'required'
+                                )
+                            "
+                        >
+                            Description <strong>required</strong>
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
                     <app-log-slider
                         formControlName="calories"
                     ></app-log-slider>
@@ -28,27 +49,6 @@
                         Numbers <strong>only</strong>
                     </mat-error>
                     <!-- </mat-form-field> -->
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <mat-form-field class="full-width">
-                        <input
-                            matInput
-                            placeholder="Descriptions..."
-                            formControlName="description"
-                        />
-                        <mat-error
-                            *ngIf="
-                                entryForm.touched &&
-                                entryForm.controls['description'].hasError(
-                                    'required'
-                                )
-                            "
-                        >
-                            Description <strong>required</strong>
-                        </mat-error>
-                    </mat-form-field>
                 </div>
             </div>
             <mat-slide-toggle formControlName="exercise"

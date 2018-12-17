@@ -15,12 +15,12 @@ export class DropboxService {
     constructor(private router: Router, private location: Location) {}
 
     login() {
-        alert(location.origin + this.location.prepareExternalUrl('/auth'));
+        const returnUrl = location.origin + this.location.prepareExternalUrl('/auth');
         const dbx = new Dropbox({
             clientId,
             fetch
         } as any);
-        const authUrl = dbx.getAuthenticationUrl('http://localhost:4200/auth');
+        const authUrl = dbx.getAuthenticationUrl(returnUrl);
         window.location.href = authUrl;
     }
 

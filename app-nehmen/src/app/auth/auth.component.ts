@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { DropboxService } from '../services';
 
@@ -10,6 +10,7 @@ import { DropboxService } from '../services';
 })
 export class AuthComponent implements OnInit {
     constructor(
+        private router: Router,
         private route: ActivatedRoute,
         private dropboxService: DropboxService
     ) {
@@ -21,6 +22,7 @@ export class AuthComponent implements OnInit {
     onFragmentReceived(fragment: string) {
         const kvps = (fragment || '').split('&').map(kvp => kvp.split('='));
         const accesstoken = kvps.find(kvp => kvp[0] === 'access_token')[1];
-        this.dropboxService.doStuff(accesstoken);
+        this.dropboxService.setToken(accesstoken);
+        this.router.navigate(['/dropbox']);
     }
 }

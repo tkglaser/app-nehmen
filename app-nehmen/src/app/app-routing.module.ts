@@ -6,6 +6,7 @@ import { EditEntryComponent } from './edit-entry/edit-entry.component';
 import { SettingsComponent } from './settings/settings.component';
 import { DayEntriesComponent } from './day-entries/day-entries.component';
 import { AuthComponent } from './auth/auth.component';
+import { DropboxTestComponent } from './dropbox-test/dropbox-test.component';
 
 const routes: Routes = [
     {
@@ -16,6 +17,7 @@ const routes: Routes = [
         path: 'settings',
         component: SettingsComponent
     },
+    { path: 'dropbox', component: DropboxTestComponent },
     { path: 'edit/:id', component: EditEntryComponent },
     { path: 'day/:id', component: DayEntriesComponent },
     { path: 'auth', component: AuthComponent, pathMatch: 'prefix' },

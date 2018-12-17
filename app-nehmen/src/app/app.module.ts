@@ -47,6 +47,7 @@ import {
     DropboxService
 } from './services';
 import { AuthComponent } from './auth/auth.component';
+import { DropboxTestComponent } from './dropbox-test/dropbox-test.component';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -62,7 +63,8 @@ registerLocaleData(localeEnGb, 'en-GB');
         SettingsComponent,
         DayEntriesComponent,
         EntriesTableComponent,
-        AuthComponent
+        AuthComponent,
+        DropboxTestComponent
     ],
     imports: [
         BrowserModule,

@@ -2,22 +2,42 @@ import { Injectable } from '@angular/core';
 import { Dropbox } from 'dropbox';
 import * as fetch from 'isomorphic-fetch';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
+
+const clientId = '988bai9urdqlw6l';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DropboxService {
-    accesstoken: string;
+    private accessToken: string;
 
-    constructor(private router: Router) {}
+    constructor(private router: Router, private location: Location) {}
 
     login() {
+        alert(location.origin + this.location.prepareExternalUrl('/auth'));
         const dbx = new Dropbox({
-            clientId: '988bai9urdqlw6l',
+            clientId,
             fetch
         } as any);
         const authUrl = dbx.getAuthenticationUrl('http://localhost:4200/auth');
         window.location.href = authUrl;
+    }
+
+    isLoggedIn() {
+        return !!this.accessToken;
+    }
+
+    setToken(accesstoken: string) {
+        this.accessToken = accesstoken;
+    }
+
+    async getList() {
+        const dbx = new Dropbox({
+            accessToken: this.accessToken,
+            fetch
+        } as any);
+        return dbx.filesListFolder({ path: '' });
     }
 
     async doStuff(accessToken: string) {

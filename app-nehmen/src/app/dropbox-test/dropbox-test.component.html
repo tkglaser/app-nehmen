@@ -1,0 +1,6 @@
+<ng-container *ngIf="!loggedIn">
+    <button (click)="onLogin()">Login</button>
+</ng-container>
+<ng-container>
+    <pre>{{folders | json}}</pre>
+</ng-container>

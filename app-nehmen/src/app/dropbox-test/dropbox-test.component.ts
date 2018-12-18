@@ -10,6 +10,7 @@ import { DropboxService } from '../services';
 export class DropboxTestComponent implements OnInit {
     loggedIn = false;
     folders: any;
+    latest: any;
 
     constructor(private dropboxService: DropboxService) {
         console.log(location);
@@ -21,6 +22,10 @@ export class DropboxTestComponent implements OnInit {
         if (this.loggedIn) {
             this.folders = await this.dropboxService.getList();
         }
+    }
+
+    async onLatest() {
+        this.latest = await this.dropboxService.getLatest();
     }
 
     onLogin() {

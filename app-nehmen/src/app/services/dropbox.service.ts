@@ -11,11 +11,13 @@ const clientId = '988bai9urdqlw6l';
 })
 export class DropboxService {
     private accessToken: string;
+    private latestCursor: DropboxTypes.files.ListFolderCursor;
 
     constructor(private router: Router, private location: Location) {}
 
     login() {
-        const returnUrl = location.origin + this.location.prepareExternalUrl('/auth');
+        const returnUrl =
+            location.origin + this.location.prepareExternalUrl('/auth');
         const dbx = new Dropbox({
             clientId,
             fetch
@@ -32,12 +34,24 @@ export class DropboxService {
         this.accessToken = accesstoken;
     }
 
-    async getList() {
-        const dbx = new Dropbox({
-            accessToken: this.accessToken,
-            fetch
-        } as any);
-        return dbx.filesListFolder({ path: '' });
+    getList() {
+        return this.dbx().filesListFolder({ path: '' });
+    }
+
+    async getLatest() {
+        if (!this.latestCursor) {
+            const cursor = await this.dbx().filesListFolderGetLatestCursor({
+                path: '',
+                include_deleted: true,
+                include_media_info: true
+            });
+            this.latestCursor = cursor.cursor;
+        }
+        const result = await this.dbx().filesListFolderContinue({
+            cursor: this.latestCursor
+        });
+        this.latestCursor = result.cursor; // move to next, do not do if you need to repeat the call
+        return result;
     }
 
     async doStuff(accessToken: string) {
@@ -46,8 +60,19 @@ export class DropboxService {
         console.log(list);
         const result = await dbx.filesUpload({
             path: '/test-file.json',
-            contents: JSON.stringify({ test: 'value' })
+            contents: JSON.stringify({ test: 'value' }),
         });
         console.log(result);
+    }
+
+    async copyAllToCloud() {
+
+    }
+
+    private dbx() {
+        return new Dropbox({
+            accessToken: this.accessToken,
+            fetch
+        } as any);
     }
 }

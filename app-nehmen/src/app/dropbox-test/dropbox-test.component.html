@@ -1,6 +1,8 @@
 <ng-container *ngIf="!loggedIn">
     <button (click)="onLogin()">Login</button>
 </ng-container>
-<ng-container>
-    <pre>{{folders | json}}</pre>
+<ng-container *ngIf="loggedIn">
+    <pre>{{ folders | json }}</pre>
+    <button (click)="onLatest()">Get Latest</button>
+    <pre>{{ latest | json }}</pre>
 </ng-container>

@@ -1,4 +1,4 @@
-import { DB, Cursor } from 'idb';
+import { DB } from 'idb';
 
 import { Entry } from '../models/entry.model';
 import {
@@ -6,8 +6,9 @@ import {
     caloryEntriesByDayIndex,
     caloryEntriesByTimestampIndex
 } from './index-db';
-import { forEach, take } from './utils';
+import { forEach, take, skip } from './utils';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
+import { Pager } from '../models/pager.model';
 
 export async function upsertEntry(dbPromise: Promise<DB>, entry: Entry) {
     const db = await dbPromise;
@@ -87,4 +88,27 @@ export async function getAutoSuggestionEntries(
         }
     });
     return Array.from(result.values());
+}
+
+export async function getEntriesPage(
+    dbPromise: Promise<DB>,
+    pageSize: number,
+    page: number
+): Promise<Pager<Entry>> {
+    const db = await dbPromise;
+
+    const entries = await db
+        .transaction(caloryEntriesStore)
+        .objectStore<Entry>(caloryEntriesStore)
+        .index(caloryEntriesByTimestampIndex)
+        .openCursor(null, 'prev');
+
+    const result: Entry[] = [];
+
+    await skip<Entry>(entries, pageSize * page);
+    await take<Entry>(entries, pageSize + 1, entry => result.push(entry));
+    return {
+        items: result.slice(0, pageSize),
+        hasMore: result.length > pageSize
+    };
 }

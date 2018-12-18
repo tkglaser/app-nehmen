@@ -28,9 +28,9 @@ import {
 import { ClockService } from './clock.service';
 
 const byTimestampDescending = (a: Entry, b: Entry) => {
-    if (a.timestamp < b.timestamp) {
+    if (a.created < b.created) {
         return 1;
-    } else if (a.timestamp > b.timestamp) {
+    } else if (a.created > b.created) {
         return -1;
     } else {
         return 0;
@@ -87,7 +87,8 @@ export class EntryService implements OnDestroy {
             calories: +entry.calories,
             description: entry.description,
             id: this.nextId(),
-            timestamp: now.getTime(),
+            created: now.getTime(),
+            modified: now.getTime(),
             day: dayString(now),
             exercise: entry.exercise
         };
@@ -100,8 +101,9 @@ export class EntryService implements OnDestroy {
             .pipe(
                 filter(entry => !!entry),
                 switchMap(origEntry => {
-                    const newEntry = {
+                    const newEntry: Entry = {
                         ...origEntry,
+                        modified: new Date().getTime(),
                         calories: +entryUpdate.calories,
                         description: entryUpdate.description,
                         exercise: entryUpdate.exercise
@@ -161,6 +163,6 @@ export class EntryService implements OnDestroy {
     }
 
     private nextId() {
-        return `local_${this.uuid.newGuid()}`;
+        return `${new Date().getTime()}${this.uuid.newGuid()}`;
     }
 }

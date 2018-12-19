@@ -10,7 +10,7 @@ export const settingsStore = 'settings';
 export const caloryEntriesByDayIndex = 'by_day';
 export const caloryEntriesByTimestampIndex = 'by_modified';
 
-export const db = idb.open('app-nehmen-calorie-counter', 5, upgradeDB => {
+export const db = idb.open('app-nehmen-calorie-counter', 6, upgradeDB => {
     if (upgradeDB.oldVersion < 1) {
         upgradeV1(upgradeDB);
     }

@@ -8,7 +8,7 @@ export const caloryEntriesStore = 'calory_entries';
 export const settingsStore = 'settings';
 
 export const caloryEntriesByDayIndex = 'by_day';
-export const caloryEntriesByTimestampIndex = 'by_timestamp_desc';
+export const caloryEntriesByTimestampIndex = 'by_modified';
 
 export const db = idb.open('app-nehmen-calorie-counter', 5, upgradeDB => {
     if (upgradeDB.oldVersion < 1) {
@@ -17,11 +17,11 @@ export const db = idb.open('app-nehmen-calorie-counter', 5, upgradeDB => {
     if (upgradeDB.oldVersion < 2) {
         upgradeV2(upgradeDB);
     }
-    if (upgradeDB.oldVersion < 4) {
-        upgradeV4(upgradeDB);
-    }
     if (upgradeDB.oldVersion < 5) {
         upgradeV5(upgradeDB);
+    }
+    if (upgradeDB.oldVersion < 6) {
+        upgradeV6(upgradeDB);
     }
 });
 
@@ -42,18 +42,6 @@ async function upgradeV2(upgradeDB: UpgradeDB) {
     entryStore.createIndex(caloryEntriesByDayIndex, 'day');
 }
 
-function upgradeV4(upgradeDB: UpgradeDB) {
-    if (
-        !upgradeDB.transaction
-            .objectStore(caloryEntriesStore)
-            .indexNames.contains(caloryEntriesByTimestampIndex)
-    ) {
-        upgradeDB.transaction
-            .objectStore(caloryEntriesStore)
-            .createIndex(caloryEntriesByTimestampIndex, 'timestamp');
-    }
-}
-
 async function upgradeV5(upgradeDB: UpgradeDB) {
     const entryStore = upgradeDB.transaction.objectStore<Entry>(
         caloryEntriesStore
@@ -70,4 +58,19 @@ async function upgradeV5(upgradeDB: UpgradeDB) {
             modified: (entry as any).timestamp
         });
     }
+}
+
+function upgradeV6(upgradeDB: UpgradeDB) {
+    if (
+        upgradeDB.transaction
+            .objectStore(caloryEntriesStore)
+            .indexNames.contains('by_timestamp_desc')
+    ) {
+        upgradeDB.transaction
+            .objectStore(caloryEntriesStore)
+            .deleteIndex('by_timestamp_desc');    
+    }
+     upgradeDB.transaction
+        .objectStore(caloryEntriesStore)
+        .createIndex(caloryEntriesByTimestampIndex, 'modified');
 }

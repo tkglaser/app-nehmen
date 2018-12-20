@@ -151,14 +151,15 @@ export class EntryService implements OnDestroy {
     }
 
     selectAutoSuggestions(key: string): Observable<AutoSuggestion[]> {
-        if ((key || '').length < 2) {
+        if (!key) {
             return of([]);
         }
         if (typeof key === 'object') {
             return of([]);
         }
         return from(getAutoSuggestionEntries(db, key)).pipe(
-            map(entries => entries.sort(byFrequencyDescending))
+            map(entries => entries.sort(byFrequencyDescending)),
+            map(entries => entries.slice(0, 4))
         );
     }
 

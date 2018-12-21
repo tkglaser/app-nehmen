@@ -1,21 +1,27 @@
 import { Injectable } from '@angular/core';
 import { interval, Observable } from 'rxjs';
-import { map, distinctUntilChanged, startWith } from 'rxjs/operators';
+import { map, distinctUntilChanged, share, startWith } from 'rxjs/operators';
 import { todayString } from '../utils/date.utils';
+
+const refreshIntervalMs = 1000;
 
 @Injectable({
     providedIn: 'root'
 })
 export class ClockService {
-    clock = interval(1000);
+    private clock = interval(refreshIntervalMs);
+    private todayInternal: Observable<string>();
 
-    constructor() {}
-
-    today(): Observable<string> {
-        return this.clock.pipe(
+    constructor() {
+        this.todayInternal = this.clock.pipe(
             startWith(null),
             map(() => todayString()),
-            distinctUntilChanged()
-        );
+            distinctUntilChanged(),
+            share()
+        )
+    }
+
+    today(): Observable<string> {
+        return this.todayInternal;
     }
 }

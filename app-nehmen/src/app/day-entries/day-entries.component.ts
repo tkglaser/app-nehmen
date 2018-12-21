@@ -5,7 +5,12 @@ import { Observable } from 'rxjs';
 
 import { EntryService } from '../services/entry.service';
 import { Entry } from '../models/entry.model';
-import { todayString, nextDay, prevDay } from '../utils/date.utils';
+import {
+    todayString,
+    nextDay,
+    prevDay,
+    friendlyDay
+} from '../utils/date.utils';
 
 @Component({
     selector: 'app-day-entries',
@@ -15,6 +20,7 @@ import { todayString, nextDay, prevDay } from '../utils/date.utils';
 export class DayEntriesComponent implements OnInit {
     dataSource$: Observable<Entry[]>;
     currentDay: string;
+    currentDayFormatted: string;
     canGoNext = true;
     canGoPrev = true;
     constructor(
@@ -31,6 +37,7 @@ export class DayEntriesComponent implements OnInit {
 
     onIdChange(id: string) {
         this.currentDay = id === 'today' ? todayString() : id;
+        this.currentDayFormatted = friendlyDay(this.currentDay);
         this.canGoNext = this.currentDay !== todayString();
         this.entryService
             .hasMoreBeforeThatDay(this.currentDay)

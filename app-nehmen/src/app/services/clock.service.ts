@@ -18,7 +18,7 @@ export class ClockService {
             map(() => todayString()),
             distinctUntilChanged(),
             share()
-        )
+        );
     }
 
     today(): Observable<string> {

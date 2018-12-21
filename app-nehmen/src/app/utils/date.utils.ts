@@ -11,6 +11,17 @@ export function dayString(date: Date | number): string {
     return moment(internalDate).format('YYYY-MM-DD');
 }
 
+export function friendlyDay(day: string) {
+    return moment(day).calendar(null, {
+        sameDay: '[Today]',
+        nextDay: '[Tomorrow]',
+        nextWeek: 'dddd',
+        lastDay: '[Yesterday]',
+        lastWeek: '[Last] dddd',
+        sameElse: 'YYYY-MM-DD'
+    });
+}
+
 export function todayString() {
     return moment().format('YYYY-MM-DD');
 }

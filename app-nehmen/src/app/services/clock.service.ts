@@ -10,7 +10,7 @@ const refreshIntervalMs = 1000;
 })
 export class ClockService {
     private clock = interval(refreshIntervalMs);
-    private todayInternal: Observable<string>();
+    private todayInternal: Observable<string>;
 
     constructor() {
         this.todayInternal = this.clock.pipe(

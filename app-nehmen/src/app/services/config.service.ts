@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { pluck, distinctUntilChanged, map } from 'rxjs/operators';
+import { pluck, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 
 import { Config } from '../models/config.model';
 import { setSetting, db, getSetting } from '../db';
 import { DayOfWeek } from '../models/day-of-week.model';
 import { isDayOfWeekToday } from '../utils/date.utils';
+import { ClockService } from './clock.service';
 
 const key_max_calories = 'max_calories';
 const key_cheat_day = 'cheat_day';
@@ -18,7 +19,7 @@ const defaultValues: Config = { maxCalories: 1700, cheatDay: 'none' };
 export class ConfigService {
     private settings = new BehaviorSubject<Config>(defaultValues);
 
-    constructor() {
+    constructor(private clockService: ClockService) {
         this.load();
     }
 
@@ -34,7 +35,8 @@ export class ConfigService {
     }
 
     isCheatDay() {
-        return this.settings.pipe(
+        return this.clockService.today().pipe(
+            switchMap(() => this.settings),
             pluck<Config, string>('cheatDay'),
             distinctUntilChanged(),
             map(isDayOfWeekToday)

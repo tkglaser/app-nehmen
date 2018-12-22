@@ -6,20 +6,47 @@
                 [mode]="mode"
                 [value]="progressPct"
             ></mat-progress-spinner>
-            Busy syncing to Dropbox...
+            Busy chatting to Dropbox...
         </mat-card-content>
     </mat-card>
 </ng-container>
 <ng-container *ngIf="!busy">
     <ng-container *ngIf="!loggedIn">
-        <button (click)="onLogin()">Login</button>
+        <mat-card>
+            <mat-card-content>
+                <button mat-raised-button color="accent" (click)="onLogin()">
+                    Login to Dropbox
+                    <mat-icon>account_circle</mat-icon>
+                </button>
+            </mat-card-content>
+        </mat-card>
     </ng-container>
     <ng-container *ngIf="loggedIn">
-        <button (click)="copyAllToCloud()">
-            Copy all to cloud (EXPERIMENTAL)
-        </button>
-        <pre>{{ folders | json }}</pre>
-        <button (click)="onLatest()">Get Latest</button>
-        <pre>{{ latest | json }}</pre>
+        <mat-card>
+            <mat-card-content>
+                <div class="button-row">
+                    <button
+                        mat-raised-button
+                        color="primary"
+                        (click)="copyAllToCloud()"
+                    >
+                        Copy all to cloud
+                        <mat-icon>publish</mat-icon>
+                    </button>
+                    <button
+                        mat-raised-button
+                        color="warn"
+                        (click)="downloadAll()"
+                    >
+                        Download all from cloud
+                        <mat-icon>get_app</mat-icon>
+                    </button>
+                </div>
+                <div class="warning">
+                    Attention! Downloading from the cloud may override local
+                    data. Intelligent sync is planned but not implemented yet.
+                </div>
+            </mat-card-content>
+        </mat-card>
     </ng-container>
 </ng-container>

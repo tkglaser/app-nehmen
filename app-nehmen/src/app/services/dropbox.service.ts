@@ -7,8 +7,14 @@ import { Entry } from '../models/entry.model';
 import { toDropboxString } from '../utils/date.utils';
 import { forkJoin, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { blobToString } from '../utils/blob.utils';
 
 const clientId = '988bai9urdqlw6l';
+
+export type dbxFileRef =
+    | dbx.files.FileMetadataReference
+    | dbx.files.FolderMetadataReference
+    | dbx.files.DeletedMetadataReference;
 
 @Injectable({
     providedIn: 'root'
@@ -48,8 +54,29 @@ export class DropboxService {
         this.accessToken = accesstoken;
     }
 
-    getList() {
-        return this.dbx.filesListFolder({ path: '' });
+    async getList() {
+        let entries: dbxFileRef[];
+        const initialResult = await this.dbx.filesListFolder({ path: '' });
+        entries = initialResult.entries;
+        let hasMore = initialResult.has_more;
+        let cursor = initialResult.cursor;
+        while (hasMore) {
+            const next = await this.dbx.filesListFolderContinue({
+                cursor
+            });
+            entries = entries.concat(next.entries);
+            cursor = next.cursor;
+            hasMore = next.has_more;
+        }
+        return entries;
+    }
+
+    async download<T>(fileName: string): Promise<T> {
+        const file = await this.dbx.filesDownload({
+            path: fileName
+        });
+        const blob: Blob = (file as any).fileBlob;
+        return JSON.parse(await blobToString(blob));
     }
 
     async getLatest() {

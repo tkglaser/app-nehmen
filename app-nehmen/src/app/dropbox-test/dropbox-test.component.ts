@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ProgressSpinnerMode } from '@angular/material';
 
-import { DropboxService } from '../services';
+import { DropboxService, EntryService } from '../services';
 import { db, getEntriesPage, countEntries } from '../db';
+import { Entry } from '../models/entry.model';
+import { forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-dropbox-test',
@@ -17,7 +19,10 @@ export class DropboxTestComponent implements OnInit {
     progressPct: number;
     mode: ProgressSpinnerMode;
 
-    constructor(private dropboxService: DropboxService) {
+    constructor(
+        private dropboxService: DropboxService,
+        private entryService: EntryService
+    ) {
         this.loggedIn = this.dropboxService.isLoggedIn();
     }
 
@@ -55,6 +60,23 @@ export class DropboxTestComponent implements OnInit {
             this.progressPct = (savedSoFar * 100) / total;
             this.mode = 'determinate';
         } while (hasMore);
+        this.busy = false;
+    }
+
+    async downloadAll() {
+        this.progressPct = 0;
+        this.mode = 'indeterminate';
+        this.busy = true;
+        const list = await this.dropboxService.getList();
+        const results = await forkJoin(
+            list.map(entry =>
+                this.dropboxService.download<Entry>(entry.path_lower)
+            )
+        ).toPromise();
+        await forkJoin(
+            results.map(entry => this.entryService.recoverEntry(entry))
+        ).toPromise();
+        this.entryService.loadToday();
         this.busy = false;
     }
 }

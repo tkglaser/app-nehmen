@@ -76,7 +76,7 @@ export class EntryService implements OnDestroy {
         this.reloader.unsubscribe();
     }
 
-    private async loadToday() {
+    async loadToday() {
         const entries = await getEntriesByDay(db, todayString());
         this.entriesToday.next(entries.sort(byTimestampDescending));
     }
@@ -113,6 +113,10 @@ export class EntryService implements OnDestroy {
                 switchMap(() => from(this.loadToday()))
             )
             .subscribe();
+    }
+
+    recoverEntry(entry: Entry) {
+        return upsertEntry(db, entry);
     }
 
     removeEntry(id: string) {

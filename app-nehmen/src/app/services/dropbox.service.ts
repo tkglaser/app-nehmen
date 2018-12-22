@@ -3,6 +3,8 @@ import { Dropbox } from 'dropbox';
 import * as fetch from 'isomorphic-fetch';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { Entry } from '../models/entry.model';
+import { toDropboxString } from '../utils/date.utils';
 
 const clientId = '988bai9urdqlw6l';
 
@@ -60,13 +62,18 @@ export class DropboxService {
         console.log(list);
         const result = await dbx.filesUpload({
             path: '/test-file.json',
-            contents: JSON.stringify({ test: 'value' }),
+            contents: JSON.stringify({ test: 'value' })
         });
         console.log(result);
     }
 
-    async copyAllToCloud() {
-
+    async pushEntry(entry: Entry) {
+        this.dbx().filesUpload({
+            client_modified: toDropboxString(entry.modified),
+            contents: JSON.stringify(entry),
+            path: `/${entry.id}`,
+            mode: { '.tag': 'overwrite' }
+        });
     }
 
     private dbx() {

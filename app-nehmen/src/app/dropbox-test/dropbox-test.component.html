@@ -2,6 +2,7 @@
     <button (click)="onLogin()">Login</button>
 </ng-container>
 <ng-container *ngIf="loggedIn">
+    <button (click)="copyAllToCloud()">Copy all to cloud (EXPERIMENTAL)</button>
     <pre>{{ folders | json }}</pre>
     <button (click)="onLatest()">Get Latest</button>
     <pre>{{ latest | json }}</pre>

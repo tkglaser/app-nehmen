@@ -22,6 +22,10 @@ export function friendlyDay(day: string) {
     });
 }
 
+export function toDropboxString(timestamp: number): string {
+    return moment(timestamp).format('YYYY-MM-DDTHH:mm:ss') + 'Z';
+}
+
 export function todayString() {
     return moment().format('YYYY-MM-DD');
 }

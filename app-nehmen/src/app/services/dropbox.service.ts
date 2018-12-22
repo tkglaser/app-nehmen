@@ -104,7 +104,7 @@ export class DropboxService {
     }
 
     pushEntries(entries: Entry[]) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             forkJoin(
                 entries.map(entry => {
                     const contents = httpHeaderSafeJSON(entry);

@@ -15,7 +15,7 @@ The goal of this project is to create a calory counter that doesn't suck.
   - Export data to CSV if you want a manual backup
   
 ## Hosting
-- There is a CD instance at https://app-nehmen.azurewebsites.net. Remember, this is pre-alpha software, please don't shout at me if your calory entries are lost. :)
+- There is a CD instance at https://www.tkglaser.net/app-nehmen. Remember, this is pre-alpha software, please don't shout at me if your calory entries are lost. :)
 - The plan is to provide a hosted instance at Github Pages but I'm not quite there yet.
 
 Please report any issues you find here on github. Pull requests welcome. There is no unit test coverage yet but this is planned as well.

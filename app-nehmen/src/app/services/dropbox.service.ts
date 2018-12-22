@@ -5,16 +5,8 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Entry } from '../models/entry.model';
 import { toDropboxString } from '../utils/date.utils';
-import {
-    forkJoin,
-    from,
-    interval,
-    BehaviorSubject,
-    Subject,
-    Observable
-} from 'rxjs';
-import { map, switchMap, delay } from 'rxjs/operators';
-import { join } from 'path';
+import { forkJoin, from } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 const clientId = '988bai9urdqlw6l';
 

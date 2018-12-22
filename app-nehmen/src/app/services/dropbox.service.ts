@@ -4,10 +4,9 @@ import * as fetch from 'isomorphic-fetch';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Entry } from '../models/entry.model';
-import { toDropboxString } from '../utils/date.utils';
 import { forkJoin, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { blobToString } from '../utils/blob.utils';
+import { blobToString, toDropboxString, httpHeaderSafeJSON } from '../utils';
 
 const clientId = '988bai9urdqlw6l';
 
@@ -98,7 +97,7 @@ export class DropboxService {
     async pushEntry(entry: Entry) {
         this.dbx.filesUpload({
             client_modified: toDropboxString(entry.modified),
-            contents: JSON.stringify(entry),
+            contents: httpHeaderSafeJSON(entry),
             path: `/${entry.id}.json`,
             mode: { '.tag': 'overwrite' }
         });
@@ -108,7 +107,7 @@ export class DropboxService {
         return new Promise((resolve, reject) => {
             forkJoin(
                 entries.map(entry => {
-                    const contents = JSON.stringify(entry);
+                    const contents = httpHeaderSafeJSON(entry);
                     return from(
                         this.dbx.filesUploadSessionStart({
                             contents,

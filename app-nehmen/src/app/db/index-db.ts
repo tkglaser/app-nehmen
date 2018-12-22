@@ -1,7 +1,7 @@
 import { UpgradeDB } from 'idb';
 import idb from 'idb';
 
-import { dayString } from '../utils/date.utils';
+import { dayString } from '../utils';
 import { Entry } from '../models/entry.model';
 
 export const caloryEntriesStore = 'calory_entries';
@@ -68,7 +68,7 @@ function upgradeV6(upgradeDB: UpgradeDB) {
     ) {
         upgradeDB.transaction
             .objectStore(caloryEntriesStore)
-            .deleteIndex('by_timestamp_desc');    
+            .deleteIndex('by_timestamp_desc');
     }
      upgradeDB.transaction
         .objectStore(caloryEntriesStore)

@@ -15,7 +15,7 @@ import { ConfigService } from './config.service';
 import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
 import { AutoSuggestion } from '../models/auto-suggestion.model';
-import { dayString, todayString } from '../utils/date.utils';
+import { dayString, todayString } from '../utils';
 import {
     db,
     upsertEntry,

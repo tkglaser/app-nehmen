@@ -10,7 +10,7 @@ import {
     nextDay,
     prevDay,
     friendlyDay
-} from '../utils/date.utils';
+} from '../utils';
 
 @Component({
     selector: 'app-day-entries',

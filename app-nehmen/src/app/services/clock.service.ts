@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { interval, Observable } from 'rxjs';
 import { map, distinctUntilChanged, share, startWith } from 'rxjs/operators';
-import { todayString } from '../utils/date.utils';
+
+import { todayString } from '../utils';
 
 const refreshIntervalMs = 1000;
 

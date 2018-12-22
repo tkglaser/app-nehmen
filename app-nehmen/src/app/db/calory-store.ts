@@ -90,6 +90,15 @@ export async function getAutoSuggestionEntries(
     return Array.from(result.values());
 }
 
+export async function countEntries(dbPromise: Promise<DB>) {
+    const db = await dbPromise;
+
+    return await db
+        .transaction(caloryEntriesStore)
+        .objectStore<Entry>(caloryEntriesStore)
+        .count();
+}
+
 export async function getEntriesPage(
     dbPromise: Promise<DB>,
     pageSize: number,

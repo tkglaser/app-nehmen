@@ -95,6 +95,9 @@ export class DropboxService {
                             },
                             commit: {
                                 path: `/${entry.id}.json`,
+                                client_modified: toDropboxString(
+                                    entry.modified
+                                ),
                                 mode: 'add',
                                 mute: false
                             }
@@ -110,33 +113,36 @@ export class DropboxService {
                     )
                 )
                 .subscribe(async job => {
-                    await this.waitForUpload(job);
+                    await this.waitForUploadFinished(job);
                     resolve();
                 });
         });
     }
 
-    private waitForUpload(
-        job:
-            | dbx.files.UploadSessionFinishBatchLaunch
-            | dbx.files.UploadSessionFinishBatchJobStatus
+    private async waitForUploadFinished(
+        job: dbx.files.UploadSessionFinishBatchLaunch
     ): Promise<void> {
         if (job['.tag'] === 'complete') {
             return Promise.resolve();
         } else if (job['.tag'] === 'async_job_id') {
-            return new Promise(resolve => {
-                setTimeout(async () => {
-                    const result = await this.dbx.filesUploadSessionFinishBatchCheck(
-                        {
-                            async_job_id: job.async_job_id
-                        }
-                    );
-                    await this.waitForUpload(result);
-                    resolve();
-                }, 1000);
-            });
+            await this.waitForUploadJob(job.async_job_id);
         } else {
             return Promise.reject();
         }
+    }
+
+    private async waitForUploadJob(jobId: string) {
+        let isDone = false;
+        do {
+            await this.wait(1000);
+            const check = await this.dbx.filesUploadSessionFinishBatchCheck({
+                async_job_id: jobId
+            });
+            isDone = check['.tag'] === 'complete';
+        } while (!isDone);
+    }
+
+    private wait(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }

@@ -16,7 +16,8 @@ import {
     MatSliderModule,
     MatSlideToggleModule,
     MatAutocompleteModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -88,6 +89,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         MatSlideToggleModule,
         MatAutocompleteModule,
         MatSnackBarModule,
+        MatProgressSpinnerModule,
 
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {

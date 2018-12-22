@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { ProgressSpinnerMode } from '@angular/material';
 
 import { DropboxService } from '../services';
-import { db, getEntriesPage } from '../db';
+import { db, getEntriesPage, countEntries } from '../db';
 
 @Component({
     selector: 'app-dropbox-test',
@@ -12,6 +13,9 @@ export class DropboxTestComponent implements OnInit {
     loggedIn = false;
     folders: any;
     latest: any;
+    busy = false;
+    progressPct: number;
+    mode: ProgressSpinnerMode;
 
     constructor(private dropboxService: DropboxService) {
         this.loggedIn = this.dropboxService.isLoggedIn();
@@ -32,12 +36,25 @@ export class DropboxTestComponent implements OnInit {
     }
 
     async copyAllToCloud() {
+        const total = await countEntries(db);
+        if (total < 1) {
+            return;
+        }
+
+        this.progressPct = 0;
+        this.mode = 'indeterminate';
+        this.busy = true;
         let hasMore: boolean;
         let page = 0;
+        let savedSoFar = 0;
         do {
             const entries = await getEntriesPage(db, 10, page++);
             hasMore = entries.hasMore;
             await this.dropboxService.pushEntries(entries.items);
+            savedSoFar += entries.items.length;
+            this.progressPct = (savedSoFar * 100) / total;
+            this.mode = 'determinate';
         } while (hasMore);
+        this.busy = false;
     }
 }

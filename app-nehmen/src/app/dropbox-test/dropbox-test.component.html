@@ -1,9 +1,25 @@
-<ng-container *ngIf="!loggedIn">
-    <button (click)="onLogin()">Login</button>
+<ng-container *ngIf="busy">
+    <mat-card class="progress-card">
+        <mat-card-content
+            ><mat-progress-spinner
+                [diameter]="50"
+                [mode]="mode"
+                [value]="progressPct"
+            ></mat-progress-spinner>
+            Busy syncing to Dropbox...
+        </mat-card-content>
+    </mat-card>
 </ng-container>
-<ng-container *ngIf="loggedIn">
-    <button (click)="copyAllToCloud()">Copy all to cloud (EXPERIMENTAL)</button>
-    <pre>{{ folders | json }}</pre>
-    <button (click)="onLatest()">Get Latest</button>
-    <pre>{{ latest | json }}</pre>
+<ng-container *ngIf="!busy">
+    <ng-container *ngIf="!loggedIn">
+        <button (click)="onLogin()">Login</button>
+    </ng-container>
+    <ng-container *ngIf="loggedIn">
+        <button (click)="copyAllToCloud()">
+            Copy all to cloud (EXPERIMENTAL)
+        </button>
+        <pre>{{ folders | json }}</pre>
+        <button (click)="onLatest()">Get Latest</button>
+        <pre>{{ latest | json }}</pre>
+    </ng-container>
 </ng-container>

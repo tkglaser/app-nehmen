@@ -10,8 +10,11 @@
 }
 .button-row {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
+    align-content: space-between;
     margin-bottom: 10px;
+    height: 90px;
 }
 .warning {
     font-weight: bold;

@@ -14,8 +14,6 @@ export class DropboxTestComponent implements OnInit {
     latest: any;
 
     constructor(private dropboxService: DropboxService) {
-        console.log(location);
-
         this.loggedIn = this.dropboxService.isLoggedIn();
     }
 
@@ -39,9 +37,7 @@ export class DropboxTestComponent implements OnInit {
         do {
             const entries = await getEntriesPage(db, 10, page++);
             hasMore = entries.hasMore;
-            entries.items.forEach(async entry => {
-                await this.dropboxService.pushEntry(entry);
-            });
+            await this.dropboxService.pushEntries(entries.items);
         } while (hasMore);
     }
 }

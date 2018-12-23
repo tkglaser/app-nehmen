@@ -26,13 +26,16 @@
               "src/favicon.ico",
               "src/assets",
               "src/web.config",
-              "src/manifest.json"
+              "src/manifest.json",
+              {"input": "node_modules/dropbox/dist/", "glob": "Dropbox-sdk.min.js", "output": "."},
+              {"input": "node_modules/idb/lib/", "glob": "idb.js", "output": "."}
             ],
             "styles": [
               "src/material-theme.scss",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+            ]
           },
           "configurations": {
             "production": {

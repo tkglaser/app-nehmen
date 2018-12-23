@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { DropboxService } from '../services';
+import { DropboxService } from '../services/dropbox.service';
 
 @Component({
     selector: 'app-auth',
@@ -23,6 +23,6 @@ export class AuthComponent implements OnInit {
         const kvps = (fragment || '').split('&').map(kvp => kvp.split('='));
         const accesstoken = kvps.find(kvp => kvp[0] === 'access_token')[1];
         this.dropboxService.setToken(accesstoken);
-        this.router.navigate(['/dropbox']);
+        this.router.navigate(['/dropbox/test']);
     }
 }

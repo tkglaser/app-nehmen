@@ -1,24 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, LOCALE_ID, ErrorHandler } from '@angular/core';
-import {
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatListModule,
-    MatGridListModule,
-    MatCardModule,
-    MatMenuModule,
-    MatInputModule,
-    MatSelectModule,
-    MatRadioModule,
-    MatTableModule,
-    MatSliderModule,
-    MatSlideToggleModule,
-    MatAutocompleteModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule
-} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -44,11 +25,10 @@ import {
     ConfigService,
     ClockService,
     UniqueIdService,
-    LoggingService,
-    DropboxService
+    LoggingService
 } from './services';
-import { AuthComponent } from './auth/auth.component';
-import { DropboxTestComponent } from './dropbox-test/dropbox-test.component';
+import { MaterialModule } from './material.module';
+import { DropboxModule } from './dropbox/dropbox.module';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -63,38 +43,19 @@ registerLocaleData(localeEnGb, 'en-GB');
         LogSliderComponent,
         SettingsComponent,
         DayEntriesComponent,
-        EntriesTableComponent,
-        AuthComponent,
-        DropboxTestComponent
+        EntriesTableComponent
     ],
     imports: [
         BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
         LayoutModule,
-
-        MatToolbarModule,
-        MatButtonModule,
-        MatSidenavModule,
-        MatIconModule,
-        MatListModule,
-        MatGridListModule,
-        MatCardModule,
-        MatMenuModule,
-        MatInputModule,
-        MatSelectModule,
-        MatRadioModule,
-        MatTableModule,
-        MatSliderModule,
-        MatSlideToggleModule,
-        MatAutocompleteModule,
-        MatSnackBarModule,
-        MatProgressSpinnerModule,
-
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production
-        })
+        }),
+        MaterialModule,
+        DropboxModule
     ],
     providers: [
         EntryService,
@@ -102,7 +63,6 @@ registerLocaleData(localeEnGb, 'en-GB');
         UniqueIdService,
         ClockService,
         LoggingService,
-        DropboxService,
         {
             provide: ErrorHandler,
             useClass: GlobalErrorHandler

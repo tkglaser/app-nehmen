@@ -5,13 +5,13 @@ import { Location } from '@angular/common';
 import { forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Entry } from '../models';
+import { Entry } from '../../models';
 import {
     blobToString,
     toDropboxString,
     httpHeaderSafeJSON,
     wait
-} from '../utils';
+} from '../../utils';
 
 const clientId = '988bai9urdqlw6l';
 
@@ -41,7 +41,7 @@ export class DropboxService {
 
     login() {
         const returnUrl =
-            location.origin + this.location.prepareExternalUrl('/auth');
+            location.origin + this.location.prepareExternalUrl('/dropbox/auth');
         const dropbox = new dbx.Dropbox({
             clientId,
             fetch

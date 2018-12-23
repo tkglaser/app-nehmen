@@ -1,21 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { ProgressSpinnerMode } from '@angular/material';
 
-import { DropboxService, EntryService } from '../services';
+import { EntryService } from '../../services';
 import {
     db,
-    getEntriesPage,
-    countEntries,
     getUnsyncedEntriesPage,
     countUnsyncedEntries,
     getEntryById,
     upsertEntry,
     removeEntry
-} from '../db';
+} from '../../db';
 import { forkJoin } from 'rxjs';
-import { Entry, SyncState } from '../models';
-import { fromDropboxString } from '../utils';
-import { first } from 'rxjs/operators';
+import { Entry, SyncState } from '../../models';
+import { fromDropboxString } from '../../utils';
+import { DropboxService } from '../services/dropbox.service';
 
 @Component({
     selector: 'app-dropbox-test',

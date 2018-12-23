@@ -1,4 +1,4 @@
-# app-nehmen
+# AppNehmen Calory Counter
 The goal of this project is to create a calory counter that doesn't suck.
 
 ## Architecture

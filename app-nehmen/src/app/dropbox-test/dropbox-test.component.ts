@@ -105,7 +105,7 @@ export class DropboxTestComponent implements OnInit {
                         sync_state: SyncState.Synced,
                         modified: fromDropboxString(pushResult.server_modified)
                     };
-                    upsertEntry(db, patch);
+                    await upsertEntry(db, patch);
                 }
             }
         }

@@ -2,9 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { ProgressSpinnerMode } from '@angular/material';
 
 import { DropboxService, EntryService } from '../services';
-import { db, getEntriesPage, countEntries } from '../db';
-import { Entry } from '../models/entry.model';
+import {
+    db,
+    getEntriesPage,
+    countEntries,
+    getUnsyncedEntriesPage,
+    countUnsyncedEntries,
+    getEntryById,
+    upsertEntry,
+    removeEntry
+} from '../db';
 import { forkJoin } from 'rxjs';
+import { Entry, SyncState } from '../models';
+import { fromDropboxString } from '../utils';
+import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'app-dropbox-test',
@@ -18,12 +29,14 @@ export class DropboxTestComponent implements OnInit {
     busy = false;
     progressPct: number;
     mode: ProgressSpinnerMode;
+    hasLocalChanges = true;
 
     constructor(
         private dropboxService: DropboxService,
         private entryService: EntryService
     ) {
         this.loggedIn = this.dropboxService.isLoggedIn();
+        this.updateHasLocalChanges();
     }
 
     async ngOnInit() {
@@ -40,8 +53,13 @@ export class DropboxTestComponent implements OnInit {
         this.dropboxService.login();
     }
 
+    async updateHasLocalChanges() {
+        const total = await countUnsyncedEntries(db);
+        this.hasLocalChanges = total > 0;
+    }
+
     async copyAllToCloud() {
-        const total = await countEntries(db);
+        const total = await countUnsyncedEntries(db);
         if (total < 1) {
             return;
         }
@@ -53,14 +71,57 @@ export class DropboxTestComponent implements OnInit {
         let page = 0;
         let savedSoFar = 0;
         do {
-            const entries = await getEntriesPage(db, 10, page++);
+            const entries = await getUnsyncedEntriesPage(db, 10, page++);
             hasMore = entries.hasMore;
-            await this.dropboxService.pushEntries(entries.items);
             savedSoFar += entries.items.length;
+            const itemsToCopy = entries.items.filter(
+                entry => entry.sync_state === SyncState.Dirty
+            );
+            await this.copyToCloud(itemsToCopy);
+            const itemsToDelete = entries.items.filter(
+                entry => entry.sync_state === SyncState.Deleted
+            );
+            await this.deleteOnCloud(itemsToDelete);
             this.progressPct = (savedSoFar * 100) / total;
             this.mode = 'determinate';
         } while (hasMore);
         this.busy = false;
+        this.updateHasLocalChanges();
+    }
+
+    async copyToCloud(entries: Entry[]) {
+        if (!entries.length) {
+            return;
+        }
+        const pushResults = await this.dropboxService.pushEntries(entries);
+
+        for (const pushResult of pushResults) {
+            if (pushResult['.tag'] === 'success') {
+                const id = pushResult.name.replace('.json', '');
+                const entry = await getEntryById(db, id);
+                if (entry) {
+                    const patch = {
+                        ...entry,
+                        sync_state: SyncState.Synced,
+                        modified: fromDropboxString(pushResult.server_modified)
+                    };
+                    upsertEntry(db, patch);
+                }
+            }
+        }
+    }
+
+    async deleteOnCloud(entries: Entry[]) {
+        if (!entries.length) {
+            return;
+        }
+        const pushResults = await this.dropboxService.deleteEntries(entries);
+        for (const pushResult of pushResults) {
+            if (pushResult['.tag'] === 'success') {
+                const id = pushResult.metadata.name.replace('.json', '');
+                await removeEntry(db, id);
+            }
+        }
     }
 
     async downloadAll() {

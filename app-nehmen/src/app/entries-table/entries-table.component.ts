@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
 
-import { Entry } from '../models/entry.model';
+import { Entry } from '../models';
 
 @Component({
     selector: 'app-entries-table',

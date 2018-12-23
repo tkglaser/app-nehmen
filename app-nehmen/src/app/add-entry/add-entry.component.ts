@@ -5,7 +5,7 @@ import { startWith, switchMap } from 'rxjs/operators';
 import { MatAutocompleteSelectedEvent } from '@angular/material';
 
 import { EntryService } from '../services/entry.service';
-import { AutoSuggestion } from '../models/auto-suggestion.model';
+import { AutoSuggestion } from '../models';
 
 @Component({
     selector: 'app-add-entry',

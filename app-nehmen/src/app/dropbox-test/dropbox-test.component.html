@@ -14,10 +14,16 @@
     <ng-container *ngIf="!loggedIn">
         <mat-card>
             <mat-card-content>
-                <button mat-raised-button color="accent" (click)="onLogin()">
-                    Login to Dropbox
-                    <mat-icon>account_circle</mat-icon>
-                </button>
+                <div class="button-row">
+                    <button
+                        mat-stroked-button
+                        color="accent"
+                        (click)="onLogin()"
+                    >
+                        Login to Dropbox
+                        <mat-icon>account_circle</mat-icon>
+                    </button>
+                </div>
             </mat-card-content>
         </mat-card>
     </ng-container>
@@ -26,15 +32,25 @@
             <mat-card-content>
                 <div class="button-row">
                     <button
-                        mat-raised-button
+                        *ngIf="hasLocalChanges"
+                        mat-stroked-button
                         color="primary"
                         (click)="copyAllToCloud()"
                     >
-                        Copy all to cloud
+                        Copy modified to cloud
                         <mat-icon>publish</mat-icon>
                     </button>
                     <button
-                        mat-raised-button
+                        *ngIf="!hasLocalChanges"
+                        mat-stroked-button
+                        color="primary"
+                        disabled
+                    >
+                        Nothing to upload
+                        <mat-icon>publish</mat-icon>
+                    </button>
+                    <button
+                        mat-stroked-button
                         color="warn"
                         (click)="downloadAll()"
                     >

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { EntryService } from '../services/entry.service';
-import { Entry } from '../models/entry.model';
+import { Entry } from '../models';
 
 @Component({
     selector: 'app-todays-entries',

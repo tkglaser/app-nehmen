@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import * as dbx from 'dropbox';
 import * as fetch from 'isomorphic-fetch';
-import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { Entry } from '../models/entry.model';
 import { forkJoin, from } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { blobToString, toDropboxString, httpHeaderSafeJSON } from '../utils';
+import { map } from 'rxjs/operators';
+
+import { Entry } from '../models';
+import {
+    blobToString,
+    toDropboxString,
+    httpHeaderSafeJSON,
+    wait
+} from '../utils';
 
 const clientId = '988bai9urdqlw6l';
 
@@ -32,7 +37,7 @@ export class DropboxService {
         return this._dbx;
     }
 
-    constructor(private router: Router, private location: Location) {}
+    constructor(private location: Location) {}
 
     login() {
         const returnUrl =
@@ -103,72 +108,82 @@ export class DropboxService {
         });
     }
 
-    pushEntries(entries: Entry[]) {
-        return new Promise((resolve) => {
-            forkJoin(
-                entries.map(entry => {
-                    const contents = httpHeaderSafeJSON(entry);
-                    return from(
-                        this.dbx.filesUploadSessionStart({
-                            contents,
-                            close: true
-                        })
-                    ).pipe(
-                        map(session => ({
-                            cursor: {
-                                session_id: session.session_id,
-                                offset: contents.length
-                            },
-                            commit: {
-                                path: `/${entry.id}.json`,
-                                client_modified: toDropboxString(
-                                    entry.modified
-                                ),
-                                mode: 'add',
-                                mute: false
-                            }
-                        }))
-                    );
-                })
-            )
-                .pipe(
-                    switchMap((sessions: any) =>
-                        this.dbx.filesUploadSessionFinishBatch({
-                            entries: sessions
-                        })
-                    )
-                )
-                .subscribe(async job => {
-                    await this.waitForUploadFinished(job);
-                    resolve();
-                });
-        });
-    }
+    async pushEntries(entries: Entry[]) {
+        const uploads: any[] = await forkJoin(
+            entries.map(entry => {
+                const contents = httpHeaderSafeJSON(entry);
+                return from(
+                    this.dbx.filesUploadSessionStart({
+                        contents,
+                        close: true
+                    })
+                ).pipe(
+                    map(session => ({
+                        cursor: {
+                            session_id: session.session_id,
+                            offset: contents.length
+                        },
+                        commit: {
+                            path: `/${entry.id}.json`,
+                            client_modified: toDropboxString(entry.modified),
+                            mode: 'overwrite',
+                            mute: false
+                        }
+                    }))
+                );
+            })
+        ).toPromise();
 
-    private async waitForUploadFinished(
-        job: dbx.files.UploadSessionFinishBatchLaunch
-    ): Promise<void> {
+        let job:
+            | dbx.files.UploadSessionFinishBatchLaunch
+            | dbx.files.UploadSessionFinishBatchJobStatus = await this.dbx.filesUploadSessionFinishBatch(
+            {
+                entries: uploads
+            }
+        );
+
+        let jobId: string;
+
+        while (
+            job['.tag'] === 'async_job_id' ||
+            job['.tag'] === 'in_progress'
+        ) {
+            if (job['.tag'] === 'async_job_id') {
+                jobId = job.async_job_id;
+            }
+            await wait(1000);
+            job = await this.dbx.filesUploadSessionFinishBatchCheck({
+                async_job_id: jobId
+            });
+        }
+
         if (job['.tag'] === 'complete') {
-            return Promise.resolve();
-        } else if (job['.tag'] === 'async_job_id') {
-            await this.waitForUploadJob(job.async_job_id);
+            return job.entries;
         } else {
-            return Promise.reject();
+            return Promise.reject(job);
         }
     }
 
-    private async waitForUploadJob(jobId: string) {
-        let isDone = false;
-        do {
-            await this.wait(1000);
-            const check = await this.dbx.filesUploadSessionFinishBatchCheck({
-                async_job_id: jobId
-            });
-            isDone = check['.tag'] === 'complete';
-        } while (!isDone);
-    }
+    async deleteEntries(entries: Entry[]) {
+        let job:
+            | dbx.files.DeleteBatchLaunch
+            | dbx.files.DeleteBatchJobStatus = await this.dbx.filesDeleteBatch({
+            entries: entries.map(entry => ({
+                path: `/${entry.id}.json`
+            }))
+        });
 
-    private wait(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        while (job['.tag'] === 'async_job_id') {
+            await wait(1000);
+            job = await this.dbx.filesDeleteBatchCheck({
+                async_job_id: job.async_job_id
+            });
+        }
+
+        if (job['.tag'] === 'complete') {
+            return job.entries;
+        } else {
+            return Promise.reject(job);
+        }
     }
 }

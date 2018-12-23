@@ -4,13 +4,13 @@ import { pluck } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 import { EntryService } from '../services/entry.service';
-import { Entry } from '../models/entry.model';
 import {
     todayString,
     nextDay,
     prevDay,
     friendlyDay
 } from '../utils';
+import { Entry } from '../models';
 
 @Component({
     selector: 'app-day-entries',

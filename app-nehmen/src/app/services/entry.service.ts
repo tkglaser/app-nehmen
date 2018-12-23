@@ -9,12 +9,8 @@ import {
 } from 'rxjs';
 import { map, filter, switchMap, shareReplay } from 'rxjs/operators';
 
-import { EntryAdd } from '../models/entry-add.model';
-import { Entry } from '../models/entry.model';
 import { ConfigService } from './config.service';
-import { EntryUpdate } from '../models/entry-update.model';
 import { UniqueIdService } from './unique-id.service';
-import { AutoSuggestion } from '../models/auto-suggestion.model';
 import { dayString, todayString } from '../utils';
 import {
     db,
@@ -26,6 +22,13 @@ import {
     getEntryById
 } from '../db';
 import { ClockService } from './clock.service';
+import {
+    Entry,
+    AutoSuggestion,
+    EntryAdd,
+    EntryUpdate,
+    SyncState
+} from '../models';
 
 const byTimestampDescending = (a: Entry, b: Entry) => {
     if (a.created < b.created) {
@@ -81,7 +84,7 @@ export class EntryService implements OnDestroy {
         this.entriesToday.next(entries.sort(byTimestampDescending));
     }
 
-    addEntry(entry: EntryAdd) {
+    async addEntry(entry: EntryAdd) {
         const now = new Date();
         const newEntry: Entry = {
             calories: +entry.calories,
@@ -90,37 +93,48 @@ export class EntryService implements OnDestroy {
             created: now.getTime(),
             modified: now.getTime(),
             day: dayString(now),
-            exercise: entry.exercise
+            exercise: entry.exercise,
+            sync_state: SyncState.Dirty
         };
-        upsertEntry(db, newEntry);
+        await upsertEntry(db, newEntry);
         this.loadToday();
     }
 
-    editEntry(entryUpdate: EntryUpdate) {
-        this.selectEntry(entryUpdate.id)
-            .pipe(
-                filter(entry => !!entry),
-                switchMap(origEntry => {
-                    const newEntry: Entry = {
-                        ...origEntry,
-                        modified: new Date().getTime(),
-                        calories: +entryUpdate.calories,
-                        description: entryUpdate.description,
-                        exercise: entryUpdate.exercise
-                    };
-                    return from(upsertEntry(db, newEntry));
-                }),
-                switchMap(() => from(this.loadToday()))
-            )
-            .subscribe();
+    async editEntry(entryUpdate: EntryUpdate) {
+        const entry = await getEntryById(db, entryUpdate.id);
+        if (!entry) {
+            return;
+        }
+        await upsertEntry(db, {
+            ...entry,
+            modified: new Date().getTime(),
+            sync_state: SyncState.Dirty,
+            calories: +entryUpdate.calories,
+            description: entryUpdate.description,
+            exercise: entryUpdate.exercise
+        });
+        this.loadToday();
     }
 
     recoverEntry(entry: Entry) {
-        return upsertEntry(db, entry);
+        return upsertEntry(db, { ...entry, sync_state: SyncState.Synced });
     }
 
-    removeEntry(id: string) {
-        removeEntry(db, id);
+    async removeEntry(id: string) {
+        const entry = await getEntryById(db, id);
+        if (!entry) {
+            return;
+        }
+        await upsertEntry(db, {
+            ...entry,
+            sync_state: SyncState.Deleted,
+            modified: new Date().getTime()
+        });
+        this.loadToday();
+    }
+
+    async deleteEntry(id: string) {
+        await removeEntry(db, id);
         this.loadToday();
     }
 

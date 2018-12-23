@@ -2,11 +2,10 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { pluck, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 
-import { Config } from '../models/config.model';
 import { setSetting, db, getSetting } from '../db';
-import { DayOfWeek } from '../models/day-of-week.model';
 import { isDayOfWeekToday } from '../utils';
 import { ClockService } from './clock.service';
+import { Config, DayOfWeek } from '../models';
 
 const key_max_calories = 'max_calories';
 const key_cheat_day = 'cheat_day';

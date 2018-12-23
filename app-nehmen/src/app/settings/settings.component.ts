@@ -4,8 +4,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { ConfigService } from '../services/config.service';
-import { SelectOption } from '../models/select-option.model';
-import { DayOfWeek } from '../models/day-of-week.model';
+import { SelectOption, DayOfWeek } from '../models';
 
 @Component({
     selector: 'app-settings',

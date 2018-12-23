@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { DayOfWeek } from '../models/day-of-week.model';
+import { DayOfWeek } from '../models';
 
 export function dayString(date: Date | number): string {
     let internalDate: Date;
@@ -24,6 +24,12 @@ export function friendlyDay(day: string) {
 
 export function toDropboxString(timestamp: number): string {
     return moment(timestamp).format('YYYY-MM-DDTHH:mm:ss') + 'Z';
+}
+
+export function fromDropboxString(dxstr: string): number {
+    return moment(dxstr)
+        .toDate()
+        .getTime();
 }
 
 export function todayString() {

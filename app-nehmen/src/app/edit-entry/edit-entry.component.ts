@@ -4,8 +4,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { EntryService } from '../services/entry.service';
 import { pluck, switchMap, filter } from 'rxjs/operators';
-import { EntryUpdate } from '../models/entry-update.model';
-import { EntryAdd } from '../models/entry-add.model';
+import { EntryUpdate, EntryAdd } from '../models';
 
 @Component({
     selector: 'app-edit-entry',

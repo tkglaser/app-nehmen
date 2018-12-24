@@ -32,6 +32,14 @@
             <mat-card-content>
                 <div class="button-row">
                     <button
+                        mat-stroked-button
+                        color="accent"
+                        (click)="onLogout()"
+                    >
+                        Logout from Dropbox
+                        <mat-icon>account_circle</mat-icon>
+                    </button>
+                    <button
                         *ngIf="hasLocalChanges"
                         mat-stroked-button
                         color="primary"

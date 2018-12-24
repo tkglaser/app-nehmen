@@ -22,7 +22,7 @@ export class AuthComponent implements OnInit {
     onFragmentReceived(fragment: string) {
         const kvps = (fragment || '').split('&').map(kvp => kvp.split('='));
         const accesstoken = kvps.find(kvp => kvp[0] === 'access_token')[1];
-        this.dropboxService.setToken(accesstoken);
+        this.dropboxService.login(accesstoken);
         this.router.navigate(['/dropbox/test']);
     }
 }

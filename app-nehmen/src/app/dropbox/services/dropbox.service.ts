@@ -15,6 +15,12 @@ import {
 
 const clientId = '988bai9urdqlw6l';
 
+function toDropboxModel(entry: Entry): string {
+    const result = { ...entry };
+    delete result.sync_state;
+    return httpHeaderSafeJSON(result);
+}
+
 export type dbxFileRef =
     | dbx.files.FileMetadataReference
     | dbx.files.FolderMetadataReference
@@ -102,7 +108,7 @@ export class DropboxService {
     async pushEntry(entry: Entry) {
         this.dbx.filesUpload({
             client_modified: toDropboxString(entry.modified),
-            contents: httpHeaderSafeJSON(entry),
+            contents: toDropboxModel(entry),
             path: `/${entry.id}.json`,
             mode: { '.tag': 'overwrite' }
         });
@@ -111,7 +117,7 @@ export class DropboxService {
     async pushEntries(entries: Entry[]) {
         const uploads: any[] = await forkJoin(
             entries.map(entry => {
-                const contents = httpHeaderSafeJSON(entry);
+                const contents = toDropboxModel(entry);
                 return from(
                     this.dbx.filesUploadSessionStart({
                         contents,

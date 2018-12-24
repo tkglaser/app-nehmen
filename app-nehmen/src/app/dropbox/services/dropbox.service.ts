@@ -25,6 +25,7 @@ import {
     setSetting
 } from 'src/app/db';
 import { DropboxState, DropboxSyncState } from '../models';
+import { EntryService } from 'src/app/services';
 
 const clientId = '988bai9urdqlw6l';
 
@@ -59,8 +60,12 @@ export class DropboxService {
     private state: DropboxState;
     private dbx: dbx.Dropbox;
     private isLoaded: Promise<void>;
+    private timeoutHandle = null;
 
-    constructor(private location: Location) {
+    constructor(
+        private location: Location,
+        private entriesService: EntryService
+    ) {
         this.init();
     }
 
@@ -77,6 +82,19 @@ export class DropboxService {
     async isLoggedIn() {
         await this.isLoaded;
         return !!(this.state && this.state.accessToken);
+    }
+
+    togglePeriodicSync() {
+        if (this.timeoutHandle === null) {
+            this.timeoutHandle = setInterval(async () => {
+                await this.syncDownToLocal();
+                await this.syncUpToCloud();
+                await this.entriesService.loadToday();
+            }, 10000);
+        } else {
+            clearInterval(this.timeoutHandle);
+            this.timeoutHandle = null;
+        }
     }
 
     getLoginUrl() {
@@ -118,6 +136,7 @@ export class DropboxService {
         const next = await this.dbx.filesListFolderContinue({
             cursor: this.state.changesCursor
         });
+        console.log('ENTRIES TO SYNC DOWN', next);
         for (const entry of next.entries) {
             await this.localSync(entry);
         }
@@ -234,6 +253,7 @@ export class DropboxService {
         do {
             const entries = await getUnsyncedEntriesPage(db, 10, page++);
             hasMore = entries.hasMore;
+            console.log('ENTRIES TO SYNC UP', entries);
             const itemsToCopy = entries.items.filter(
                 entry => entry.sync_state === SyncState.Dirty
             );
@@ -246,7 +266,7 @@ export class DropboxService {
             );
             if (itemsToDelete.length) {
                 const apiResults = await this.deleteOnCloud(itemsToDelete);
-                await this.localDelete(apiResults);
+                await this.localDelete(itemsToDelete, apiResults);
             }
         } while (hasMore);
     }
@@ -350,12 +370,25 @@ export class DropboxService {
     }
 
     private async localDelete(
+        entries: Entry[],
         pushResults: Array<dbx.files.DeleteBatchResultEntry>
     ) {
-        for (const pushResult of pushResults) {
+        for (let i = 0; i < entries.length; ++i) {
+            const pushResult = pushResults[i];
+            const entry = entries[i];
+            let canDelete = false;
             if (pushResult['.tag'] === 'success') {
-                const id = pushResult.metadata.name.replace('.json', '');
-                await removeEntry(db, id);
+                canDelete = true;
+            } else if (
+                pushResult['.tag'] === 'failure' &&
+                pushResult.failure['.tag'] === 'path_lookup' &&
+                pushResult.failure.path_lookup['.tag'] === 'not_found'
+            ) {
+                // not found on remote is fine, deleting local as well
+                canDelete = true;
+            }
+            if (canDelete) {
+                await removeEntry(db, entry.id);
             }
         }
     }

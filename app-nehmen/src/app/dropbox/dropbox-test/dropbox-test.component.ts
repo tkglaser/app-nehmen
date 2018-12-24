@@ -44,6 +44,10 @@ export class DropboxTestComponent implements OnInit {
         this.loggedIn = false;
     }
 
+    onToggleSync() {
+        this.dropboxService.togglePeriodicSync();
+    }
+
     async updateHasLocalChanges() {
         const total = await countUnsyncedEntries(db);
         this.hasLocalChanges = total > 0;

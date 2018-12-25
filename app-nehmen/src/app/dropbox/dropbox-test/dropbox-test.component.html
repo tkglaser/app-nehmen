@@ -65,13 +65,7 @@
                         Download all from cloud
                         <mat-icon>get_app</mat-icon>
                     </button>
-                    <button
-                        mat-stroked-button
-                        color="warn"
-                        (click)="onToggleSync()"
-                    >
-                        Toggle sync
-                    </button>
+                    <mat-checkbox [formControl]="continousSync">Continous Sync</mat-checkbox>
                 </div>
                 <div class="warning">
                     Attention! Downloading from the cloud may override local

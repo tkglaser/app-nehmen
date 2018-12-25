@@ -84,16 +84,22 @@ export class DropboxService {
         return !!(this.state && this.state.accessToken);
     }
 
-    togglePeriodicSync() {
-        if (this.timeoutHandle === null) {
-            this.timeoutHandle = setInterval(async () => {
-                await this.syncDownToLocal();
-                await this.syncUpToCloud();
-                await this.entriesService.loadToday();
-            }, 10000);
-        } else {
-            clearInterval(this.timeoutHandle);
+    setPeriodicSync(on: boolean) {
+        let syncInProgress = false;
+        if (this.timeoutHandle != null) {
+            clearTimeout(this.timeoutHandle);
             this.timeoutHandle = null;
+        }
+        if (on) {
+            this.timeoutHandle = setInterval(async () => {
+                if (!syncInProgress) {
+                    syncInProgress = true;
+                    await this.syncDownToLocal();
+                    await this.syncUpToCloud();
+                    await this.entriesService.loadToday();
+                    syncInProgress = false;
+                }
+            }, 30000);
         }
     }
 
@@ -119,28 +125,35 @@ export class DropboxService {
 
     logout() {
         this.state.accessToken = '';
+        this.state.changesCursor = '';
         this.dbx = null;
         return saveState(db, this.state);
     }
 
     async syncDownToLocal() {
+        let entries: dbxFileRef[];
+        let nextCursor: string;
         if (!this.state.changesCursor) {
+            entries = await this.getFullList();
             const cursor = await this.dbx.filesListFolderGetLatestCursor({
                 path: '',
                 include_deleted: true,
                 include_media_info: true
             });
-            this.state.changesCursor = cursor.cursor;
-            await saveState(db, this.state);
+            nextCursor = cursor.cursor;
+        } else {
+            const next = await this.dbx.filesListFolderContinue({
+                cursor: this.state.changesCursor
+            });
+            entries = next.entries;
+            nextCursor = next.cursor;
         }
-        const next = await this.dbx.filesListFolderContinue({
-            cursor: this.state.changesCursor
-        });
-        console.log('ENTRIES TO SYNC DOWN', next);
-        for (const entry of next.entries) {
+
+        console.log('ENTRIES TO SYNC DOWN', entries);
+        for (const entry of entries) {
             await this.localSync(entry);
         }
-        this.state.changesCursor = next.cursor;
+        this.state.changesCursor = nextCursor;
         await saveState(db, this.state);
     }
 
@@ -202,22 +215,22 @@ export class DropboxService {
         }
     }
 
-    // private async getFullList() {
-    //     let entries: dbxFileRef[];
-    //     const initialResult = await this.dbx.filesListFolder({ path: '' });
-    //     entries = initialResult.entries;
-    //     let hasMore = initialResult.has_more;
-    //     let cursor = initialResult.cursor;
-    //     while (hasMore) {
-    //         const next = await this.dbx.filesListFolderContinue({
-    //             cursor
-    //         });
-    //         entries = entries.concat(next.entries);
-    //         cursor = next.cursor;
-    //         hasMore = next.has_more;
-    //     }
-    //     return entries;
-    // }
+    private async getFullList() {
+        let entries: dbxFileRef[];
+        const initialResult = await this.dbx.filesListFolder({ path: '' });
+        entries = initialResult.entries;
+        let hasMore = initialResult.has_more;
+        let cursor = initialResult.cursor;
+        while (hasMore) {
+            const next = await this.dbx.filesListFolderContinue({
+                cursor
+            });
+            entries = entries.concat(next.entries);
+            cursor = next.cursor;
+            hasMore = next.has_more;
+        }
+        return entries;
+    }
 
     private async download<T>(path: string): Promise<T> {
         const file = await this.dbx.filesDownload({
@@ -226,22 +239,6 @@ export class DropboxService {
         const blob: Blob = (file as any).fileBlob;
         return JSON.parse(await blobToString(blob));
     }
-
-    // async getLatest() {
-    //     if (!this.latestCursor) {
-    //         const cursor = await this.dbx.filesListFolderGetLatestCursor({
-    //             path: '',
-    //             include_deleted: true,
-    //             include_media_info: true
-    //         });
-    //         this.latestCursor = cursor.cursor;
-    //     }
-    //     const result = await this.dbx.filesListFolderContinue({
-    //         cursor: this.latestCursor
-    //     });
-    //     this.latestCursor = result.cursor; // move to next, do not do if you need to repeat the call
-    //     return result;
-    // }
 
     async syncUpToCloud() {
         const total = await countUnsyncedEntries(db);

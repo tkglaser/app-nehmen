@@ -16,7 +16,8 @@ import {
     MatSnackBarModule,
     MatTableModule,
     MatSlideToggleModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatCheckboxModule
 } from '@angular/material';
 
 @NgModule({
@@ -38,7 +39,8 @@ import {
         MatSlideToggleModule,
         MatAutocompleteModule,
         MatSnackBarModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatCheckboxModule
     ],
     exports: [
         MatToolbarModule,
@@ -57,7 +59,8 @@ import {
         MatSlideToggleModule,
         MatAutocompleteModule,
         MatSnackBarModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatCheckboxModule
     ]
 })
 export class MaterialModule {}

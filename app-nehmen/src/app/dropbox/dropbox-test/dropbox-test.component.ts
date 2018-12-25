@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ProgressSpinnerMode } from '@angular/material';
+import { FormControl } from '@angular/forms';
 
 import { EntryService } from '../../services';
-import {
-    db,
-    countUnsyncedEntries,
-} from '../../db';
+import { db, countUnsyncedEntries } from '../../db';
 import { DropboxService } from '../services/dropbox.service';
 
 @Component({
@@ -21,6 +19,7 @@ export class DropboxTestComponent implements OnInit {
     progressPct: number;
     mode: ProgressSpinnerMode;
     hasLocalChanges = true;
+    continousSync = new FormControl(false);
 
     constructor(
         private dropboxService: DropboxService,
@@ -33,6 +32,9 @@ export class DropboxTestComponent implements OnInit {
         if (this.loggedIn) {
             // this.folders = await this.dropboxService.getList();
         }
+        this.continousSync.valueChanges.subscribe(value => {
+            this.dropboxService.setPeriodicSync(value);
+        });
     }
 
     onLogin() {
@@ -42,10 +44,6 @@ export class DropboxTestComponent implements OnInit {
     onLogout() {
         this.dropboxService.logout();
         this.loggedIn = false;
-    }
-
-    onToggleSync() {
-        this.dropboxService.togglePeriodicSync();
     }
 
     async updateHasLocalChanges() {
@@ -69,16 +67,5 @@ export class DropboxTestComponent implements OnInit {
         this.entryService.loadToday();
         this.updateHasLocalChanges();
         this.busy = false;
-
-        // this.progressPct = 0;
-        // const list = await this.dropboxService.getList();
-        // const results = await forkJoin(
-        //     list.map(entry =>
-        //         this.dropboxService.download<Entry>(entry.path_lower)
-        //     )
-        // ).toPromise();
-        // await forkJoin(
-        //     results.map(entry => this.entryService.recoverEntry(entry))
-        // ).toPromise();
     }
 }

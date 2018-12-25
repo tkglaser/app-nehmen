@@ -29,6 +29,7 @@ import {
 } from './services';
 import { MaterialModule } from './material.module';
 import { DropboxModule } from './dropbox/dropbox.module';
+import { UpdateComponent } from './update/update.component';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -43,7 +44,8 @@ registerLocaleData(localeEnGb, 'en-GB');
         LogSliderComponent,
         SettingsComponent,
         DayEntriesComponent,
-        EntriesTableComponent
+        EntriesTableComponent,
+        UpdateComponent
     ],
     imports: [
         BrowserModule,

@@ -15,7 +15,11 @@ export async function getSetting<T>(
     return value || defaultValue;
 }
 
-export async function setSetting(dbPromise: Promise<DB>, key, val) {
+export async function setSetting(
+    dbPromise: Promise<DB>,
+    key: string,
+    val: any
+) {
     const db = await dbPromise;
     const tx = db.transaction(settingsStore, 'readwrite');
     tx.objectStore(settingsStore).put(val, key);

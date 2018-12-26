@@ -52,9 +52,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         BrowserAnimationsModule,
         LayoutModule,
         ReactiveFormsModule,
-        ServiceWorkerModule.register('ngsw-worker.js', {
-            enabled: environment.production
-        }),
+        ServiceWorkerModule.register(environment.serviceWorkerScript),
         MaterialModule,
         DropboxModule
     ],

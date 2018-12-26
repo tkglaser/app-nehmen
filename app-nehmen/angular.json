@@ -25,8 +25,17 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/web.config",
               "src/manifest.json",
+              {
+                "input": "src/app/",
+                "glob": "sw-master.js",
+                "output": "."
+              },
+              {
+                "input": "src/app/dropbox/services/",
+                "glob": "dropbox-serviceworker.js",
+                "output": "."
+              },
               {
                 "input": "node_modules/dropbox/dist/",
                 "glob": "Dropbox-sdk.min.js",

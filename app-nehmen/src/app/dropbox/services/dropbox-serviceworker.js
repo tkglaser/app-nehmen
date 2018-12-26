@@ -1,3 +1,6 @@
+importScripts('Dropbox-sdk.min.js');
+importScripts('idb.js');
+
 (function () {
     'use strict';
 

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { LoggingService } from './services/logging.service';
+import { UpdateService } from './services';
 
 @Component({
     selector: 'app-root',
@@ -8,5 +9,5 @@ import { LoggingService } from './services/logging.service';
 })
 export class AppComponent {
     title = 'app-nehmen';
-    constructor(log: LoggingService) {}
+    constructor(private log: LoggingService, private update: UpdateService) {}
 }

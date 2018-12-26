@@ -29,7 +29,7 @@ import {
 } from './services';
 import { MaterialModule } from './material.module';
 import { DropboxModule } from './dropbox/dropbox.module';
-import { UpdateComponent } from './update/update.component';
+import { UpdateService } from './services/update.service';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -44,8 +44,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         LogSliderComponent,
         SettingsComponent,
         DayEntriesComponent,
-        EntriesTableComponent,
-        UpdateComponent
+        EntriesTableComponent
     ],
     imports: [
         BrowserModule,
@@ -65,6 +64,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         UniqueIdService,
         ClockService,
         LoggingService,
+        UpdateService,
         {
             provide: ErrorHandler,
             useClass: GlobalErrorHandler

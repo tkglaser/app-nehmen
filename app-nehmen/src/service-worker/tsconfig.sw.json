@@ -1,0 +1,25 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "outDir": "../../dist-sw/tsc-out",
+        "baseUrl": ".",
+        "declaration": false,
+        "strict": true,
+        "module": "es2015",
+        "moduleResolution": "node",
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "noImplicitAny": true,
+        "noFallthroughCasesInSwitch": true,
+        "rootDir": ".",
+        "inlineSourceMap": true,
+        "lib": ["es2015", "dom"],
+        "target": "es2017",
+        "typeRoots": [],
+        "types": []
+    },
+    "bazelOptions": {
+        "suppressTsconfigOverrideWarnings": true
+    },
+    "files": ["main.ts", "service-worker.d.ts"]
+}

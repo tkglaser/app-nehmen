@@ -67,6 +67,13 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
+              "assets": [
+                {
+                  "input": "dist-sw/",
+                  "glob": "sync-worker.js",
+                  "output": "."
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",

@@ -12,7 +12,7 @@ export function dayString(date: Date | number): string {
 }
 
 export function friendlyDay(day: string) {
-    return moment(day).calendar(null, {
+    return moment(day).calendar(undefined, {
         sameDay: '[Today]',
         nextDay: '[Tomorrow]',
         nextWeek: 'dddd',

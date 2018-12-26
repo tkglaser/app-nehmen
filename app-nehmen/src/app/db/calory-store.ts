@@ -83,7 +83,10 @@ export async function getAutoSuggestionEntries(
                     frequency: 1
                 });
             } else {
-                result.get(groupKey(entry)).frequency++;
+                const group = result.get(groupKey(entry));
+                if (group) {
+                    group.frequency++;
+                }
             }
         }
     });

@@ -67,6 +67,10 @@ export class DropboxService {
         }
     }
 
+    isLoggedIn() {
+        return !!this.state.accessToken;
+    }
+
     async syncDownToLocal() {
         let entries: dbxFileRef[];
         let nextCursor: string;
@@ -86,7 +90,6 @@ export class DropboxService {
             nextCursor = next.cursor;
         }
 
-        console.log('ENTRIES TO SYNC DOWN', entries);
         for (const entry of entries) {
             await this.localSync(entry);
         }
@@ -187,7 +190,6 @@ export class DropboxService {
         do {
             const entries = await getUnsyncedEntriesPage(db, 10, page++);
             hasMore = entries.hasMore;
-            console.log('ENTRIES TO SYNC UP', entries);
             const itemsToCopy = entries.items.filter(
                 entry => entry.sync_state === SyncState.Dirty
             );
@@ -203,6 +205,13 @@ export class DropboxService {
                 await this.localDelete(itemsToDelete, apiResults);
             }
         } while (hasMore);
+
+        // forget the set of changes we just made
+        const next = await this.dbx.filesListFolderContinue({
+            cursor: this.state.changesCursor
+        });
+        this.state.changesCursor = next.cursor;
+        await saveState(db, this.state);
     }
 
     private async copyToCloud(entries: Entry[]) {

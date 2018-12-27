@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import * as dbx from 'dropbox';
 import * as fetch from 'isomorphic-fetch';
 import { Location } from '@angular/common';
+import { Subject } from 'rxjs';
 
 import { DropboxState } from '../models';
 import { db } from 'src/app/db';
-import { saveState } from './dropbox.service';
+import { saveState, loadState } from './dropbox.service';
 
 const clientId = '988bai9urdqlw6l';
 
@@ -15,8 +16,11 @@ const clientId = '988bai9urdqlw6l';
 export class DropboxAuthService {
     private state: DropboxState;
     private isLoaded: Promise<void>;
+    private needsReload = new Subject<void>();
 
-    constructor(private location: Location) {}
+    constructor(private location: Location) {
+        this.init();
+    }
 
     async isLoggedIn() {
         await this.isLoaded;
@@ -39,9 +43,33 @@ export class DropboxAuthService {
         return saveState(db, this.state);
     }
 
+    async scheduleSync() {
+        const isAuth = await this.isLoggedIn();
+        if (isAuth) {
+            const swReg = await navigator.serviceWorker.ready;
+            swReg.sync.register('calories_updated');
+        }
+    }
+
+    onSyncFinished() {
+        return this.needsReload.asObservable();
+    }
+
     logout() {
         this.state.accessToken = '';
         this.state.changesCursor = '';
         return saveState(db, this.state);
+    }
+
+    private async init() {
+        this.isLoaded = new Promise(async resolve => {
+            this.state = await loadState(db);
+            resolve();
+        });
+        navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data === 'sync_finished') {
+                this.needsReload.next();
+            }
+        });
     }
 }

@@ -15,7 +15,6 @@ import { dayString, todayString } from '../utils';
 import {
     db,
     upsertEntry,
-    removeEntry,
     getAutoSuggestionEntries,
     getEntriesByDay,
     hasEntriesOlderThan,
@@ -29,6 +28,7 @@ import {
     EntryUpdate,
     SyncState
 } from '../models';
+import { DropboxAuthService } from '../dropbox/services/dropbox-auth.service';
 
 const byTimestampDescending = (a: Entry, b: Entry) => {
     if (a.created < b.created) {
@@ -50,32 +50,43 @@ const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
     }
 };
 
+const dropboxPollInterval = 1 * 60 * 1000;
+
 @Injectable({
     providedIn: 'root'
 })
 export class EntryService implements OnDestroy {
     private entriesToday = new BehaviorSubject<Entry[]>([]);
     private reloader: Subscription;
+    private dbxpoll: any;
 
     constructor(
         private config: ConfigService,
         private uuid: UniqueIdService,
-        private clockService: ClockService
+        private clockService: ClockService,
+        private dropbox: DropboxAuthService
     ) {
         this.init();
     }
 
     private init() {
-        this.reloader = this.clockService
-            .today()
+        this.dropbox.scheduleSync();
+        this.dbxpoll = setInterval(() => {
+            this.dropbox.scheduleSync();
+        }, dropboxPollInterval);
+        this.reloader = combineLatest(
+            this.clockService.today(),
+            this.dropbox.onSyncFinished()
+        )
             .pipe(
-                switchMap(today => from(getEntriesByDay(db, today))),
+                switchMap(([today]) => from(getEntriesByDay(db, today))),
                 map(entries => entries.sort(byTimestampDescending))
             )
             .subscribe(entries => this.entriesToday.next(entries));
     }
 
     ngOnDestroy(): void {
+        clearInterval(this.dbxpoll);
         this.reloader.unsubscribe();
     }
 
@@ -97,6 +108,7 @@ export class EntryService implements OnDestroy {
             sync_state: SyncState.Dirty
         };
         await upsertEntry(db, newEntry);
+        await this.dropbox.scheduleSync();
         this.loadToday();
     }
 
@@ -113,11 +125,8 @@ export class EntryService implements OnDestroy {
             description: entryUpdate.description,
             exercise: entryUpdate.exercise
         });
+        await this.dropbox.scheduleSync();
         this.loadToday();
-    }
-
-    recoverEntry(entry: Entry) {
-        return upsertEntry(db, { ...entry, sync_state: SyncState.Synced });
     }
 
     async removeEntry(id: string) {
@@ -130,11 +139,7 @@ export class EntryService implements OnDestroy {
             sync_state: SyncState.Deleted,
             modified: new Date().getTime()
         });
-        this.loadToday();
-    }
-
-    async deleteEntry(id: string) {
-        await removeEntry(db, id);
+        await this.dropbox.scheduleSync();
         this.loadToday();
     }
 

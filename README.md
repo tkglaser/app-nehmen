@@ -9,7 +9,7 @@ The goal of this project is to create a calory counter that doesn't suck.
 - All data is stored locally on the device/browser (using IndexedDB)
 - No login, no back-end, no collection of user data
 - Free and open source, no ads, no BS.
-- It is planned to provide an optional sync-to-dropbox functionality that allows users to replicate data across devices by logging in to the same dropbox account. Yes, I said no logins, but this is a login to dropbox and you have to do backup somehow. And it is optional.
+- It provides an optional sync-to-dropbox functionality that allows users to replicate data across devices by logging in to the same dropbox account. Yes, I said no logins, but this is a login to dropbox and you have to do backup somehow. And it is optional.
 - Potentially at some future point: 
   - Query 3rd party providers like MyFitnessPal for calory entries
   - Export data to CSV if you want a manual backup

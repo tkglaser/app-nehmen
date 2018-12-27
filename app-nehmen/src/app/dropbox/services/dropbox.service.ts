@@ -8,7 +8,11 @@ import { Entry, SyncState } from '../../models';
 import { DropboxState, DropboxSyncState } from '../models';
 import { httpHeaderSafeJSON } from '../../utils/json.utils';
 import { blobToString } from '../../utils/blob.utils';
-import { toDropboxString, fromDropboxString } from '../../utils/date.utils';
+import {
+    toDropboxString,
+    fromDropboxString,
+    dayString
+} from '../../utils/date.utils';
 import { wait } from '../../utils/async.utils';
 import { getSetting, setSetting } from '../../db/settings-store';
 import { db } from '../../db/index-db';
@@ -19,10 +23,16 @@ import {
     countUnsyncedEntries,
     getUnsyncedEntriesPage
 } from '../../db/calory-store';
+import { DropboxEntry } from '../models/dropbox-entry.model';
 
 function toDropboxModel(entry: Entry): string {
-    const result = { ...entry };
-    delete result.sync_state;
+    const result: DropboxEntry = {
+        calories: entry.calories,
+        created: entry.created,
+        description: entry.description,
+        exercise: entry.exercise,
+        modified: entry.modified
+    };
     return httpHeaderSafeJSON(result);
 }
 
@@ -139,16 +149,20 @@ export class DropboxService {
         if (sync_decision === 'delete_local') {
             await removeEntry(db, id);
         } else if (sync_decision === 'take_remote') {
-            const entry = await this.download<Entry>(fileRef.path_lower || '');
+            const entry = await this.download(fileRef.path_lower || '');
             await upsertEntry(db, {
                 ...entry,
+                id,
+                day: dayString(entry.created),
                 sync_state: SyncState.Synced
             });
         } else if (sync_decision === 'take_remote_if_newer') {
-            const entry = await this.download<Entry>(fileRef.path_lower || '');
+            const entry = await this.download(fileRef.path_lower || '');
             if (entry.modified > localEntry.modified) {
                 await upsertEntry(db, {
                     ...entry,
+                    id,
+                    day: dayString(entry.created),
                     sync_state: SyncState.Synced
                 });
             }
@@ -172,7 +186,7 @@ export class DropboxService {
         return entries;
     }
 
-    private async download<T>(path: string): Promise<T> {
+    private async download(path: string): Promise<DropboxEntry> {
         const file = await this.dbx.filesDownload({
             path
         });

@@ -1,5 +1,7 @@
-import * as moment from 'moment';
+import * as moment_ from 'moment';
 import { DayOfWeek } from '../models';
+
+const moment = moment_; // workaround for rollup
 
 export function dayString(date: Date | number): string {
     let internalDate: Date;

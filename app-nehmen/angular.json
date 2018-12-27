@@ -73,11 +73,6 @@
                   "output": "."
                 },
                 {
-                  "input": "node_modules/isomorphic-fetch/",
-                  "glob": "fetch-npm-browserify.js",
-                  "output": "."
-                },
-                {
                   "input": "node_modules/rxjs/bundles/",
                   "glob": "rxjs.umd.min.js",
                   "output": "."

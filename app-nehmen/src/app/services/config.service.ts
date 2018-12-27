@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { pluck, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { pluck, distinctUntilChanged, map } from 'rxjs/operators';
 
 import { setSetting, db, getSetting } from '../db';
 import { isDayOfWeekToday } from '../utils';
@@ -34,11 +34,15 @@ export class ConfigService {
     }
 
     isCheatDay() {
-        return this.clockService.today().pipe(
-            switchMap(() => this.settings),
-            pluck<Config, string>('cheatDay'),
-            distinctUntilChanged(),
-            map(isDayOfWeekToday)
+        return combineLatest(this.settings, this.clockService.today()).pipe(
+            map(([settings]) => {
+                if (settings.cheatDay === 'none') {
+                    return false;
+                } else {
+                    return isDayOfWeekToday(settings.cheatDay);
+                }
+            }),
+            distinctUntilChanged()
         );
     }
 

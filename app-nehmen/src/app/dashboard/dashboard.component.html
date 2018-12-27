@@ -1,4 +1,4 @@
-<ng-container *ngIf="!(isCheatDay$ | async)">
+<ng-container *ngIf="(isCheatDay$ | async) === false">
     <mat-card>
         <mat-card-title>{{ caloriesLeft$ | async }}</mat-card-title>
         <mat-card-content> Calories left </mat-card-content>
@@ -6,7 +6,7 @@
     <app-add-entry></app-add-entry>
     <app-todays-entries></app-todays-entries>
 </ng-container>
-<mat-card *ngIf="(isCheatDay$ | async)">
+<mat-card *ngIf="(isCheatDay$ | async) === true">
     <mat-card-title>🎉 Happy cheat day! 🎉</mat-card-title>
     <mat-card-content>No logging, just enjoy your day</mat-card-content>
 </mat-card>

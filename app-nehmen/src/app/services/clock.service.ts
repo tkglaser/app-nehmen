@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { interval, Observable } from 'rxjs';
-import { map, distinctUntilChanged, share, startWith } from 'rxjs/operators';
+import { map, distinctUntilChanged, startWith } from 'rxjs/operators';
 
 import { todayString } from '../utils';
 
@@ -17,8 +17,7 @@ export class ClockService {
         this.todayInternal = this.clock.pipe(
             startWith(null),
             map(() => todayString()),
-            distinctUntilChanged(),
-            share()
+            distinctUntilChanged()
         );
     }
 

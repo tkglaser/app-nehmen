@@ -7,7 +7,7 @@ import {
     from,
     Subscription
 } from 'rxjs';
-import { map, filter, switchMap, shareReplay } from 'rxjs/operators';
+import { map, filter, switchMap, shareReplay, startWith } from 'rxjs/operators';
 
 import { ConfigService } from './config.service';
 import { UniqueIdService } from './unique-id.service';
@@ -76,7 +76,7 @@ export class EntryService implements OnDestroy {
         }, dropboxPollInterval);
         this.reloader = combineLatest(
             this.clockService.today(),
-            this.dropbox.onSyncFinished()
+            this.dropbox.onSyncFinished().pipe(startWith(null))
         )
             .pipe(
                 switchMap(([today]) => from(getEntriesByDay(db, today))),

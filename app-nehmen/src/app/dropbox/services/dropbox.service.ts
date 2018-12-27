@@ -1,33 +1,24 @@
-import { Injectable } from '@angular/core';
 import * as dbx from 'dropbox';
 import * as fetch from 'isomorphic-fetch';
-import { Location } from '@angular/common';
 import { forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DB } from 'idb';
 
 import { Entry, SyncState } from '../../models';
-import {
-    blobToString,
-    toDropboxString,
-    httpHeaderSafeJSON,
-    wait,
-    fromDropboxString
-} from '../../utils';
-import {
-    countUnsyncedEntries,
-    db,
-    getUnsyncedEntriesPage,
-    getEntryById,
-    upsertEntry,
-    removeEntry,
-    getSetting,
-    setSetting
-} from 'src/app/db';
 import { DropboxState, DropboxSyncState } from '../models';
-import { EntryService } from 'src/app/services';
-
-const clientId = '988bai9urdqlw6l';
+import { httpHeaderSafeJSON } from '../../utils/json.utils';
+import { blobToString } from '../../utils/blob.utils';
+import { toDropboxString, fromDropboxString } from '../../utils/date.utils';
+import { wait } from '../../utils/async.utils';
+import { getSetting, setSetting } from '../../db/settings-store';
+import { db } from '../../db/index-db';
+import {
+    getEntryById,
+    removeEntry,
+    upsertEntry,
+    countUnsyncedEntries,
+    getUnsyncedEntriesPage
+} from '../../db/calory-store';
 
 function toDropboxModel(entry: Entry): string {
     const result = { ...entry };
@@ -35,7 +26,7 @@ function toDropboxModel(entry: Entry): string {
     return httpHeaderSafeJSON(result);
 }
 
-function loadState(dbPromise: Promise<DB>) {
+export function loadState(dbPromise: Promise<DB>) {
     return getSetting<DropboxState>(dbPromise, 'dropbox_state', {
         accessToken: '',
         changesCursor: '',
@@ -44,90 +35,36 @@ function loadState(dbPromise: Promise<DB>) {
     });
 }
 
-function saveState(dbPromise: Promise<DB>, state: DropboxState) {
+export function saveState(dbPromise: Promise<DB>, state: DropboxState) {
     return setSetting(dbPromise, 'dropbox_state', state);
 }
 
-export type dbxFileRef =
+type dbxFileRef =
     | dbx.files.FileMetadataReference
     | dbx.files.FolderMetadataReference
     | dbx.files.DeletedMetadataReference;
 
-@Injectable({
-    providedIn: 'root'
-})
 export class DropboxService {
     private state: DropboxState;
     private dbx: dbx.Dropbox;
-    private isLoaded: Promise<void>;
-    private timeoutHandle = null;
 
-    constructor(
-        private location: Location,
-        private entriesService: EntryService
-    ) {
-        this.init();
+    private constructor() {}
+
+    static async create() {
+        const inst = new DropboxService();
+        await inst.init();
+        return inst;
     }
 
-    private init() {
-        this.isLoaded = new Promise(async resolve => {
-            this.state = await loadState(db);
-            resolve();
-            if (this.state.accessToken) {
-                this.login(this.state.accessToken);
-            }
-        });
-    }
-
-    async isLoggedIn() {
-        await this.isLoaded;
-        return !!(this.state && this.state.accessToken);
-    }
-
-    setPeriodicSync(on: boolean) {
-        let syncInProgress = false;
-        if (this.timeoutHandle != null) {
-            clearTimeout(this.timeoutHandle);
-            this.timeoutHandle = null;
+    private async init() {
+        this.state = await loadState(db);
+        if (this.state.accessToken) {
+            this.dbx = new dbx.Dropbox({
+                accessToken: this.state.accessToken,
+                fetch
+            } as any);
+            return saveState(db, this.state);
         }
-        if (on) {
-            this.timeoutHandle = setInterval(async () => {
-                if (!syncInProgress) {
-                    syncInProgress = true;
-                    await this.syncDownToLocal();
-                    await this.syncUpToCloud();
-                    await this.entriesService.loadToday();
-                    syncInProgress = false;
-                }
-            }, 30000);
-        }
-    }
-
-    getLoginUrl() {
-        const returnUrl =
-            location.origin + this.location.prepareExternalUrl('/dropbox/auth');
-        const dropbox = new dbx.Dropbox({
-            clientId,
-            fetch
-        } as any);
-        return dropbox.getAuthenticationUrl(returnUrl);
-    }
-
-    async login(accesstoken: string) {
-        await this.isLoaded;
-        this.state.accessToken = accesstoken;
-        this.dbx = new dbx.Dropbox({
-            accessToken: this.state.accessToken,
-            fetch
-        } as any);
-        return saveState(db, this.state);
-    }
-
-    logout() {
-        this.state.accessToken = '';
-        this.state.changesCursor = '';
-        this.dbx = null;
-        return saveState(db, this.state);
     }
 
     async syncDownToLocal() {
@@ -163,7 +100,7 @@ export class DropboxService {
             | 'take_remote'
             | 'take_remote_if_newer'
             | 'delete_local'
-            | 'take_local';
+            | 'take_local' = 'take_local';
 
         // get local
         const localEntry = await getEntryById(db, id);
@@ -199,13 +136,13 @@ export class DropboxService {
         if (sync_decision === 'delete_local') {
             await removeEntry(db, id);
         } else if (sync_decision === 'take_remote') {
-            const entry = await this.download<Entry>(fileRef.path_lower);
+            const entry = await this.download<Entry>(fileRef.path_lower || '');
             await upsertEntry(db, {
                 ...entry,
                 sync_state: SyncState.Synced
             });
         } else if (sync_decision === 'take_remote_if_newer') {
-            const entry = await this.download<Entry>(fileRef.path_lower);
+            const entry = await this.download<Entry>(fileRef.path_lower || '');
             if (entry.modified > localEntry.modified) {
                 await upsertEntry(db, {
                     ...entry,
@@ -302,7 +239,7 @@ export class DropboxService {
             }
         );
 
-        let jobId: string;
+        let jobId = '';
 
         while (
             job['.tag'] === 'async_job_id' ||

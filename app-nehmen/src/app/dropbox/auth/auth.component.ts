@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { DropboxService } from '../services/dropbox.service';
+import { DropboxAuthService } from '../services/dropbox-auth.service';
+
 
 @Component({
     selector: 'app-auth',
@@ -12,7 +13,7 @@ export class AuthComponent implements OnInit {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private dropboxService: DropboxService
+        private dropboxService: DropboxAuthService
     ) {
         this.route.fragment.subscribe(f => this.onFragmentReceived(f));
     }

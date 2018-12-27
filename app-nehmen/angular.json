@@ -48,13 +48,13 @@
                 "src/assets",
                 "src/manifest.json",
                 {
-                  "input": "src/app/",
+                  "input": "src/service-worker/",
                   "glob": "sw-master.js",
                   "output": "."
                 },
                 {
-                  "input": "src/app/dropbox/services/",
-                  "glob": "dropbox-serviceworker.js",
+                  "input": "dist-sw/",
+                  "glob": "sync-worker.js",
                   "output": "."
                 },
                 {
@@ -73,8 +73,13 @@
                   "output": "."
                 },
                 {
-                  "input": "dist-sw/",
-                  "glob": "sync-worker.js",
+                  "input": "node_modules/isomorphic-fetch/",
+                  "glob": "fetch-npm-browserify.js",
+                  "output": "."
+                },
+                {
+                  "input": "node_modules/rxjs/bundles/",
+                  "glob": "rxjs.umd.min.js",
                   "output": "."
                 }
               ],

@@ -6,8 +6,22 @@ export default {
     output: {
         file: './dist-sw/sync-worker.js',
         format: 'iife',
-        globals: { moment: 'moment', idb: 'self.idb' }
+        globals: {
+            moment: 'moment',
+            idb: 'idb',
+            dropbox: 'Dropbox',
+            'isomorphic-fetch': 'fetch',
+            rxjs: 'rxjs',
+            'rxjs/operators': 'rxjs.operators'
+        }
     },
-    external: ['moment', 'idb']
+    external: [
+        'moment',
+        'idb',
+        'dropbox',
+        'isomorphic-fetch',
+        'rxjs',
+        'rxjs/operators'
+    ]
     // plugins: [resolve({}), commonjs({})]
 };

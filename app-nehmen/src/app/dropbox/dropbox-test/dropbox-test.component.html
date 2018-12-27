@@ -39,37 +39,6 @@
                         Logout from Dropbox
                         <mat-icon>account_circle</mat-icon>
                     </button>
-                    <button
-                        *ngIf="hasLocalChanges"
-                        mat-stroked-button
-                        color="primary"
-                        (click)="copyAllToCloud()"
-                    >
-                        Copy modified to cloud
-                        <mat-icon>publish</mat-icon>
-                    </button>
-                    <button
-                        *ngIf="!hasLocalChanges"
-                        mat-stroked-button
-                        color="primary"
-                        disabled
-                    >
-                        Nothing to upload
-                        <mat-icon>publish</mat-icon>
-                    </button>
-                    <button
-                        mat-stroked-button
-                        color="warn"
-                        (click)="downloadAll()"
-                    >
-                        Download all from cloud
-                        <mat-icon>get_app</mat-icon>
-                    </button>
-                    <mat-checkbox [formControl]="continousSync">Continous Sync</mat-checkbox>
-                </div>
-                <div class="warning">
-                    Attention! Downloading from the cloud may override local
-                    data. Intelligent sync is not implemented yet.
                 </div>
             </mat-card-content>
         </mat-card>

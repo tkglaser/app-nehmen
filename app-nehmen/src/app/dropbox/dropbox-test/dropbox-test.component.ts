@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProgressSpinnerMode } from '@angular/material';
 import { FormControl } from '@angular/forms';
 
-import { EntryService } from '../../services';
-import { db, countUnsyncedEntries } from '../../db';
-import { DropboxService } from '../services/dropbox.service';
+import { DropboxAuthService } from '../services/dropbox-auth.service';
 
 @Component({
     selector: 'app-dropbox-test',
@@ -18,23 +16,12 @@ export class DropboxTestComponent implements OnInit {
     busy = false;
     progressPct: number;
     mode: ProgressSpinnerMode;
-    hasLocalChanges = true;
     continousSync = new FormControl(false);
 
-    constructor(
-        private dropboxService: DropboxService,
-        private entryService: EntryService
-    ) {}
+    constructor(private dropboxService: DropboxAuthService) {}
 
     async ngOnInit() {
         this.loggedIn = await this.dropboxService.isLoggedIn();
-        this.updateHasLocalChanges();
-        if (this.loggedIn) {
-            // this.folders = await this.dropboxService.getList();
-        }
-        this.continousSync.valueChanges.subscribe(value => {
-            this.dropboxService.setPeriodicSync(value);
-        });
     }
 
     onLogin() {
@@ -44,28 +31,5 @@ export class DropboxTestComponent implements OnInit {
     onLogout() {
         this.dropboxService.logout();
         this.loggedIn = false;
-    }
-
-    async updateHasLocalChanges() {
-        const total = await countUnsyncedEntries(db);
-        this.hasLocalChanges = total > 0;
-    }
-
-    async copyAllToCloud() {
-        this.progressPct = 0;
-        this.mode = 'indeterminate';
-        this.busy = true;
-        this.dropboxService.syncUpToCloud();
-        this.updateHasLocalChanges();
-        this.busy = false;
-    }
-
-    async downloadAll() {
-        this.mode = 'indeterminate';
-        this.busy = true;
-        await this.dropboxService.syncDownToLocal();
-        this.entryService.loadToday();
-        this.updateHasLocalChanges();
-        this.busy = false;
     }
 }

@@ -1,5 +1,5 @@
-# AppNehmen Calory Counter
-The goal of this project is to create a calory counter that doesn't suck.
+# AppNehmen Calorie Counter
+The goal of this project is to create a calorie counter that doesn't suck.
 
 ## Architecture
 - The app is a PWA written in Angular. This means:
@@ -11,11 +11,10 @@ The goal of this project is to create a calory counter that doesn't suck.
 - Free and open source, no ads, no BS.
 - It provides an optional sync-to-dropbox functionality that allows users to replicate data across devices by logging in to the same dropbox account. Yes, I said no logins, but this is a login to dropbox and you have to do backup somehow. And it is optional.
 - Potentially at some future point: 
-  - Query 3rd party providers like MyFitnessPal for calory entries
+  - Query 3rd party providers like MyFitnessPal for calorie entries
   - Export data to CSV if you want a manual backup
   
 ## Hosting
-- There is a CD instance at https://www.tkglaser.net/app-nehmen. Remember, this is pre-alpha software, please don't shout at me if your calory entries are lost. :)
-- The plan is to provide a hosted instance at Github Pages but I'm not quite there yet.
+- There is an instance at https://www.tkglaser.net/app-nehmen
 
 Please report any issues you find here on github. Pull requests welcome. There is no unit test coverage yet but this is planned as well.

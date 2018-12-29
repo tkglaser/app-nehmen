@@ -27,6 +27,7 @@ Go to https://www.tkglaser.net/app-nehmen to try it out.
 - All data is stored on the device using IndexedDB.
 - If you chose to log in to Dropbox, your data is synced to your Dropbox. The app only has access to a specific folder in your
   Dropbox.
+- It is hosted on Github pages and is continuously deployed by a Jenkins server that runs on a Raspberry Pi.
   
 ## Get involved
 Please report any issues you find here on Github. Pull requests welcome. There is no unit test coverage yet but this is planned as well.

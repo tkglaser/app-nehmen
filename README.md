@@ -1,7 +1,7 @@
 # AppNehmen Calorie Counter
 The goal of this project is to create a calorie counter that doesn't suck.
 
-[![Dependency Status](https://david-dm.org/tkglaser/app-nehmen.svg)](https://david-dm.org/tkglaser/app-nehmen) [![devDependency Status](https://david-dm.org/tkglaser/app-nehmen/dev-status.svg)](https://david-dm.org/tkglaser/app-nehmen?type=dev) 
+[![Dependency Status](https://david-dm.org/tkglaser/app-nehmen.svg)](https://david-dm.org/tkglaser/app-nehmen)
 
 [![GitHub forks](https://img.shields.io/github/forks/tkglaser/app-nehmen.svg?style=social&label=Fork)](https://github.com/tkglaser/app-nehmen/fork) [![GitHub stars](https://img.shields.io/github/stars/tkglaser/app-nehmen.svg?style=social&label=Star)](https://github.com/tkglaser/app-nehmen) 
 

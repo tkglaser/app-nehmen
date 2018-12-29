@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DropboxTestComponent } from './dropbox-test.component';
+import { DropboxSettingsComponent } from './dropbox-settings.component';
 
-describe('DropboxTestComponent', () => {
-  let component: DropboxTestComponent;
-  let fixture: ComponentFixture<DropboxTestComponent>;
+describe('DropboxSettingsComponent', () => {
+  let component: DropboxSettingsComponent;
+  let fixture: ComponentFixture<DropboxSettingsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DropboxTestComponent ]
+      declarations: [ DropboxSettingsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DropboxTestComponent);
+    fixture = TestBed.createComponent(DropboxSettingsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

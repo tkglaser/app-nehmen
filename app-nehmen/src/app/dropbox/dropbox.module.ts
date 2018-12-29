@@ -4,18 +4,19 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { DropboxRoutingModule } from './dropbox-routing.module';
 import { AuthComponent } from './auth/auth.component';
-import { DropboxTestComponent } from './dropbox-test/dropbox-test.component';
 import { MaterialModule } from '../material.module';
 import { DropboxAuthService } from './services/dropbox-auth.service';
+import { DropboxSettingsComponent } from './dropbox-settings/dropbox-settings.component';
 
 @NgModule({
-    declarations: [AuthComponent, DropboxTestComponent],
+    declarations: [AuthComponent, DropboxSettingsComponent],
     imports: [
         CommonModule,
         DropboxRoutingModule,
         MaterialModule,
         ReactiveFormsModule
     ],
-    providers: [DropboxAuthService]
+    providers: [DropboxAuthService],
+    exports: [DropboxSettingsComponent]
 })
 export class DropboxModule {}

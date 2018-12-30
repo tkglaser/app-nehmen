@@ -9,7 +9,7 @@ Go to https://www.tkglaser.net/app-nehmen to try it out.
 
 ## Design Goals
 - All other calorie trackers I tried annoyed me in some way. Too slow, too many ads, suspicious use of my data.
-  So I decided to create one that doesn't suck.
+  So I decided to try to create one that doesn't suck.
 - I wanted to be able to use it as a mobile app and as a web site.
 - It needs to work offline.
 - All data is stored locally on your device. No sharing, selling or spying.

@@ -16,7 +16,7 @@
     "build-gh": "npm run sw-build && ng build --prod --base-href \"https://www.tkglaser.net/app-nehmen/\"",
     "deploy-gh": "ngh --no-silent",
     "test": "ng test",
-    "test-ci": "ng test --no-progress --no-watch --browsers=ChromeHeadless",
+    "test-ci": "ng test --no-progress --no-watch --browsers=ChromiumHeadless",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

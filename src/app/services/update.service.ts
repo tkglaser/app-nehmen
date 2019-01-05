@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material';
+import { interval } from 'rxjs';
+
+const updateIntervalMs = 6 * 60 * 60 * 1000;
 
 @Injectable({
     providedIn: 'root'
@@ -19,6 +22,10 @@ export class UpdateService {
                     snack.dismiss();
                 }, 6000);
             });
+            swUpdate.checkForUpdate();
+            interval(updateIntervalMs).subscribe(() =>
+                swUpdate.checkForUpdate()
+            );
         }
     }
 }

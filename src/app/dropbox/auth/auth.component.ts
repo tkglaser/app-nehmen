@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { DropboxAuthService } from '../services/dropbox-auth.service';
 
-
 @Component({
     selector: 'app-auth',
     templateUrl: './auth.component.html',

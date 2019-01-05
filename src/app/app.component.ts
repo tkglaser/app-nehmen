@@ -9,6 +9,5 @@ import { UpdateService } from './services';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-    title = 'app-nehmen';
     constructor(private log: LoggingService, private update: UpdateService) {}
 }

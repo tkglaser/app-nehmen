@@ -13,10 +13,10 @@ export class EntriesTableComponent {
     @Input()
     dataSource: Observable<Entry[]> = new BehaviorSubject<Entry[]>([]);
 
-    displayedColumns: string[] = [
+    displayedColumns: Array<keyof Entry | 'actions'> = [
         'description',
         'calories',
-        'timestamp',
+        'created',
         'actions'
     ];
 

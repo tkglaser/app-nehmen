@@ -1,4 +1,6 @@
 import { DropboxService } from '../app/dropbox/services/dropbox.service';
+import { log } from '../app/db/sync-log-store';
+import { db } from '../app/db/index-db';
 
 const scope = (self as any) as ServiceWorkerGlobalScope;
 
@@ -10,15 +12,19 @@ async function notifyClients() {
 }
 
 async function doSync() {
-    const dropboxService = await DropboxService.create();
-    if (dropboxService.isLoggedIn()) {
-        console.log('SYNC STARTS');
-        await dropboxService.syncDownToLocal();
-        await dropboxService.syncUpToCloud();
-        await notifyClients();
-        console.log('SYNC ENDS');
-    } else {
-        console.log('NOT LOGGED IN');
+    try {
+        const dropboxService = await DropboxService.create();
+        if (dropboxService.isLoggedIn()) {
+            await log(db, 'SYNC STARTS');
+            await dropboxService.syncDownToLocal();
+            do {} while (await dropboxService.syncUpToCloud());
+            await notifyClients();
+            await log(db, 'SYNC ENDS');
+        } else {
+            await log(db, 'NOT LOGGED IN');
+        }
+    } catch (ex) {
+        await log(db, `exception occurred ${JSON.parse(ex)}`);
     }
 }
 

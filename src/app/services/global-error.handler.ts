@@ -8,6 +8,6 @@ export class GlobalErrorHandler implements ErrorHandler {
     handleError(error: Error) {
         this.log.log(error.message);
         // IMPORTANT: Rethrow the error otherwise it gets swallowed
-        // throw error;
+        throw error;
     }
 }

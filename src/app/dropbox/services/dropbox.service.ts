@@ -24,6 +24,7 @@ import {
     getUnsyncedEntriesPage
 } from '../../db/calory-store';
 import { DropboxEntry } from '../models/dropbox-entry.model';
+import { log } from '../../db/sync-log-store';
 
 function toDropboxModel(entry: Entry): string {
     const result: DropboxEntry = {
@@ -81,10 +82,15 @@ export class DropboxService {
         return !!this.state.accessToken;
     }
 
+    private async log(message: string) {
+        await log(db, message);
+    }
+
     async syncDownToLocal() {
         let entries: dbxFileRef[];
         let nextCursor: string;
         if (!this.state.changesCursor) {
+            await this.log('no delta information, running full sync');
             entries = await this.getFullList();
             const cursor = await this.dbx.filesListFolderGetLatestCursor({
                 path: '',
@@ -93,6 +99,7 @@ export class DropboxService {
             });
             nextCursor = cursor.cursor;
         } else {
+            await this.log('using delta information');
             const next = await this.dbx.filesListFolderContinue({
                 cursor: this.state.changesCursor
             });
@@ -101,6 +108,7 @@ export class DropboxService {
         }
 
         for (const entry of entries) {
+            await this.log(`downloading entry "${entry.name}"`);
             await this.localSync(entry);
         }
         this.state.changesCursor = nextCursor;
@@ -118,29 +126,35 @@ export class DropboxService {
         // get local
         const localEntry = await getEntryById(db, id);
         if (!localEntry) {
-            // file is not present on local
+            await this.log(`file is not present on local`);
             if (fileRef['.tag'] === 'deleted') {
-                // deleted remote and local. We're good.
+                await this.log(`deleted remote and local. We're good.`);
                 sync_decision = 'take_local';
             } else if (fileRef['.tag'] === 'file') {
-                // created remote => create local
+                await this.log(`created remote => create local`);
                 sync_decision = 'take_remote';
             }
         } else {
-            // entry is present locally
+            await this.log(`entry is present locally`);
             if (fileRef['.tag'] === 'deleted') {
-                // deleted remote => delete local.
+                await this.log(`deleted remote => delete local.`);
                 sync_decision = 'delete_local';
             } else if (fileRef['.tag'] === 'file') {
-                // changed remotely and present locally
+                await this.log(`changed remotely and present locally`);
                 if (localEntry.sync_state === SyncState.Synced) {
-                    // clean on local => copy down
+                    await this.log(`clean on local => copy down`);
                     sync_decision = 'take_remote';
                 } else if (localEntry.sync_state === SyncState.Dirty) {
-                    // changed remote and locally dirty => decide by mod timestamp
+                    await log(
+                        db,
+                        `changed remote and locally dirty => decide by mod timestamp`
+                    );
                     sync_decision = 'take_remote_if_newer';
                 } else if (localEntry.sync_state === SyncState.Deleted) {
-                    // changed remote, deleted local => take remote, just in case.
+                    await log(
+                        db,
+                        `changed remote, deleted local => take remote, just in case.`
+                    );
                     sync_decision = 'take_remote';
                 }
             }
@@ -194,11 +208,13 @@ export class DropboxService {
         return JSON.parse(await blobToString(blob));
     }
 
-    async syncUpToCloud() {
+    async syncUpToCloud(): Promise<boolean> {
         const total = await countUnsyncedEntries(db);
         if (total < 1) {
-            return;
+            await this.log('nothing to sync up');
+            return false;
         }
+        await this.log(`${total} entries to sync up`);
         let hasMore: boolean;
         let page = 0;
         do {
@@ -226,6 +242,9 @@ export class DropboxService {
         });
         this.state.changesCursor = next.cursor;
         await saveState(db, this.state);
+
+        await this.log('finished syncing up');
+        return true;
     }
 
     private async copyToCloud(entries: Entry[]) {

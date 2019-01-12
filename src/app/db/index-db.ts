@@ -6,12 +6,13 @@ import { Entry, SyncState } from '../models';
 
 export const caloryEntriesStore = 'calory_entries';
 export const settingsStore = 'settings';
+export const syncLogStore = 'sync_log';
 
 export const caloryEntriesByDayIndex = 'by_day';
 export const caloryEntriesByTimestampIndex = 'by_modified';
 export const calorySyncStateIndex = 'by_sync_state';
 
-export const db = idb.open('app-nehmen-calorie-counter', 7, upgradeDB => {
+export const db = idb.open('app-nehmen-calorie-counter', 8, upgradeDB => {
     if (upgradeDB.oldVersion < 1) {
         upgradeV1(upgradeDB);
     }
@@ -26,6 +27,9 @@ export const db = idb.open('app-nehmen-calorie-counter', 7, upgradeDB => {
     }
     if (upgradeDB.oldVersion < 7) {
         upgradeV7(upgradeDB);
+    }
+    if (upgradeDB.oldVersion < 8) {
+        upgradeV8(upgradeDB);
     }
 });
 
@@ -91,4 +95,10 @@ async function upgradeV7(upgradeDB: UpgradeDB) {
         });
     }
     entryStore.createIndex(calorySyncStateIndex, 'sync_state');
+}
+
+function upgradeV8(upgradeDB: UpgradeDB) {
+    upgradeDB.createObjectStore(syncLogStore, {
+        autoIncrement: true
+    });
 }

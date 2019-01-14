@@ -37,7 +37,7 @@
     "core-js": "^2.6.1",
     "dropbox": "^4.0.14",
     "hammerjs": "^2.0.8",
-    "idb": "^2.1.3",
+    "idb": "^3.0.2",
     "isomorphic-fetch": "^2.2.1",
     "moment": "^2.23.0",
     "rxjs": "~6.3.3",

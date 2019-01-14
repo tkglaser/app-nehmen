@@ -1,5 +1,4 @@
-import { UpgradeDB } from 'idb';
-import idb from 'idb';
+import { UpgradeDB, openDb } from 'idb';
 
 import { dayString } from '../utils/date.utils';
 import { Entry, SyncState } from '../models';
@@ -12,7 +11,7 @@ export const caloryEntriesByDayIndex = 'by_day';
 export const caloryEntriesByTimestampIndex = 'by_modified';
 export const calorySyncStateIndex = 'by_sync_state';
 
-export const db = idb.open('app-nehmen-calorie-counter', 8, upgradeDB => {
+export const db = openDb('app-nehmen-calorie-counter', 8, upgradeDB => {
     if (upgradeDB.oldVersion < 1) {
         upgradeV1(upgradeDB);
     }

@@ -63,7 +63,7 @@
                   "output": "."
                 },
                 {
-                  "input": "node_modules/idb/lib/",
+                  "input": "node_modules/idb/build/",
                   "glob": "idb.js",
                   "output": "."
                 },

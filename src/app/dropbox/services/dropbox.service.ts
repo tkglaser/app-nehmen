@@ -312,10 +312,18 @@ export class DropboxService {
             }))
         });
 
-        while (job['.tag'] === 'async_job_id') {
+        let jobId = '';
+
+        while (
+            job['.tag'] === 'async_job_id' ||
+            job['.tag'] === 'in_progress'
+        ) {
+            if (job['.tag'] === 'async_job_id') {
+                jobId = job.async_job_id;
+            }
             await wait(1000);
             job = await this.dbx.filesDeleteBatchCheck({
-                async_job_id: job.async_job_id
+                async_job_id: jobId
             });
         }
 

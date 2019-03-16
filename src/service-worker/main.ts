@@ -24,7 +24,7 @@ async function doSync() {
             await log(db, 'NOT LOGGED IN');
         }
     } catch (ex) {
-        await log(db, `exception occurred ${JSON.parse(ex)}`);
+        await log(db, `exception occurred ${JSON.stringify(ex)}`);
     }
 }
 

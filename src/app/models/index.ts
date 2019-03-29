@@ -7,3 +7,4 @@ export * from './entry.model';
 export * from './pager.model';
 export * from './select-option.model';
 export * from './sync-state.model';
+export * from './worker-state.model';

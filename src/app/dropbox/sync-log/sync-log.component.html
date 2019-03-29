@@ -1,4 +1,6 @@
-<div class="button-container">
+<mat-card class="mat-elevation-z2">{{workerState | async | json}}</mat-card>
+
+<!-- <div class="button-container">
     <button (click)="onClear()" mat-raised-button color="primary">Clear</button>
 </div>
 
@@ -28,4 +30,4 @@
     <mat-card *ngIf="!(logs | async).length" class="mat-elevation-z2"
         >🤷 No entries</mat-card
     >
-</ng-container>
+</ng-container> -->

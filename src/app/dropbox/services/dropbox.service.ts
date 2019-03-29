@@ -4,7 +4,6 @@ import { forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DB } from 'idb';
 
-import { Entry, SyncState } from '../../models';
 import { DropboxState, DropboxSyncState } from '../models';
 import { httpHeaderSafeJSON } from '../../utils/json.utils';
 import { blobToString } from '../../utils/blob.utils';
@@ -25,6 +24,9 @@ import {
 } from '../../db/calory-store';
 import { DropboxEntry } from '../models/dropbox-entry.model';
 import { log } from '../../db/sync-log-store';
+import { Entry } from '../../models/entry.model';
+import { WorkerMode, WorkerStatus, workerStateKey } from '../../models/worker-state.model';
+import { SyncState } from '../../models/sync-state.model';
 
 function toDropboxModel(entry: Entry): string {
     const result: DropboxEntry = {
@@ -69,6 +71,7 @@ export class DropboxService {
 
     private async init() {
         this.state = await loadState(db);
+        await this.setWorkerStatus({ mode: WorkerMode.Idle });
         if (this.state.accessToken) {
             this.dbx = new dbx.Dropbox({
                 accessToken: this.state.accessToken,
@@ -83,12 +86,21 @@ export class DropboxService {
     }
 
     private async log(message: string) {
-        await log(db, message);
+        // await log(db, message);
+    }
+
+    private setWorkerStatus(status: WorkerStatus) {
+        return setSetting(db, workerStateKey, status);
     }
 
     async syncDownToLocal() {
         let entries: dbxFileRef[];
         let nextCursor: string;
+        await this.setWorkerStatus({
+            mode: WorkerMode.Downloading,
+            itemsDone: 0,
+            itemsPending: 1
+        });
         if (!this.state.changesCursor) {
             await this.log('no delta information, running full sync');
             entries = await this.getFullList();
@@ -107,12 +119,26 @@ export class DropboxService {
             nextCursor = next.cursor;
         }
 
-        for (const entry of entries) {
+        await this.setWorkerStatus({
+            mode: WorkerMode.Downloading,
+            itemsDone: 0,
+            itemsPending: entries.length
+        });
+
+        for (const [idx, entry] of Array.from(entries.entries())) {
             await this.log(`downloading entry "${entry.name}"`);
             await this.localSync(entry);
+            this.setWorkerStatus({
+                mode: WorkerMode.Downloading,
+                itemsDone: idx,
+                itemsPending: entries.length
+            });
         }
         this.state.changesCursor = nextCursor;
         await saveState(db, this.state);
+        await this.setWorkerStatus({
+            mode: WorkerMode.Idle
+        });
     }
 
     private async localSync(fileRef: dbxFileRef) {
@@ -215,8 +241,14 @@ export class DropboxService {
             return false;
         }
         await this.log(`${total} entries to sync up`);
+        await this.setWorkerStatus({
+            mode: WorkerMode.Uploading,
+            itemsDone: 0,
+            itemsPending: total
+        });
         let hasMore: boolean;
         let page = 0;
+        let itemsDone = 0;
         do {
             const entries = await getUnsyncedEntriesPage(db, 10, page++);
             hasMore = entries.hasMore;
@@ -234,6 +266,12 @@ export class DropboxService {
                 const apiResults = await this.deleteOnCloud(itemsToDelete);
                 await this.localDelete(itemsToDelete, apiResults);
             }
+            itemsDone += entries.items.length;
+            await this.setWorkerStatus({
+                mode: WorkerMode.Uploading,
+                itemsDone: 0,
+                itemsPending: total
+            });
         } while (hasMore);
 
         // forget the set of changes we just made
@@ -244,6 +282,9 @@ export class DropboxService {
         await saveState(db, this.state);
 
         await this.log('finished syncing up');
+        await this.setWorkerStatus({
+            mode: WorkerMode.Idle
+        });
         return true;
     }
 

@@ -15,13 +15,9 @@ async function doSync() {
     try {
         const dropboxService = await DropboxService.create();
         if (dropboxService.isLoggedIn()) {
-            await log(db, 'SYNC STARTS');
             await dropboxService.syncDownToLocal();
             do {} while (await dropboxService.syncUpToCloud());
             await notifyClients();
-            await log(db, 'SYNC ENDS');
-        } else {
-            await log(db, 'NOT LOGGED IN');
         }
     } catch (ex) {
         await log(db, `exception occurred ${JSON.stringify(ex)}`);

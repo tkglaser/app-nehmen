@@ -1,35 +1,36 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, LOCALE_ID, ErrorHandler } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
-import { ReactiveFormsModule } from '@angular/forms';
-import localeEnGb from '@angular/common/locales/en-GB';
 import { registerLocaleData } from '@angular/common';
+import localeEnGb from '@angular/common/locales/en-GB';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { NgxsModule } from '@ngxs/store';
 
+import { environment } from '../environments/environment';
+import { AddEntryComponent } from './add-entry/add-entry.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MainNavComponent } from './main-nav/main-nav.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { AddEntryComponent } from './add-entry/add-entry.component';
-import { environment } from '../environments/environment';
-import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
-import { EditEntryComponent } from './edit-entry/edit-entry.component';
-import { LogSliderComponent } from './log-slider/log-slider.component';
-import { SettingsComponent } from './settings/settings.component';
 import { DayEntriesComponent } from './day-entries/day-entries.component';
-import { EntriesTableComponent } from './entries-table/entries-table.component';
-import { GlobalErrorHandler } from './services/global-error.handler';
-import {
-    EntryService,
-    ConfigService,
-    ClockService,
-    UniqueIdService,
-    LoggingService
-} from './services';
-import { MaterialModule } from './material.module';
 import { DropboxModule } from './dropbox/dropbox.module';
+import { EditEntryComponent } from './edit-entry/edit-entry.component';
+import { EntriesTableComponent } from './entries-table/entries-table.component';
+import { LogSliderComponent } from './log-slider/log-slider.component';
+import { MainNavComponent } from './main-nav/main-nav.component';
+import { MaterialModule } from './material.module';
+import {
+    ClockService,
+    ConfigService,
+    EntryService,
+    LoggingService,
+    UniqueIdService
+} from './services';
+import { GlobalErrorHandler } from './services/global-error.handler';
 import { UpdateService } from './services/update.service';
+import { SettingsComponent } from './settings/settings.component';
+import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -48,6 +49,7 @@ registerLocaleData(localeEnGb, 'en-GB');
     ],
     imports: [
         BrowserModule,
+        NgxsModule.forRoot([]),
         AppRoutingModule,
         BrowserAnimationsModule,
         LayoutModule,

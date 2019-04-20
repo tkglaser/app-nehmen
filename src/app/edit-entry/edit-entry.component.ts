@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
-import { filter, pluck, switchMap } from 'rxjs/operators';
+import { filter, map, pluck } from 'rxjs/operators';
 
 import { EntryAddModel } from '../models';
 import { AddEntry, DeleteEntry, UpdateEntry } from '../store/entries.actions';
@@ -30,8 +30,8 @@ export class EditEntryComponent implements OnInit {
         route.params
             .pipe(
                 pluck<Params, string>('id'),
-                switchMap(id =>
-                    this.store.select(EntriesState.entriesById(id))
+                map(id =>
+                    this.store.selectSnapshot(EntriesState.entryById(id))
                 ),
                 filter(e => !!e)
             )

@@ -50,10 +50,10 @@ export class EntriesState implements NgxsOnInit {
         );
     }
 
-    static entriesById(id: string) {
+    static entryById(id: string) {
         return createSelector(
             [EntriesState],
-            (state: EntryModel[]) => state.filter(entry => entry.id === id)
+            (state: EntryModel[]) => state.find(entry => entry.id === id)
         );
     }
 
@@ -68,12 +68,14 @@ export class EntriesState implements NgxsOnInit {
         return createSelector(
             [EntriesState],
             (state: EntryModel[]) => {
-                function groupKey(e: EntryModel): string {
-                    return `${e.description}#${e.calories}`;
-                }
+                const groupKey = (e: EntryModel): string =>
+                    `${e.description}#${e.calories}`;
                 const searchLower = key.toLowerCase();
-
                 const result = new Map<string, AutoSuggestion>();
+
+                if (!key || !key.length) {
+                    return [];
+                }
 
                 state.forEach(entry => {
                     if (
@@ -132,7 +134,7 @@ export class EntriesState implements NgxsOnInit {
             exercise: action.entry.exercise,
             sync_state: SyncState.Dirty
         };
-        ctx.setState([...state, newEntry]);
+        ctx.setState([...state, newEntry].sort(byCreatedDateDescending));
         upsertEntry(db, newEntry);
     }
 

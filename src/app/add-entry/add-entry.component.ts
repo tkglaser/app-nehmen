@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { MatAutocompleteSelectedEvent } from '@angular/material';
+import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
-import { MatAutocompleteSelectedEvent } from '@angular/material';
-
-import { EntryService } from '../services/entry.service';
 import { AutoSuggestion } from '../models';
+import { AddEntry } from '../store/entries.actions';
+import { EntriesState } from '../store/entries.state';
 
 @Component({
     selector: 'app-add-entry',
@@ -24,12 +25,17 @@ export class AddEntryComponent implements OnInit {
     @ViewChild('form') form;
     @ViewChild('addbtn') addbtn;
 
-    constructor(private fb: FormBuilder, private entryService: EntryService) {}
+    constructor(
+        private fb: FormBuilder,
+        private store: Store
+    ) {}
 
     ngOnInit(): void {
         this.options$ = this.entryForm.get('description').valueChanges.pipe(
             startWith(''),
-            switchMap(value => this.entryService.selectAutoSuggestions(value))
+            switchMap(value =>
+                this.store.select(EntriesState.autoSuggestions(value))
+            )
         );
     }
 
@@ -39,7 +45,7 @@ export class AddEntryComponent implements OnInit {
     }
 
     onSubmit() {
-        this.entryService.addEntry(this.entryForm.value);
+        this.store.dispatch(new AddEntry(this.entryForm.value));
         this.entryForm.reset(
             { calories: '', description: '' },
             { onlySelf: false }

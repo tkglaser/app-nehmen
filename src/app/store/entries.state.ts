@@ -8,7 +8,7 @@ import {
 
 import { db, getAllEntries, upsertEntry } from '../db';
 import { DropboxAuthService } from '../dropbox/services/dropbox-auth.service';
-import { EntryModel, SyncState } from '../models';
+import { AutoSuggestion, EntryModel, SyncState } from '../models';
 import { UniqueIdService } from '../services';
 import { dayString } from '../utils';
 import {
@@ -27,6 +27,16 @@ function byCreatedDateDescending(a: EntryModel, b: EntryModel) {
         return 0;
     }
 }
+
+const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
+    if (a.frequency < b.frequency) {
+        return 1;
+    } else if (a.frequency > b.frequency) {
+        return -1;
+    } else {
+        return 0;
+    }
+};
 
 @State<EntryModel[]>({
     name: 'entries',
@@ -51,6 +61,45 @@ export class EntriesState implements NgxsOnInit {
         return createSelector(
             [EntriesState],
             (state: EntryModel[]) => state.some(entry => entry.day <= day)
+        );
+    }
+
+    static autoSuggestions(key: string) {
+        return createSelector(
+            [EntriesState],
+            (state: EntryModel[]) => {
+                function groupKey(e: EntryModel): string {
+                    return `${e.description}#${e.calories}`;
+                }
+                const searchLower = key.toLowerCase();
+
+                const result = new Map<string, AutoSuggestion>();
+
+                state.forEach(entry => {
+                    if (
+                        (entry.description || '')
+                            .toLowerCase()
+                            .includes(searchLower)
+                    ) {
+                        if (!result.has(groupKey(entry))) {
+                            result.set(groupKey(entry), {
+                                calories: entry.calories,
+                                description: entry.description,
+                                exercise: entry.exercise,
+                                frequency: 1
+                            });
+                        } else {
+                            const group = result.get(groupKey(entry));
+                            if (group) {
+                                group.frequency++;
+                            }
+                        }
+                    }
+                });
+                return Array.from(result.values())
+                    .sort(byFrequencyDescending)
+                    .slice(0, 4);
+            }
         );
     }
 

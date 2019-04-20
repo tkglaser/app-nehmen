@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 
 import { EntryModel } from '../models';
-import { EntryService } from '../services/entry.service';
+import { EntriesState } from '../store/entries.state';
+import { todayString } from '../utils';
 
 @Component({
     selector: 'app-todays-entries',
@@ -18,11 +20,11 @@ export class TodaysEntriesComponent implements OnInit {
     ];
     dataSource$: Observable<EntryModel[]>;
 
-    constructor(
-        private entriesService: EntryService,
-    ) {}
+    constructor(private store: Store) {}
 
     ngOnInit() {
-        this.dataSource$ = this.entriesService.selectTodaysEntries();
+        this.dataSource$ = this.store.select(
+            EntriesState.entriesByDay(todayString())
+        );
     }
 }

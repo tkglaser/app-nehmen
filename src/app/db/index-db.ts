@@ -1,7 +1,7 @@
-import { UpgradeDB, openDb } from 'idb';
+import { openDb, UpgradeDB } from 'idb';
 
-import { dayString } from '../utils/date.utils';
 import { Entry, SyncState } from '../models';
+import { dayString } from '../utils/date.utils';
 
 export const caloryEntriesStore = 'calory_entries';
 export const settingsStore = 'settings';

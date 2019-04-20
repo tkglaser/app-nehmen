@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material';
+import { SwUpdate } from '@angular/service-worker';
 import { interval } from 'rxjs';
 
 const updateIntervalMs = 6 * 60 * 60 * 1000;
@@ -10,7 +10,7 @@ const updateIntervalMs = 6 * 60 * 60 * 1000;
 })
 export class UpdateService {
     constructor(private swUpdate: SwUpdate, private snackbar: MatSnackBar) {
-        if (!this.swUpdate.isEnabled) {
+        if (this.swUpdate.isEnabled) {
             this.swUpdate.available.subscribe(() => {
                 const snack = this.snackbar.open('Update Available', 'Reload');
 

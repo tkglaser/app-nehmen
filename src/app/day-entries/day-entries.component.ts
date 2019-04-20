@@ -1,16 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { pluck } from 'rxjs/operators';
+import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
+import { pluck } from 'rxjs/operators';
 
-import { EntryService } from '../services/entry.service';
-import {
-    todayString,
-    nextDay,
-    prevDay,
-    friendlyDay
-} from '../utils';
 import { Entry } from '../models';
+import { EntriesState } from '../store/entries.state';
+import { friendlyDay, nextDay, prevDay, todayString } from '../utils';
 
 @Component({
     selector: 'app-day-entries',
@@ -26,7 +22,7 @@ export class DayEntriesComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private entryService: EntryService
+        private store: Store
     ) {}
 
     ngOnInit() {
@@ -39,10 +35,12 @@ export class DayEntriesComponent implements OnInit {
         this.currentDay = id === 'today' ? todayString() : id;
         this.currentDayFormatted = friendlyDay(this.currentDay);
         this.canGoNext = this.currentDay !== todayString();
-        this.entryService
-            .hasMoreBeforeThatDay(this.currentDay)
-            .subscribe(hasPrev => (this.canGoPrev = hasPrev));
-        this.dataSource$ = this.entryService.selectDayEntries(this.currentDay);
+        this.canGoPrev = this.store.selectSnapshot(
+            EntriesState.hasEntriesOlderThan(this.currentDay)
+        );
+        this.dataSource$ = this.store.select(
+            EntriesState.entriesByDay(this.currentDay)
+        );
     }
 
     onGoPrev() {

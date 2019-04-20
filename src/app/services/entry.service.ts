@@ -1,34 +1,34 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import {
     BehaviorSubject,
-    Observable,
     combineLatest,
-    of,
     from,
+    Observable,
+    of,
     Subscription
 } from 'rxjs';
-import { map, filter, switchMap, shareReplay, startWith } from 'rxjs/operators';
+import {  map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 
-import { ConfigService } from './config.service';
-import { UniqueIdService } from './unique-id.service';
-import { dayString, todayString } from '../utils';
 import {
     db,
-    upsertEntry,
     getAutoSuggestionEntries,
     getEntriesByDay,
+    getEntryById,
     hasEntriesOlderThan,
-    getEntryById
+    upsertEntry
 } from '../db';
-import { ClockService } from './clock.service';
+import { DropboxAuthService } from '../dropbox/services/dropbox-auth.service';
 import {
-    Entry,
     AutoSuggestion,
+    Entry,
     EntryAdd,
     EntryUpdate,
     SyncState
 } from '../models';
-import { DropboxAuthService } from '../dropbox/services/dropbox-auth.service';
+import { dayString, todayString } from '../utils';
+import { ClockService } from './clock.service';
+import { ConfigService } from './config.service';
+import { UniqueIdService } from './unique-id.service';
 
 const byTimestampDescending = (a: Entry, b: Entry) => {
     if (a.created < b.created) {

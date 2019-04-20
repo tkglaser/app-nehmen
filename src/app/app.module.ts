@@ -30,6 +30,7 @@ import {
 import { GlobalErrorHandler } from './services/global-error.handler';
 import { UpdateService } from './services/update.service';
 import { SettingsComponent } from './settings/settings.component';
+import { EntriesState } from './store/entries.state';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 
 registerLocaleData(localeEnGb, 'en-GB');
@@ -49,7 +50,9 @@ registerLocaleData(localeEnGb, 'en-GB');
     ],
     imports: [
         BrowserModule,
-        NgxsModule.forRoot([]),
+        NgxsModule.forRoot([EntriesState], {
+            developmentMode: !environment.production
+        }),
         AppRoutingModule,
         BrowserAnimationsModule,
         LayoutModule,

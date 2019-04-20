@@ -1,13 +1,13 @@
 import { DB } from 'idb';
 
+import { AutoSuggestion, Entry, Pager, SyncState } from '../models';
 import {
-    caloryEntriesStore,
     caloryEntriesByDayIndex,
     caloryEntriesByTimestampIndex,
+    caloryEntriesStore,
     calorySyncStateIndex
 } from './index-db';
-import { take, skip } from './utils';
-import { Entry, AutoSuggestion, Pager, SyncState } from '../models';
+import { skip, take } from './utils';
 
 export async function upsertEntry(dbPromise: Promise<DB>, entry: Entry) {
     const db = await dbPromise;
@@ -39,6 +39,14 @@ export async function getEntriesByDay(dbPromise: Promise<DB>, date: string) {
         .index(caloryEntriesByDayIndex)
         .getAll(IDBKeyRange.only(date));
     return result.filter(entry => entry.sync_state !== SyncState.Deleted);
+}
+
+export async function getAllEntries(dbPromise: Promise<DB>) {
+    const db = await dbPromise;
+    return await db
+        .transaction(caloryEntriesStore)
+        .objectStore<Entry>(caloryEntriesStore)
+        .getAll();
 }
 
 export async function hasEntriesOlderThan(

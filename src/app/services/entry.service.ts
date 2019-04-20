@@ -20,9 +20,9 @@ import {
 import { DropboxAuthService } from '../dropbox/services/dropbox-auth.service';
 import {
     AutoSuggestion,
-    Entry,
-    EntryAdd,
-    EntryUpdate,
+    EntryAddModel,
+    EntryModel,
+    EntryUpdateModel,
     SyncState
 } from '../models';
 import { dayString, todayString } from '../utils';
@@ -30,7 +30,7 @@ import { ClockService } from './clock.service';
 import { ConfigService } from './config.service';
 import { UniqueIdService } from './unique-id.service';
 
-const byTimestampDescending = (a: Entry, b: Entry) => {
+const byTimestampDescending = (a: EntryModel, b: EntryModel) => {
     if (a.created < b.created) {
         return 1;
     } else if (a.created > b.created) {
@@ -56,7 +56,7 @@ const dropboxPollInterval = 1 * 60 * 1000;
     providedIn: 'root'
 })
 export class EntryService implements OnDestroy {
-    private entriesToday = new BehaviorSubject<Entry[]>([]);
+    private entriesToday = new BehaviorSubject<EntryModel[]>([]);
     private reloader: Subscription;
     private dbxpoll: any;
 
@@ -95,9 +95,9 @@ export class EntryService implements OnDestroy {
         this.entriesToday.next(entries.sort(byTimestampDescending));
     }
 
-    async addEntry(entry: EntryAdd) {
+    async addEntry(entry: EntryAddModel) {
         const now = new Date();
-        const newEntry: Entry = {
+        const newEntry: EntryModel = {
             calories: +entry.calories,
             description: entry.description,
             id: this.nextId(),
@@ -112,22 +112,22 @@ export class EntryService implements OnDestroy {
         this.loadToday();
     }
 
-    async editEntry(entryUpdate: EntryUpdate) {
-        const entry = await getEntryById(db, entryUpdate.id);
-        if (!entry) {
-            return;
-        }
-        await upsertEntry(db, {
-            ...entry,
-            modified: new Date().getTime(),
-            sync_state: SyncState.Dirty,
-            calories: +entryUpdate.calories,
-            description: entryUpdate.description,
-            exercise: entryUpdate.exercise
-        });
-        await this.dropbox.scheduleSync();
-        this.loadToday();
-    }
+    // async editEntry(entryUpdate: EntryUpdate) {
+    //     const entry = await getEntryById(db, entryUpdate.id);
+    //     if (!entry) {
+    //         return;
+    //     }
+    //     await upsertEntry(db, {
+    //         ...entry,
+    //         modified: new Date().getTime(),
+    //         sync_state: SyncState.Dirty,
+    //         calories: +entryUpdate.calories,
+    //         description: entryUpdate.description,
+    //         exercise: entryUpdate.exercise
+    //     });
+    //     await this.dropbox.scheduleSync();
+    //     this.loadToday();
+    // }
 
     async removeEntry(id: string) {
         const entry = await getEntryById(db, id);
@@ -143,11 +143,11 @@ export class EntryService implements OnDestroy {
         this.loadToday();
     }
 
-    selectEntry(id: string): Observable<Entry> {
+    selectEntry(id: string): Observable<EntryModel> {
         return from(getEntryById(db, id));
     }
 
-    selectTodaysEntries(): Observable<Entry[]> {
+    selectTodaysEntries(): Observable<EntryModel[]> {
         return this.entriesToday;
     }
 

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { EntryService, ConfigService } from '../services';
-import { Entry } from '../models';
+import { EntryModel } from '../models';
+import { ConfigService, EntryService } from '../services';
 
 @Component({
     selector: 'app-dashboard',
@@ -11,7 +11,7 @@ import { Entry } from '../models';
 })
 export class DashboardComponent implements OnInit {
     caloriesLeft$: Observable<number>;
-    entries$: Observable<Entry[]>;
+    entries$: Observable<EntryModel[]>;
     isCheatDay$: Observable<boolean>;
 
     constructor(

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { EntryModel } from '../models';
 import { EntryService } from '../services/entry.service';
-import { Entry } from '../models';
 
 @Component({
     selector: 'app-todays-entries',
@@ -16,7 +16,7 @@ export class TodaysEntriesComponent implements OnInit {
         'timestamp',
         'actions'
     ];
-    dataSource$: Observable<Entry[]>;
+    dataSource$: Observable<EntryModel[]>;
 
     constructor(
         private entriesService: EntryService,

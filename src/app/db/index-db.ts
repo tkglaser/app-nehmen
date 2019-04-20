@@ -1,6 +1,6 @@
 import { openDb, UpgradeDB } from 'idb';
 
-import { Entry, SyncState } from '../models';
+import { EntryModel, SyncState } from '../models';
 import { dayString } from '../utils/date.utils';
 
 export const caloryEntriesStore = 'calory_entries';
@@ -50,7 +50,7 @@ async function upgradeV2(upgradeDB: UpgradeDB) {
 }
 
 async function upgradeV5(upgradeDB: UpgradeDB) {
-    const entryStore = upgradeDB.transaction.objectStore<Entry>(
+    const entryStore = upgradeDB.transaction.objectStore<EntryModel>(
         caloryEntriesStore
     );
     const allEntries = await entryStore.getAll();
@@ -83,7 +83,7 @@ function upgradeV6(upgradeDB: UpgradeDB) {
 }
 
 async function upgradeV7(upgradeDB: UpgradeDB) {
-    const entryStore = upgradeDB.transaction.objectStore<Entry>(
+    const entryStore = upgradeDB.transaction.objectStore<EntryModel>(
         caloryEntriesStore
     );
     const allEntries = await entryStore.getAll();

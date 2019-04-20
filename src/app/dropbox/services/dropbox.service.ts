@@ -1,34 +1,34 @@
 import * as dbx from 'dropbox';
+import { DB } from 'idb';
 import * as fetch from 'isomorphic-fetch';
 import { forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DB } from 'idb';
 
-import { DropboxState, DropboxSyncState } from '../models';
-import { httpHeaderSafeJSON } from '../../utils/json.utils';
+import {
+    countUnsyncedEntries,
+    getEntryById,
+    getUnsyncedEntriesPage,
+    removeEntry,
+    upsertEntry
+} from '../../db/calory-store';
+import { db } from '../../db/index-db';
+import { getSetting, setSetting } from '../../db/settings-store';
+import { log } from '../../db/sync-log-store';
+import { EntryModel } from '../../models/entry.model';
+import { SyncState } from '../../models/sync-state.model';
+import { WorkerMode, workerStateKey, WorkerStatus } from '../../models/worker-state.model';
+import { wait } from '../../utils/async.utils';
 import { blobToString } from '../../utils/blob.utils';
 import {
-    toDropboxString,
+    dayString,
     fromDropboxString,
-    dayString
+    toDropboxString
 } from '../../utils/date.utils';
-import { wait } from '../../utils/async.utils';
-import { getSetting, setSetting } from '../../db/settings-store';
-import { db } from '../../db/index-db';
-import {
-    getEntryById,
-    removeEntry,
-    upsertEntry,
-    countUnsyncedEntries,
-    getUnsyncedEntriesPage
-} from '../../db/calory-store';
+import { httpHeaderSafeJSON } from '../../utils/json.utils';
+import { DropboxState, DropboxSyncState } from '../models';
 import { DropboxEntry } from '../models/dropbox-entry.model';
-import { log } from '../../db/sync-log-store';
-import { Entry } from '../../models/entry.model';
-import { WorkerMode, WorkerStatus, workerStateKey } from '../../models/worker-state.model';
-import { SyncState } from '../../models/sync-state.model';
 
-function toDropboxModel(entry: Entry): string {
+function toDropboxModel(entry: EntryModel): string {
     const result: DropboxEntry = {
         calories: entry.calories,
         created: entry.created,
@@ -288,7 +288,7 @@ export class DropboxService {
         return true;
     }
 
-    private async copyToCloud(entries: Entry[]) {
+    private async copyToCloud(entries: EntryModel[]) {
         const uploads: any[] = await forkJoin(
             entries.map(entry => {
                 const contents = toDropboxModel(entry);
@@ -344,7 +344,7 @@ export class DropboxService {
         }
     }
 
-    private async deleteOnCloud(entries: Entry[]) {
+    private async deleteOnCloud(entries: EntryModel[]) {
         let job:
             | dbx.files.DeleteBatchLaunch
             | dbx.files.DeleteBatchJobStatus = await this.dbx.filesDeleteBatch({
@@ -395,7 +395,7 @@ export class DropboxService {
     }
 
     private async localDelete(
-        entries: Entry[],
+        entries: EntryModel[],
         pushResults: Array<dbx.files.DeleteBatchResultEntry>
     ) {
         for (let i = 0; i < entries.length; ++i) {

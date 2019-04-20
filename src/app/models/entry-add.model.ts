@@ -1,4 +1,4 @@
-export interface EntryAdd {
+export interface EntryAddModel {
     calories: number;
     description: string;
     exercise: boolean;

@@ -4,7 +4,7 @@ import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { pluck } from 'rxjs/operators';
 
-import { Entry } from '../models';
+import { EntryModel } from '../models';
 import { EntriesState } from '../store/entries.state';
 import { friendlyDay, nextDay, prevDay, todayString } from '../utils';
 
@@ -14,7 +14,7 @@ import { friendlyDay, nextDay, prevDay, todayString } from '../utils';
     styleUrls: ['./day-entries.component.scss']
 })
 export class DayEntriesComponent implements OnInit {
-    dataSource$: Observable<Entry[]>;
+    dataSource$: Observable<EntryModel[]>;
     currentDay: string;
     currentDayFormatted: string;
     canGoNext = true;

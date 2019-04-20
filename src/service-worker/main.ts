@@ -1,6 +1,6 @@
-import { DropboxService } from '../app/dropbox/services/dropbox.service';
-import { log } from '../app/db/sync-log-store';
 import { db } from '../app/db/index-db';
+import { log } from '../app/db/sync-log-store';
+import { DropboxService } from '../app/dropbox/services/dropbox.service';
 
 const scope = (self as any) as ServiceWorkerGlobalScope;
 

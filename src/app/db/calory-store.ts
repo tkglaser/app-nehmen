@@ -1,6 +1,6 @@
 import { DB } from 'idb';
 
-import { AutoSuggestion, Entry, Pager, SyncState } from '../models';
+import { AutoSuggestion, EntryModel, Pager, SyncState } from '../models';
 import {
     caloryEntriesByDayIndex,
     caloryEntriesByTimestampIndex,
@@ -9,17 +9,17 @@ import {
 } from './index-db';
 import { skip, take } from './utils';
 
-export async function upsertEntry(dbPromise: Promise<DB>, entry: Entry) {
+export async function upsertEntry(dbPromise: Promise<DB>, entry: EntryModel) {
     const db = await dbPromise;
     const tx = db.transaction(caloryEntriesStore, 'readwrite');
-    tx.objectStore<Entry>(caloryEntriesStore).put(entry);
+    tx.objectStore<EntryModel>(caloryEntriesStore).put(entry);
     return tx.complete;
 }
 
 export async function removeEntry(dbPromise: Promise<DB>, key: string) {
     const db = await dbPromise;
     const tx = db.transaction(caloryEntriesStore, 'readwrite');
-    tx.objectStore<Entry>(caloryEntriesStore).delete(key);
+    tx.objectStore<EntryModel>(caloryEntriesStore).delete(key);
     return tx.complete;
 }
 
@@ -27,7 +27,7 @@ export async function getEntryById(dbPromise: Promise<DB>, key: string) {
     const db = await dbPromise;
     return db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .get(key);
 }
 
@@ -35,7 +35,7 @@ export async function getEntriesByDay(dbPromise: Promise<DB>, date: string) {
     const db = await dbPromise;
     const result = await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .index(caloryEntriesByDayIndex)
         .getAll(IDBKeyRange.only(date));
     return result.filter(entry => entry.sync_state !== SyncState.Deleted);
@@ -45,7 +45,7 @@ export async function getAllEntries(dbPromise: Promise<DB>) {
     const db = await dbPromise;
     return await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .getAll();
 }
 
@@ -56,7 +56,7 @@ export async function hasEntriesOlderThan(
     const db = await dbPromise;
     const count = await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .index(caloryEntriesByDayIndex)
         .count(IDBKeyRange.upperBound(date, true));
     return count > 0;
@@ -66,7 +66,7 @@ export async function getAutoSuggestionEntries(
     dbPromise: Promise<DB>,
     search: string
 ) {
-    function groupKey(e: Entry): string {
+    function groupKey(e: EntryModel): string {
         return `${e.description}#${e.calories}`;
     }
     const searchLower = search.toLowerCase();
@@ -77,11 +77,11 @@ export async function getAutoSuggestionEntries(
 
     const allEntries = await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .index(caloryEntriesByTimestampIndex)
         .openCursor(null, 'prev');
 
-    await take<Entry>(allEntries, 1000, entry => {
+    await take<EntryModel>(allEntries, 1000, entry => {
         if ((entry.description || '').toLowerCase().includes(searchLower)) {
             if (!result.has(groupKey(entry))) {
                 result.set(groupKey(entry), {
@@ -106,7 +106,7 @@ export async function countEntries(dbPromise: Promise<DB>) {
 
     return await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .count();
 }
 
@@ -114,19 +114,19 @@ export async function getEntriesPage(
     dbPromise: Promise<DB>,
     pageSize: number,
     page: number
-): Promise<Pager<Entry>> {
+): Promise<Pager<EntryModel>> {
     const db = await dbPromise;
 
     const entries = await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .index(caloryEntriesByTimestampIndex)
         .openCursor(null, 'prev');
 
-    const result: Entry[] = [];
+    const result: EntryModel[] = [];
 
-    await skip<Entry>(entries, pageSize * page);
-    await take<Entry>(entries, pageSize + 1, entry => result.push(entry));
+    await skip<EntryModel>(entries, pageSize * page);
+    await take<EntryModel>(entries, pageSize + 1, entry => result.push(entry));
     return {
         items: result.slice(0, pageSize),
         hasMore: result.length > pageSize
@@ -138,7 +138,7 @@ export async function countUnsyncedEntries(dbPromise: Promise<DB>) {
 
     return await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .index(calorySyncStateIndex)
         .count(
             IDBKeyRange.bound(SyncState.Dirty, SyncState.Deleted, false, false)
@@ -149,21 +149,21 @@ export async function getUnsyncedEntriesPage(
     dbPromise: Promise<DB>,
     pageSize: number,
     page: number
-): Promise<Pager<Entry>> {
+): Promise<Pager<EntryModel>> {
     const db = await dbPromise;
 
     const entries = await db
         .transaction(caloryEntriesStore)
-        .objectStore<Entry>(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
         .index(calorySyncStateIndex)
         .openCursor(
             IDBKeyRange.bound(SyncState.Dirty, SyncState.Deleted, false, false)
         );
 
-    const result: Entry[] = [];
+    const result: EntryModel[] = [];
 
-    await skip<Entry>(entries, pageSize * page);
-    await take<Entry>(entries, pageSize + 1, entry => result.push(entry));
+    await skip<EntryModel>(entries, pageSize * page);
+    await take<EntryModel>(entries, pageSize + 1, entry => result.push(entry));
     return {
         items: result.slice(0, pageSize),
         hasMore: result.length > pageSize

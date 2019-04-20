@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
-import { Entry } from '../models';
+import { EntryModel } from '../models';
 
 @Component({
     selector: 'app-entries-table',
@@ -11,9 +11,9 @@ import { Entry } from '../models';
 })
 export class EntriesTableComponent {
     @Input()
-    dataSource: Observable<Entry[]> = new BehaviorSubject<Entry[]>([]);
+    dataSource: Observable<EntryModel[]> = new BehaviorSubject<EntryModel[]>([]);
 
-    displayedColumns: Array<keyof Entry | 'actions'> = [
+    displayedColumns: Array<keyof EntryModel | 'actions'> = [
         'description',
         'calories',
         'created',
@@ -22,7 +22,7 @@ export class EntriesTableComponent {
 
     constructor(private router: Router) {}
 
-    onRowClick(entry: Entry) {
+    onRowClick(entry: EntryModel) {
         this.router.navigate(['edit', entry.id]);
     }
 }

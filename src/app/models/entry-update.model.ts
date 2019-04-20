@@ -1,5 +1,4 @@
-export interface EntryUpdate {
-    id: string;
+export interface EntryUpdateModel {
     calories: number;
     description: string;
     exercise: boolean;

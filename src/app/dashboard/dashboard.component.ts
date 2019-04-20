@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Store } from '@ngxs/store';
+import { combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { EntryModel } from '../models';
-import { ConfigService, EntryService } from '../services';
+import { ConfigService } from '../services';
+import { EntriesState } from '../store/entries.state';
+import { todayString } from '../utils';
 
 @Component({
     selector: 'app-dashboard',
@@ -15,13 +19,25 @@ export class DashboardComponent implements OnInit {
     isCheatDay$: Observable<boolean>;
 
     constructor(
-        private entriesService: EntryService,
+        private store: Store,
         private configService: ConfigService
     ) {}
 
     ngOnInit(): void {
-        this.caloriesLeft$ = this.entriesService.selectCaloriesLeft();
-        this.entries$ = this.entriesService.selectTodaysEntries();
+        this.entries$ = this.store.select(
+            EntriesState.entriesByDay(todayString())
+        );
+        this.caloriesLeft$ = combineLatest(
+            this.configService.maxCalories(),
+            this.entries$
+        ).pipe(
+            map(([totalCalories, todaysEntries]) => {
+                const usedCalories = todaysEntries
+                    .map(e => (e.exercise ? -e.calories : e.calories))
+                    .reduce((a, b) => a + b, 0);
+                return totalCalories - usedCalories;
+            })
+        );
         this.isCheatDay$ = this.configService.isCheatDay();
     }
 }

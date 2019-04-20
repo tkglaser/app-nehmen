@@ -23,7 +23,6 @@ import { MaterialModule } from './material.module';
 import {
     ClockService,
     ConfigService,
-    EntryService,
     LoggingService,
     UniqueIdService
 } from './services';
@@ -64,7 +63,6 @@ registerLocaleData(localeEnGb, 'en-GB');
         DropboxModule
     ],
     providers: [
-        EntryService,
         ConfigService,
         UniqueIdService,
         ClockService,

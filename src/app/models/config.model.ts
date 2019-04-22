@@ -1,6 +1,6 @@
 import { DayOfWeek } from './day-of-week.model';
 
-export interface Config {
+export interface ConfigModel {
     maxCalories: number;
     cheatDay: DayOfWeek | 'none';
 }

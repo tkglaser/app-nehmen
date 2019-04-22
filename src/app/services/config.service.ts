@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { pluck, distinctUntilChanged, map } from 'rxjs/operators';
+import { distinctUntilChanged, map, pluck } from 'rxjs/operators';
 
-import { setSetting, db, getSetting } from '../db';
+import { db, getSetting, setSetting } from '../db';
+import { ConfigModel, DayOfWeek } from '../models';
 import { isDayOfWeekToday } from '../utils';
 import { ClockService } from './clock.service';
-import { Config, DayOfWeek } from '../models';
 
 const key_max_calories = 'max_calories';
 const key_cheat_day = 'cheat_day';
 
-const defaultValues: Config = { maxCalories: 1700, cheatDay: 'none' };
+const defaultValues: ConfigModel = { maxCalories: 1700, cheatDay: 'none' };
 
 @Injectable({
     providedIn: 'root'
 })
 export class ConfigService {
-    private settings = new BehaviorSubject<Config>(defaultValues);
+    private settings = new BehaviorSubject<ConfigModel>(defaultValues);
 
     constructor(private clockService: ClockService) {
         this.load();
@@ -28,7 +28,7 @@ export class ConfigService {
 
     maxCalories() {
         return this.settings.pipe(
-            pluck<Config, number>('maxCalories'),
+            pluck<ConfigModel, number>('maxCalories'),
             distinctUntilChanged()
         );
     }
@@ -46,7 +46,7 @@ export class ConfigService {
         );
     }
 
-    async setSettings(config: Config) {
+    async setSettings(config: ConfigModel) {
         await setSetting(db, key_max_calories, config.maxCalories);
         await setSetting(db, key_cheat_day, config.cheatDay);
         await this.load();

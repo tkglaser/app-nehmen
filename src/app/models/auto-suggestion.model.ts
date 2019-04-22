@@ -1,4 +1,4 @@
-export interface AutoSuggestion {
+export interface AutoSuggestionModel {
     calories: number;
     description: string;
     exercise: boolean;

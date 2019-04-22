@@ -3,12 +3,13 @@ import {
     createSelector,
     NgxsOnInit,
     State,
-    StateContext
+    StateContext,
+    Store
 } from '@ngxs/store';
 
 import { db, getAllEntries, upsertEntry } from '../db';
 import { DropboxAuthService } from '../dropbox/services/dropbox-auth.service';
-import { AutoSuggestion, EntryModel, SyncState } from '../models';
+import { AutoSuggestionModel, EntryModel, SyncState } from '../models';
 import { UniqueIdService } from '../services';
 import { dayString } from '../utils';
 import {
@@ -28,7 +29,10 @@ function byCreatedDateDescending(a: EntryModel, b: EntryModel) {
     }
 }
 
-const byFrequencyDescending = (a: AutoSuggestion, b: AutoSuggestion) => {
+const byFrequencyDescending = (
+    a: AutoSuggestionModel,
+    b: AutoSuggestionModel
+) => {
     if (a.frequency < b.frequency) {
         return 1;
     } else if (a.frequency > b.frequency) {
@@ -71,7 +75,7 @@ export class EntriesState implements NgxsOnInit {
                 const groupKey = (e: EntryModel): string =>
                     `${e.description}#${e.calories}`;
                 const searchLower = key.toLowerCase();
-                const result = new Map<string, AutoSuggestion>();
+                const result = new Map<string, AutoSuggestionModel>();
 
                 if (!key || !key.length) {
                     return [];
@@ -105,15 +109,29 @@ export class EntriesState implements NgxsOnInit {
         );
     }
 
+    constructor(
+        private dropbox: DropboxAuthService,
+        private store: Store,
+        private uuid: UniqueIdService
+    ) {}
+
     async ngxsOnInit(ctx: StateContext<EntryModel[]>) {
         const entries = await getAllEntries(db);
         ctx.setState(entries.sort(byCreatedDateDescending));
+
+        if (navigator && navigator.serviceWorker) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data === 'sync_finished') {
+                    this.loadAllFromStorage();
+                }
+            });
+        }
     }
 
-    constructor(
-        private dropbox: DropboxAuthService,
-        private uuid: UniqueIdService
-    ) {}
+    private async loadAllFromStorage() {
+        const entries = await getAllEntries(db);
+        this.store.dispatch(new SetAllEntries(entries));
+    }
 
     @Action(SetAllEntries)
     setAllEntries(ctx: StateContext<EntryModel[]>, action: SetAllEntries) {

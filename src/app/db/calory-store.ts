@@ -1,6 +1,6 @@
 import { DB } from 'idb';
 
-import { AutoSuggestion, EntryModel, Pager, SyncState } from '../models';
+import { AutoSuggestionModel, EntryModel, Pager, SyncState } from '../models';
 import {
     caloryEntriesByDayIndex,
     caloryEntriesByTimestampIndex,
@@ -71,7 +71,7 @@ export async function getAutoSuggestionEntries(
     }
     const searchLower = search.toLowerCase();
 
-    const result = new Map<string, AutoSuggestion>();
+    const result = new Map<string, AutoSuggestionModel>();
 
     const db = await dbPromise;
 

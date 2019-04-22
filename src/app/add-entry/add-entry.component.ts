@@ -4,7 +4,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
-import { AutoSuggestion } from '../models';
+import { AutoSuggestionModel } from '../models';
 import { AddEntry } from '../store/entries.actions';
 import { EntriesState } from '../store/entries.state';
 
@@ -20,7 +20,7 @@ export class AddEntryComponent implements OnInit {
         exercise: false
     });
 
-    options$: Observable<AutoSuggestion[]>;
+    options$: Observable<AutoSuggestionModel[]>;
 
     @ViewChild('form') form;
     @ViewChild('addbtn') addbtn;

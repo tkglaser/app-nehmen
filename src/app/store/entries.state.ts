@@ -74,14 +74,13 @@ export class EntriesState implements NgxsOnInit {
             (state: EntryModel[]) => {
                 const groupKey = (e: EntryModel): string =>
                     `${e.description}#${e.calories}`;
-                const searchLower = key.toLowerCase();
-                const result = new Map<string, AutoSuggestionModel>();
 
                 if (!key || !key.length) {
                     return [];
                 }
 
-                state.forEach(entry => {
+                const searchLower = key.toLowerCase();
+                const groupedMatches = state.reduce((result, entry) => {
                     if (
                         (entry.description || '')
                             .toLowerCase()
@@ -101,8 +100,10 @@ export class EntriesState implements NgxsOnInit {
                             }
                         }
                     }
-                });
-                return Array.from(result.values())
+                    return result;
+                }, new Map<string, AutoSuggestionModel>());
+
+                return Array.from(groupedMatches.values())
                     .sort(byFrequencyDescending)
                     .slice(0, 4);
             }
@@ -118,14 +119,10 @@ export class EntriesState implements NgxsOnInit {
     async ngxsOnInit(ctx: StateContext<EntryModel[]>) {
         const entries = await getAllEntries(db);
         ctx.setState(entries.sort(byCreatedDateDescending));
-
-        if (navigator && navigator.serviceWorker) {
-            navigator.serviceWorker.addEventListener('message', event => {
-                if (event.data === 'sync_finished') {
-                    this.loadAllFromStorage();
-                }
-            });
-        }
+        this.dropbox
+            .onSyncFinished()
+            .subscribe(() => this.loadAllFromStorage());
+        this.dropbox.scheduleSync();
     }
 
     private async loadAllFromStorage() {
@@ -171,13 +168,13 @@ export class EntriesState implements NgxsOnInit {
             description: action.updates.description,
             exercise: action.updates.exercise
         };
-        await upsertEntry(db, updatedEntry);
-        await this.dropbox.scheduleSync();
         ctx.setState(
             state.map(entry =>
                 entry.id === action.entryId ? updatedEntry : entry
             )
         );
+        await upsertEntry(db, updatedEntry);
+        this.dropbox.scheduleSync();
     }
 
     @Action(DeleteEntry)
@@ -187,13 +184,13 @@ export class EntriesState implements NgxsOnInit {
         if (!existingEntry) {
             return;
         }
+        ctx.setState(state.filter(entry => entry.id !== action.entryId));
         await upsertEntry(db, {
             ...existingEntry,
             sync_state: SyncState.Deleted,
             modified: new Date().getTime()
         });
-        await this.dropbox.scheduleSync();
-        ctx.setState(state.filter(entry => entry.id !== action.entryId));
+        this.dropbox.scheduleSync();
     }
 
     private nextId() {

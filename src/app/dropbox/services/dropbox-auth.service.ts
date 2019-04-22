@@ -1,12 +1,12 @@
+import { Location } from '@angular/common';
 import { Injectable } from '@angular/core';
 import * as dbx from 'dropbox';
 import * as fetch from 'isomorphic-fetch';
-import { Location } from '@angular/common';
 import { Subject } from 'rxjs';
 
-import { DropboxState } from '../models';
 import { db } from 'src/app/db';
-import { saveState, loadState } from './dropbox.service';
+import { DropboxState } from '../models';
+import { loadState, saveState } from './dropbox.service';
 
 const clientId = '988bai9urdqlw6l';
 
@@ -66,10 +66,12 @@ export class DropboxAuthService {
             this.state = await loadState(db);
             resolve();
         });
-        navigator.serviceWorker.addEventListener('message', event => {
-            if (event.data === 'sync_finished') {
-                this.needsReload.next();
-            }
-        });
+        if (navigator && navigator.serviceWorker) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data === 'sync_finished') {
+                    this.needsReload.next();
+                }
+            });
+        }
     }
 }

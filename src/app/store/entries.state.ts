@@ -146,7 +146,7 @@ export class EntriesState implements NgxsOnInit {
             created: now.getTime(),
             modified: now.getTime(),
             day: dayString(now),
-            exercise: action.entry.exercise,
+            exercise: !!action.entry.exercise,
             sync_state: SyncState.Dirty
         };
         ctx.setState([...state, newEntry].sort(byCreatedDateDescending));
@@ -166,7 +166,7 @@ export class EntriesState implements NgxsOnInit {
             sync_state: SyncState.Dirty,
             calories: +action.updates.calories,
             description: action.updates.description,
-            exercise: action.updates.exercise
+            exercise: !!action.updates.exercise
         };
         ctx.setState(
             state.map(entry =>

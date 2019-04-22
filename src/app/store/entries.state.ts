@@ -136,7 +136,7 @@ export class EntriesState implements NgxsOnInit {
     }
 
     @Action(AddEntry)
-    addEntry(ctx: StateContext<EntryModel[]>, action: AddEntry) {
+    async addEntry(ctx: StateContext<EntryModel[]>, action: AddEntry) {
         const state = ctx.getState();
         const now = new Date();
         const newEntry: EntryModel = {
@@ -150,7 +150,8 @@ export class EntriesState implements NgxsOnInit {
             sync_state: SyncState.Dirty
         };
         ctx.setState([...state, newEntry].sort(byCreatedDateDescending));
-        upsertEntry(db, newEntry);
+        await upsertEntry(db, newEntry);
+        this.dropbox.scheduleSync();
     }
 
     @Action(UpdateEntry)

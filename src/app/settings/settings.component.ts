@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngxs/store';
 import { Subscription } from 'rxjs';
 
-import { ConfigService } from '../services/config.service';
-import { SelectOption, DayOfWeek } from '../models';
+import { DayOfWeek, SelectOption } from '../models';
+import { SetConfig } from '../store/config.actions';
+import { ConfigState } from '../store/config.state';
 
 @Component({
     selector: 'app-settings',
@@ -33,15 +35,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     constructor(
         private fb: FormBuilder,
-        private configService: ConfigService,
+        private store: Store,
         private router: Router
     ) {}
 
     ngOnInit(): void {
         this.subscriptions.add(
-            this.configService
-                .getSettings()
-                .subscribe(value => this.configForm.patchValue(value))
+            this.store
+                .select(ConfigState.config)
+                .subscribe(config => this.configForm.patchValue(config))
         );
     }
 
@@ -51,7 +53,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     onSubmit() {
         const formValue = this.configForm.value;
-        this.configService.setSettings(formValue);
+        this.store.dispatch(
+            new SetConfig({
+                cheatDay: formValue.cheatDay,
+                maxCalories: +formValue.maxCalories
+            })
+        );
         this.router.navigate(['dashboard']);
     }
 }

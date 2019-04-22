@@ -22,13 +22,13 @@ import { MainNavComponent } from './main-nav/main-nav.component';
 import { MaterialModule } from './material.module';
 import {
     ClockService,
-    ConfigService,
     LoggingService,
     UniqueIdService
 } from './services';
 import { GlobalErrorHandler } from './services/global-error.handler';
 import { UpdateService } from './services/update.service';
 import { SettingsComponent } from './settings/settings.component';
+import { ConfigState } from './store/config.state';
 import { EntriesState } from './store/entries.state';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 
@@ -49,7 +49,7 @@ registerLocaleData(localeEnGb, 'en-GB');
     ],
     imports: [
         BrowserModule,
-        NgxsModule.forRoot([EntriesState], {
+        NgxsModule.forRoot([EntriesState, ConfigState], {
             developmentMode: !environment.production
         }),
         AppRoutingModule,
@@ -63,7 +63,6 @@ registerLocaleData(localeEnGb, 'en-GB');
         DropboxModule
     ],
     providers: [
-        ConfigService,
         UniqueIdService,
         ClockService,
         LoggingService,

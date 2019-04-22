@@ -4,9 +4,9 @@ import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { EntryModel } from '../models';
-import { ConfigService } from '../services';
+import { ConfigState } from '../store/config.state';
 import { EntriesState } from '../store/entries.state';
-import { todayString } from '../utils';
+import { isDayOfWeekToday, todayString } from '../utils';
 
 @Component({
     selector: 'app-dashboard',
@@ -18,26 +18,31 @@ export class DashboardComponent implements OnInit {
     entries$: Observable<EntryModel[]>;
     isCheatDay$: Observable<boolean>;
 
-    constructor(
-        private store: Store,
-        private configService: ConfigService
-    ) {}
+    constructor(private store: Store) {}
 
     ngOnInit(): void {
         this.entries$ = this.store.select(
             EntriesState.entriesByDay(todayString())
         );
         this.caloriesLeft$ = combineLatest(
-            this.configService.maxCalories(),
+            this.store.select(ConfigState.config),
             this.entries$
         ).pipe(
-            map(([totalCalories, todaysEntries]) => {
+            map(([cfg, todaysEntries]) => {
                 const usedCalories = todaysEntries
                     .map(e => (e.exercise ? -e.calories : e.calories))
                     .reduce((a, b) => a + b, 0);
-                return totalCalories - usedCalories;
+                return cfg.maxCalories - usedCalories;
             })
         );
-        this.isCheatDay$ = this.configService.isCheatDay();
+        this.isCheatDay$ = this.store
+            .select(ConfigState.config)
+            .pipe(
+                map(
+                    cfg =>
+                        cfg.cheatDay !== 'none' &&
+                        isDayOfWeekToday(cfg.cheatDay)
+                )
+            );
     }
 }

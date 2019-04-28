@@ -132,7 +132,7 @@ export class EntriesState implements NgxsOnInit {
 
     @Action(SetAllEntries)
     setAllEntries(ctx: StateContext<EntryModel[]>, action: SetAllEntries) {
-        ctx.setState(action.entries);
+        ctx.setState((action.entries || []).sort(byCreatedDateDescending));
     }
 
     @Action(AddEntry)

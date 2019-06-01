@@ -22,8 +22,8 @@ export class AddEntryComponent implements OnInit {
 
     options$: Observable<AutoSuggestionModel[]>;
 
-    @ViewChild('form') form;
-    @ViewChild('addbtn') addbtn;
+    @ViewChild('form', { static: true }) form;
+    @ViewChild('addbtn', { static: true }) addbtn;
 
     constructor(
         private fb: FormBuilder,

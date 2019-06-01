@@ -14,7 +14,7 @@ export class MainNavComponent {
         .observe(Breakpoints.Handset)
         .pipe(map(result => result.matches));
 
-    @ViewChild('drawer') drawer: MatSidenav;
+    @ViewChild('drawer', { static: true }) drawer: MatSidenav;
 
     constructor(private breakpointObserver: BreakpointObserver) {}
 

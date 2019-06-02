@@ -7,3 +7,4 @@ jobs:
       - checkout
       - run: npm ci
       - run: npm run build-gh
+      - run: npx ngh --repo=https://$GHPAGES_DEPLOY_KEY@github.com/tkglaser/app-nehmen.git --name="Thomas Glaser" --email=thomas@tkglaser.net

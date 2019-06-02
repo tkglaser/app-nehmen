@@ -5,7 +5,7 @@
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "/app-nehmen/",
-  "start_url": "/app-nehmen/dashboard",
+  "start_url": "/app-nehmen/index.html",
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",

@@ -10,7 +10,7 @@
     "start-prod": "npm run build && http-server -p 8080 -c-1 dist",
     "build": "npm run sw-build && ng build --prod",
     "sw-clean": "npm run rimraf -- dist-sw",
-    "sw-compile": "npm run tsc -- --build src/tsconfig.sw.json",
+    "sw-compile": "npm run tsc -- --build tsconfig.sw.json",
     "sw-rollup": "npm run rollup -- --config src/service-worker/rollup.config.js",
     "sw-build": "npm run sw-clean && npm run sw-compile && npm run sw-rollup",
     "build-gh": "npm run sw-build && ng build --prod --no-progress --base-href \"https://www.tkglaser.net/app-nehmen/\"",

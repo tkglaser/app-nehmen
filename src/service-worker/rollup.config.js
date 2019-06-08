@@ -2,7 +2,7 @@
 // import commonjs from 'rollup-plugin-commonjs';
 
 export default {
-    input: './dist-sw/tsc-out/service-worker/main.js',
+    input: './dist-sw/tsc-out/src/service-worker/main.js',
     output: {
         file: './dist-sw/sync-worker.js',
         format: 'iife',

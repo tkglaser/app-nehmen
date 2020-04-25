@@ -20,6 +20,10 @@ steps:
   displayName: 'Install node dependencies'
 
 - script: |
+    npm run test-ci
+  displayName: 'Run unit tests'
+
+- script: |
     npm run build
   displayName: 'Build'
 

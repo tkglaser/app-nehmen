@@ -24,7 +24,7 @@ steps:
   displayName: 'Run unit tests'
 
 - script: |
-    npm run build
+    npm run build-prod
   displayName: 'Build'
 
 - task: AzureFileCopy@4

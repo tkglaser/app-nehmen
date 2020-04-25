@@ -16,12 +16,11 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    npm install -g @angular/cli
     npm ci
-    ng build --prod
+    npm run build
   displayName: 'npm install and build'
 
-- task: AzureFileCopy@3
+- task: AzureFileCopy@4
   inputs:
     sourcePath: $(Pipeline.Workspace)/dist
     azureSubscription: TKGlaserAzure

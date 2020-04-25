@@ -57,7 +57,8 @@ registerLocaleData(localeEnGb, 'en-GB');
         LayoutModule,
         ReactiveFormsModule,
         ServiceWorkerModule.register('sw-master.js', {
-            enabled: environment.production
+            enabled: environment.production,
+            registrationStrategy: 'registerImmediately'
         }),
         MaterialModule,
         DropboxModule

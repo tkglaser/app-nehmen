@@ -17,17 +17,17 @@ steps:
 
 - script: |
     npm install
-  displayName: 'npm install'
+  displayName: 'Install node dependencies'
 
 - script: |
     npm run build
-  displayName: 'npm build'
+  displayName: 'Build'
 
 - task: AzureFileCopy@4
   displayName: 'Deploy to Azure Storage'
   inputs:
-    sourcePath: $(Build.SourcesDirectory)/dist
+    sourcePath: $(Build.SourcesDirectory)/dist/*
     azureSubscription: TKGlaserAzure
     destination: azureBlob
     storage: appnehmenui
-    containerName: appnehmen
+    containerName: $web

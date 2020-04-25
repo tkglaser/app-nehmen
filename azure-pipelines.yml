@@ -7,7 +7,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 steps:
 - task: NodeTool@0
@@ -15,21 +15,19 @@ steps:
     versionSpec: '12.x'
   displayName: 'Install Node.js'
 
-# - script: |
-#     npm install
-#   displayName: 'npm install'
+- script: |
+    npm install
+  displayName: 'npm install'
 
 - script: |
-    pwd
-    ls -lh
-    echo $(Build.SourcesDirectory)
     npm run build
   displayName: 'npm build'
 
-# - task: AzureFileCopy@4
-#   inputs:
-#     sourcePath: $(Build.SourcesDirectory)/dist
-#     azureSubscription: TKGlaserAzure
-#     destination: azureBlob
-#     storage: appnehmenui
-#     containerName: appnehmen
+- task: AzureFileCopy@4
+  displayName: 'Deploy to Azure Storage'
+  inputs:
+    sourcePath: $(Build.SourcesDirectory)/dist
+    azureSubscription: TKGlaserAzure
+    destination: azureBlob
+    storage: appnehmenui
+    containerName: appnehmen

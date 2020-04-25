@@ -34,4 +34,5 @@ steps:
     azureSubscription: TKGlaserAzure
     destination: azureBlob
     storage: appnehmenui
-    containerName: $web
+    containerName: $web,
+    additionalArgumentsForBlobCopy: '/SetContentType'

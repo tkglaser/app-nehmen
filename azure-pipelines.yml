@@ -20,3 +20,14 @@ steps:
     npm ci
     ng build --prod
   displayName: 'npm install and build'
+
+- task: AzureFileCopy@3
+  inputs:
+    sourcePath: $(Pipeline.Workspace)/dist
+    azureSubscription: TKGlaserAzure
+    destination: azureBlob
+    storage: appnehmenui
+    containerName: appnehmen
+
+
+    

@@ -9,14 +9,14 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$app-nehmen-primary: mat-palette($mat-indigo);
-$app-nehmen-accent:  mat-palette($mat-pink, A200, A100, A400);
+$app-nehmen-primary: mat-palette($mat-blue-grey);
+$app-nehmen-accent:  mat-palette($mat-amber, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$app-nehmen-warn:    mat-palette($mat-red);
+$app-nehmen-warn:    mat-palette($mat-deep-orange);
 
 // Create the theme object (a Sass map containing all of the palettes).
-$app-nehmen-theme: mat-light-theme($app-nehmen-primary, $app-nehmen-accent, $app-nehmen-warn);
+$app-nehmen-theme: mat-dark-theme($app-nehmen-primary, $app-nehmen-accent, $app-nehmen-warn);
 // $app-nehmen-theme: mat-dark-theme($app-nehmen-primary, $app-nehmen-accent, $app-nehmen-warn);
 
 // Include theme styles for core and each component used in your app.

@@ -13,7 +13,7 @@
     "sw-compile": "npm run tsc -- --build tsconfig.sw.json",
     "sw-rollup": "npm run rollup -- --config src/service-worker/rollup.config.js",
     "sw-build": "npm run sw-clean && npm run sw-compile && npm run sw-rollup",
-    "build-prod": "npm run sw-build && ng build --prod --no-progress --base-href \"http://appnehmen.tkglaser.net/\"",
+    "build-prod": "npm run sw-build && ng build --prod --no-progress",
     "test": "ng test",
     "test-ci": "ng test --no-progress --no-watch",
     "lint": "ng lint",

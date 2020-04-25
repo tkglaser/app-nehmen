@@ -1,10 +1,11 @@
+import { Injectable } from '@angular/core';
 import {
     Action,
     createSelector,
     NgxsOnInit,
     State,
     StateContext,
-    Store
+    Store,
 } from '@ngxs/store';
 
 import { db, getAllEntries, upsertEntry } from '../db';
@@ -16,7 +17,7 @@ import {
     AddEntry,
     DeleteEntry,
     SetAllEntries,
-    UpdateEntry
+    UpdateEntry,
 } from './entries.actions';
 
 function byCreatedDateDescending(a: EntryModel, b: EntryModel) {
@@ -44,70 +45,65 @@ const byFrequencyDescending = (
 
 @State<EntryModel[]>({
     name: 'entries',
-    defaults: []
+    defaults: [],
 })
+@Injectable()
 export class EntriesState implements NgxsOnInit {
     static entriesByDay(day: string) {
-        return createSelector(
-            [EntriesState],
-            (state: EntryModel[]) => state.filter(entry => entry.day === day)
+        return createSelector([EntriesState], (state: EntryModel[]) =>
+            state.filter((entry) => entry.day === day)
         );
     }
 
     static entryById(id: string) {
-        return createSelector(
-            [EntriesState],
-            (state: EntryModel[]) => state.find(entry => entry.id === id)
+        return createSelector([EntriesState], (state: EntryModel[]) =>
+            state.find((entry) => entry.id === id)
         );
     }
 
     static hasEntriesOlderThan(day: string) {
-        return createSelector(
-            [EntriesState],
-            (state: EntryModel[]) => state.some(entry => entry.day <= day)
+        return createSelector([EntriesState], (state: EntryModel[]) =>
+            state.some((entry) => entry.day <= day)
         );
     }
 
     static autoSuggestions(key: string) {
-        return createSelector(
-            [EntriesState],
-            (state: EntryModel[]) => {
-                const groupKey = (e: EntryModel): string =>
-                    `${e.description}#${e.calories}`;
+        return createSelector([EntriesState], (state: EntryModel[]) => {
+            const groupKey = (e: EntryModel): string =>
+                `${e.description}#${e.calories}`;
 
-                if (!key || !key.length) {
-                    return [];
-                }
+            if (!key || !key.length) {
+                return [];
+            }
 
-                const searchLower = key.toLowerCase();
-                const groupedMatches = state.reduce((result, entry) => {
-                    if (
-                        (entry.description || '')
-                            .toLowerCase()
-                            .includes(searchLower)
-                    ) {
-                        if (!result.has(groupKey(entry))) {
-                            result.set(groupKey(entry), {
-                                calories: entry.calories,
-                                description: entry.description,
-                                exercise: entry.exercise,
-                                frequency: 1
-                            });
-                        } else {
-                            const group = result.get(groupKey(entry));
-                            if (group) {
-                                group.frequency++;
-                            }
+            const searchLower = key.toLowerCase();
+            const groupedMatches = state.reduce((result, entry) => {
+                if (
+                    (entry.description || '')
+                        .toLowerCase()
+                        .includes(searchLower)
+                ) {
+                    if (!result.has(groupKey(entry))) {
+                        result.set(groupKey(entry), {
+                            calories: entry.calories,
+                            description: entry.description,
+                            exercise: entry.exercise,
+                            frequency: 1,
+                        });
+                    } else {
+                        const group = result.get(groupKey(entry));
+                        if (group) {
+                            group.frequency++;
                         }
                     }
-                    return result;
-                }, new Map<string, AutoSuggestionModel>());
+                }
+                return result;
+            }, new Map<string, AutoSuggestionModel>());
 
-                return Array.from(groupedMatches.values())
-                    .sort(byFrequencyDescending)
-                    .slice(0, 4);
-            }
-        );
+            return Array.from(groupedMatches.values())
+                .sort(byFrequencyDescending)
+                .slice(0, 4);
+        });
     }
 
     constructor(
@@ -147,7 +143,7 @@ export class EntriesState implements NgxsOnInit {
             modified: now.getTime(),
             day: dayString(now),
             exercise: !!action.entry.exercise,
-            sync_state: SyncState.Dirty
+            sync_state: SyncState.Dirty,
         };
         ctx.setState([...state, newEntry].sort(byCreatedDateDescending));
         await upsertEntry(db, newEntry);
@@ -157,7 +153,9 @@ export class EntriesState implements NgxsOnInit {
     @Action(UpdateEntry)
     async updateEntry(ctx: StateContext<EntryModel[]>, action: UpdateEntry) {
         const state = ctx.getState();
-        const existingEntry = state.find(entry => entry.id === action.entryId);
+        const existingEntry = state.find(
+            (entry) => entry.id === action.entryId
+        );
         if (!existingEntry) {
             return;
         }
@@ -167,10 +165,10 @@ export class EntriesState implements NgxsOnInit {
             sync_state: SyncState.Dirty,
             calories: +action.updates.calories,
             description: action.updates.description,
-            exercise: !!action.updates.exercise
+            exercise: !!action.updates.exercise,
         };
         ctx.setState(
-            state.map(entry =>
+            state.map((entry) =>
                 entry.id === action.entryId ? updatedEntry : entry
             )
         );
@@ -181,15 +179,17 @@ export class EntriesState implements NgxsOnInit {
     @Action(DeleteEntry)
     async deleteEntry(ctx: StateContext<EntryModel[]>, action: DeleteEntry) {
         const state = ctx.getState();
-        const existingEntry = state.find(entry => entry.id === action.entryId);
+        const existingEntry = state.find(
+            (entry) => entry.id === action.entryId
+        );
         if (!existingEntry) {
             return;
         }
-        ctx.setState(state.filter(entry => entry.id !== action.entryId));
+        ctx.setState(state.filter((entry) => entry.id !== action.entryId));
         await upsertEntry(db, {
             ...existingEntry,
             sync_state: SyncState.Deleted,
-            modified: new Date().getTime()
+            modified: new Date().getTime(),
         });
         this.dropbox.scheduleSync();
     }

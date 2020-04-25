@@ -1,3 +1,4 @@
+import { Injectable } from '@angular/core';
 import { Action, NgxsOnInit, Selector, State, StateContext } from '@ngxs/store';
 
 import { db, getSetting, setSetting } from '../db';
@@ -12,6 +13,7 @@ const defaultValues: ConfigModel = { maxCalories: 1700, cheatDay: 'none' };
     name: 'config',
     defaults: defaultValues
 })
+@Injectable()
 export class ConfigState implements NgxsOnInit {
     @Selector()
     static config(state: ConfigModel) {

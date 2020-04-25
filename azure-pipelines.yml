@@ -7,7 +7,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 steps:
 - task: NodeTool@0
@@ -20,16 +20,15 @@ steps:
   displayName: 'npm install'
 
 - script: |
+    pwd
+    ls -lh
     npm run build
   displayName: 'npm build'
 
-- task: AzureFileCopy@4
-  inputs:
-    sourcePath: $(Pipeline.Workspace)/dist
-    azureSubscription: TKGlaserAzure
-    destination: azureBlob
-    storage: appnehmenui
-    containerName: appnehmen
-
-
-    
+# - task: AzureFileCopy@4
+#   inputs:
+#     sourcePath: $(Pipeline.Workspace)/dist
+#     azureSubscription: TKGlaserAzure
+#     destination: azureBlob
+#     storage: appnehmenui
+#     containerName: appnehmen

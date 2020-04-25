@@ -22,13 +22,13 @@ steps:
 - script: |
     pwd
     ls -lh
-    echo $(Pipeline.Workspace)
+    echo $(Build.SourcesDirectory)
     npm run build
   displayName: 'npm build'
 
 # - task: AzureFileCopy@4
 #   inputs:
-#     sourcePath: $(Pipeline.Workspace)/dist
+#     sourcePath: $(Build.SourcesDirectory)/dist
 #     azureSubscription: TKGlaserAzure
 #     destination: azureBlob
 #     storage: appnehmenui

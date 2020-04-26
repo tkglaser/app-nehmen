@@ -3,15 +3,23 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { mockLoggingProvider, mockUpdateProvider } from 'src/test/mocks';
+import {
+    mockLoggingProvider,
+    mockUpdateProvider,
+    mockOAuthProvider,
+} from 'src/test/mocks';
 
 describe('AppComponent', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             imports: [RouterTestingModule],
             declarations: [AppComponent],
-            providers: [mockLoggingProvider, mockUpdateProvider],
-            schemas: [CUSTOM_ELEMENTS_SCHEMA]
+            providers: [
+                mockLoggingProvider,
+                mockUpdateProvider,
+                mockOAuthProvider,
+            ],
+            schemas: [CUSTOM_ELEMENTS_SCHEMA],
         }).compileComponents();
     }));
 

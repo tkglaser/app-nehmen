@@ -7,6 +7,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgxsModule } from '@ngxs/store';
+import { OAuthModule } from 'angular-oauth2-oidc';
+import { HttpClientModule } from '@angular/common/http';
 
 import { environment } from '../environments/environment';
 import { AddEntryComponent } from './add-entry/add-entry.component';
@@ -20,11 +22,7 @@ import { EntriesTableComponent } from './entries-table/entries-table.component';
 import { LogSliderComponent } from './log-slider/log-slider.component';
 import { MainNavComponent } from './main-nav/main-nav.component';
 import { MaterialModule } from './material.module';
-import {
-    ClockService,
-    LoggingService,
-    UniqueIdService
-} from './services';
+import { ClockService, LoggingService, UniqueIdService } from './services';
 import { GlobalErrorHandler } from './services/global-error.handler';
 import { UpdateService } from './services/update.service';
 import { SettingsComponent } from './settings/settings.component';
@@ -45,12 +43,13 @@ registerLocaleData(localeEnGb, 'en-GB');
         LogSliderComponent,
         SettingsComponent,
         DayEntriesComponent,
-        EntriesTableComponent
+        EntriesTableComponent,
     ],
     imports: [
         BrowserModule,
+        HttpClientModule,
         NgxsModule.forRoot([EntriesState, ConfigState], {
-            developmentMode: !environment.production
+            developmentMode: !environment.production,
         }),
         AppRoutingModule,
         BrowserAnimationsModule,
@@ -58,10 +57,16 @@ registerLocaleData(localeEnGb, 'en-GB');
         ReactiveFormsModule,
         ServiceWorkerModule.register('sw-master.js', {
             enabled: environment.production,
-            registrationStrategy: 'registerImmediately'
+            registrationStrategy: 'registerImmediately',
         }),
         MaterialModule,
-        DropboxModule
+        OAuthModule.forRoot({
+            resourceServer: {
+                allowedUrls: ['https://localhost:5001/api'],
+                sendAccessToken: true,
+            },
+        }),
+        DropboxModule,
     ],
     providers: [
         UniqueIdService,
@@ -70,11 +75,11 @@ registerLocaleData(localeEnGb, 'en-GB');
         UpdateService,
         {
             provide: ErrorHandler,
-            useClass: GlobalErrorHandler
+            useClass: GlobalErrorHandler,
         },
-        { provide: LOCALE_ID, useValue: 'en-GB' }
+        { provide: LOCALE_ID, useValue: 'en-GB' },
     ],
     bootstrap: [AppComponent],
-    entryComponents: [TodaysEntriesComponent]
+    entryComponents: [TodaysEntriesComponent],
 })
 export class AppModule {}

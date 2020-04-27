@@ -44,6 +44,25 @@
                 <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
             </button>
             <span>AppNehmen</span>
+            <span class="spacer"></span>
+            <button
+                type="button"
+                aria-label="Login"
+                mat-button
+                (click)="onLogin()"
+                *ngIf="!isLoggedin"
+            >
+                Login
+            </button>
+            <button
+                type="button"
+                aria-label="Logout"
+                mat-button
+                (click)="onLogout()"
+                *ngIf="isLoggedin"
+            >
+                {{ username }} (logout)
+            </button>
         </mat-toolbar>
         <div class="content-container"><router-outlet></router-outlet></div>
     </mat-sidenav-content>

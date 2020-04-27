@@ -5,7 +5,7 @@ export const DiscoveryDocumentConfig = {
 }
 
 export const authConfig: AuthConfig = {
-  redirectUri: window.location.origin + '/index.html',
+  redirectUri: window.location.origin + '/',
   responseType: 'token id_token',
   issuer: 'https://appnehmen.b2clogin.com/f17a7148-c2f7-4d1a-9390-a351e1328255/v2.0/',
   strictDiscoveryDocumentValidation: false,

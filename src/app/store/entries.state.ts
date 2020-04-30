@@ -9,7 +9,6 @@ import {
 } from '@ngxs/store';
 
 import { db, getAllEntries, upsertEntry } from '../db';
-import { DropboxAuthService } from '../dropbox/services/dropbox-auth.service';
 import { AutoSuggestionModel, EntryModel, SyncState } from '../models';
 import { UniqueIdService } from '../services';
 import { dayString } from '../utils';
@@ -107,7 +106,6 @@ export class EntriesState implements NgxsOnInit {
     }
 
     constructor(
-        private dropbox: DropboxAuthService,
         private store: Store,
         private uuid: UniqueIdService
     ) {}
@@ -115,10 +113,6 @@ export class EntriesState implements NgxsOnInit {
     async ngxsOnInit(ctx: StateContext<EntryModel[]>) {
         const entries = await getAllEntries(db);
         ctx.setState(entries.sort(byCreatedDateDescending));
-        this.dropbox
-            .onSyncFinished()
-            .subscribe(() => this.loadAllFromStorage());
-        this.dropbox.scheduleSync();
     }
 
     private async loadAllFromStorage() {
@@ -147,7 +141,6 @@ export class EntriesState implements NgxsOnInit {
         };
         ctx.setState([...state, newEntry].sort(byCreatedDateDescending));
         await upsertEntry(db, newEntry);
-        this.dropbox.scheduleSync();
     }
 
     @Action(UpdateEntry)
@@ -173,7 +166,6 @@ export class EntriesState implements NgxsOnInit {
             )
         );
         await upsertEntry(db, updatedEntry);
-        this.dropbox.scheduleSync();
     }
 
     @Action(DeleteEntry)
@@ -191,7 +183,6 @@ export class EntriesState implements NgxsOnInit {
             sync_state: SyncState.Deleted,
             modified: new Date().getTime(),
         });
-        this.dropbox.scheduleSync();
     }
 
     private nextId() {

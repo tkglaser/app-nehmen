@@ -16,7 +16,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { DayEntriesComponent } from './day-entries/day-entries.component';
-import { DropboxModule } from './dropbox/dropbox.module';
 import { EditEntryComponent } from './edit-entry/edit-entry.component';
 import { EntriesTableComponent } from './entries-table/entries-table.component';
 import { LogSliderComponent } from './log-slider/log-slider.component';
@@ -55,7 +54,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         BrowserAnimationsModule,
         LayoutModule,
         ReactiveFormsModule,
-        ServiceWorkerModule.register('sw-master.js', {
+        ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
             registrationStrategy: 'registerImmediately',
         }),
@@ -65,8 +64,7 @@ registerLocaleData(localeEnGb, 'en-GB');
                 allowedUrls: ['https://localhost:5001/api'],
                 sendAccessToken: true,
             },
-        }),
-        DropboxModule,
+        })
     ],
     providers: [
         UniqueIdService,

@@ -44,41 +44,6 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
-              "assets": [
-                "src/favicon.ico",
-                "src/assets",
-                "src/manifest.webmanifest",
-                {
-                  "input": "src/service-worker/",
-                  "glob": "sw-master.js",
-                  "output": "."
-                },
-                {
-                  "input": "dist-sw/",
-                  "glob": "sync-worker.js",
-                  "output": "."
-                },
-                {
-                  "input": "node_modules/dropbox/dist/",
-                  "glob": "Dropbox-sdk.min.js",
-                  "output": "."
-                },
-                {
-                  "input": "node_modules/idb/build/",
-                  "glob": "idb.js",
-                  "output": "."
-                },
-                {
-                  "input": "node_modules/moment/min/",
-                  "glob": "moment.min.js",
-                  "output": "."
-                },
-                {
-                  "input": "node_modules/rxjs/bundles/",
-                  "glob": "rxjs.umd.min.js",
-                  "output": "."
-                }
-              ],
               "budgets": [
                 {
                   "type": "initial",

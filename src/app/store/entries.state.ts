@@ -5,7 +5,6 @@ import {
     NgxsOnInit,
     State,
     StateContext,
-    Store,
 } from '@ngxs/store';
 import { v4 as uuid } from 'uuid';
 
@@ -105,18 +104,9 @@ export class EntriesState implements NgxsOnInit {
         });
     }
 
-    constructor(
-        private store: Store
-    ) {}
-
     async ngxsOnInit(ctx: StateContext<EntryModel[]>) {
         const entries = await getAllEntries(db);
         ctx.setState(entries.sort(byCreatedDateDescending));
-    }
-
-    private async loadAllFromStorage() {
-        const entries = await getAllEntries(db);
-        this.store.dispatch(new SetAllEntries(entries));
     }
 
     @Action(SetAllEntries)

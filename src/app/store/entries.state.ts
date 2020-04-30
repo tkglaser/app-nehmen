@@ -7,10 +7,10 @@ import {
     StateContext,
     Store,
 } from '@ngxs/store';
+import { v4 as uuid } from 'uuid';
 
 import { db, getAllEntries, upsertEntry } from '../db';
 import { AutoSuggestionModel, EntryModel, SyncState } from '../models';
-import { UniqueIdService } from '../services';
 import { dayString } from '../utils';
 import {
     AddEntry,
@@ -106,8 +106,7 @@ export class EntriesState implements NgxsOnInit {
     }
 
     constructor(
-        private store: Store,
-        private uuid: UniqueIdService
+        private store: Store
     ) {}
 
     async ngxsOnInit(ctx: StateContext<EntryModel[]>) {
@@ -186,6 +185,6 @@ export class EntriesState implements NgxsOnInit {
     }
 
     private nextId() {
-        return `${new Date().getTime()}${this.uuid.newGuid()}`;
+        return `${new Date().getTime()}_${uuid()}`;
     }
 }

@@ -21,7 +21,7 @@ import { EntriesTableComponent } from './entries-table/entries-table.component';
 import { LogSliderComponent } from './log-slider/log-slider.component';
 import { MainNavComponent } from './main-nav/main-nav.component';
 import { MaterialModule } from './material.module';
-import { ClockService, LoggingService, UniqueIdService } from './services';
+import { ClockService, LoggingService } from './services';
 import { GlobalErrorHandler } from './services/global-error.handler';
 import { UpdateService } from './services/update.service';
 import { SettingsComponent } from './settings/settings.component';
@@ -67,7 +67,6 @@ registerLocaleData(localeEnGb, 'en-GB');
         })
     ],
     providers: [
-        UniqueIdService,
         ClockService,
         LoggingService,
         UpdateService,

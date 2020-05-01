@@ -29,6 +29,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 import { reducers } from './store';
 import { LocalDbModule } from './local-db/local-db.module';
+import { CosmosModule } from './cosmos/cosmos.module';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -63,9 +64,10 @@ registerLocaleData(localeEnGb, 'en-GB');
                 sendAccessToken: true,
             },
         }),
-        LocalDbModule,
         EffectsModule.forRoot(),
         StoreModule.forRoot(reducers),
+        LocalDbModule,
+        // CosmosModule
     ],
     providers: [
         ClockService,

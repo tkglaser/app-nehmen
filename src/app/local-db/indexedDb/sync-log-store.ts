@@ -1,7 +1,7 @@
 import { DB } from 'idb';
 
 import { syncLogStore } from './index-db';
-import { SyncLogEntry } from '../models/sync-log-entry.model';
+import { SyncLogEntry } from '../../models/sync-log-entry.model';
 
 export async function log(dbPromise: Promise<DB>, message: string) {
     const db = await dbPromise;

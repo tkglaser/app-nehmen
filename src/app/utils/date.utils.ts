@@ -1,7 +1,5 @@
-import * as moment_ from 'moment';
+const moment = require('moment');
 import { DayOfWeek } from '../models';
-
-const moment = moment_; // workaround for rollup
 
 export function dayString(date: Date | number): string {
     let internalDate: Date;
@@ -20,7 +18,7 @@ export function friendlyDay(day: string) {
         nextWeek: 'dddd',
         lastDay: '[Yesterday]',
         lastWeek: '[Last] dddd',
-        sameElse: 'YYYY-MM-DD'
+        sameElse: 'YYYY-MM-DD',
     });
 }
 
@@ -29,9 +27,7 @@ export function toDropboxString(timestamp: number): string {
 }
 
 export function fromDropboxString(dxstr: string): number {
-    return moment(dxstr)
-        .toDate()
-        .getTime();
+    return moment(dxstr).toDate().getTime();
 }
 
 export function todayString() {

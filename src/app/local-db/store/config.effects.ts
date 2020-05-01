@@ -1,15 +1,10 @@
 import { Injectable } from '@angular/core';
-import {
-    Actions,
-    createEffect,
-    ofType,
-    ROOT_EFFECTS_INIT,
-} from '@ngrx/effects';
-import { tap, map, switchMap } from 'rxjs/operators';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { tap, map, switchMap, startWith } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 
 import * as ConfigActions from '../../store/config.actions';
-import { db, getSetting, setSetting } from '../../db';
+import { db, getSetting, setSetting } from '../indexedDb';
 import { DayOfWeek } from '../../models';
 import { initialState } from 'src/app/store/config.reducer';
 
@@ -21,7 +16,8 @@ const defaultValues = initialState;
 export class ConfigEffects {
     init$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(ROOT_EFFECTS_INIT),
+            startWith({ type: 'BOOTSTRAP' }),
+            ofType('BOOTSTRAP'),
             switchMap(() =>
                 forkJoin([
                     getSetting<number>(

@@ -6,7 +6,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { NgxsModule } from '@ngxs/store';
 import { OAuthModule } from 'angular-oauth2-oidc';
 import { HttpClientModule } from '@angular/common/http';
 import { EffectsModule } from '@ngrx/effects';
@@ -27,8 +26,6 @@ import { ClockService, LoggingService } from './services';
 import { GlobalErrorHandler } from './services/global-error.handler';
 import { UpdateService } from './services/update.service';
 import { SettingsComponent } from './settings/settings.component';
-import { ConfigState } from './store/config.state';
-import { EntriesState } from './store/entries.state';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 import { reducers } from './store';
 import { LocalDbModule } from './local-db/local-db.module';
@@ -51,9 +48,6 @@ registerLocaleData(localeEnGb, 'en-GB');
     imports: [
         BrowserModule,
         HttpClientModule,
-        NgxsModule.forRoot([EntriesState, ConfigState], {
-            developmentMode: !environment.production,
-        }),
         AppRoutingModule,
         BrowserAnimationsModule,
         LayoutModule,
@@ -71,7 +65,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         }),
         LocalDbModule,
         EffectsModule.forRoot(),
-        StoreModule.forRoot(reducers)
+        StoreModule.forRoot(reducers),
     ],
     providers: [
         ClockService,

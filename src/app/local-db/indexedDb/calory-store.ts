@@ -1,11 +1,11 @@
 import { DB } from 'idb';
 
-import { AutoSuggestionModel, EntryModel, Pager, SyncState } from '../models';
+import { AutoSuggestionModel, EntryModel, Pager, SyncState } from '../../models';
 import {
     caloryEntriesByDayIndex,
     caloryEntriesByTimestampIndex,
     caloryEntriesStore,
-    calorySyncStateIndex
+    calorySyncStateIndex,
 } from './index-db';
 import { skip, take } from './utils';
 
@@ -20,6 +20,19 @@ export async function removeEntry(dbPromise: Promise<DB>, key: string) {
     const db = await dbPromise;
     const tx = db.transaction(caloryEntriesStore, 'readwrite');
     tx.objectStore<EntryModel>(caloryEntriesStore).delete(key);
+    return tx.complete;
+}
+
+export async function softDeleteEntry(dbPromise: Promise<DB>, key: string) {
+    const db = await dbPromise;
+    const tx = db.transaction(caloryEntriesStore, 'readwrite');
+    const entry = await db
+        .transaction(caloryEntriesStore)
+        .objectStore<EntryModel>(caloryEntriesStore)
+        .get(key);
+    entry.sync_state = SyncState.Deleted;
+    entry.modified = new Date().getTime();
+    tx.objectStore<EntryModel>(caloryEntriesStore).put(entry);
     return tx.complete;
 }
 
@@ -38,7 +51,7 @@ export async function getEntriesByDay(dbPromise: Promise<DB>, date: string) {
         .objectStore<EntryModel>(caloryEntriesStore)
         .index(caloryEntriesByDayIndex)
         .getAll(IDBKeyRange.only(date));
-    return result.filter(entry => entry.sync_state !== SyncState.Deleted);
+    return result.filter((entry) => entry.sync_state !== SyncState.Deleted);
 }
 
 export async function getAllEntries(dbPromise: Promise<DB>) {
@@ -81,14 +94,14 @@ export async function getAutoSuggestionEntries(
         .index(caloryEntriesByTimestampIndex)
         .openCursor(null, 'prev');
 
-    await take<EntryModel>(allEntries, 1000, entry => {
+    await take<EntryModel>(allEntries, 1000, (entry) => {
         if ((entry.description || '').toLowerCase().includes(searchLower)) {
             if (!result.has(groupKey(entry))) {
                 result.set(groupKey(entry), {
                     calories: entry.calories,
                     description: entry.description,
                     exercise: entry.exercise,
-                    frequency: 1
+                    frequency: 1,
                 });
             } else {
                 const group = result.get(groupKey(entry));
@@ -126,10 +139,12 @@ export async function getEntriesPage(
     const result: EntryModel[] = [];
 
     await skip<EntryModel>(entries, pageSize * page);
-    await take<EntryModel>(entries, pageSize + 1, entry => result.push(entry));
+    await take<EntryModel>(entries, pageSize + 1, (entry) =>
+        result.push(entry)
+    );
     return {
         items: result.slice(0, pageSize),
-        hasMore: result.length > pageSize
+        hasMore: result.length > pageSize,
     };
 }
 
@@ -163,9 +178,11 @@ export async function getUnsyncedEntriesPage(
     const result: EntryModel[] = [];
 
     await skip<EntryModel>(entries, pageSize * page);
-    await take<EntryModel>(entries, pageSize + 1, entry => result.push(entry));
+    await take<EntryModel>(entries, pageSize + 1, (entry) =>
+        result.push(entry)
+    );
     return {
         items: result.slice(0, pageSize),
-        hasMore: result.length > pageSize
+        hasMore: result.length > pageSize,
     };
 }

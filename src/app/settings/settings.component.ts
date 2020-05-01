@@ -1,25 +1,25 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Store } from '@ngxs/store';
+import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import { DayOfWeek, SelectOption } from '../models';
-import { SetConfig } from '../store/config.actions';
-import { ConfigState } from '../store/config.state';
+import * as ConfigActions from '../store/config.actions';
+import * as AppStore from '../store';
 
 @Component({
     selector: 'app-settings',
     templateUrl: './settings.component.html',
-    styleUrls: ['./settings.component.scss']
+    styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
     configForm = this.fb.group({
         maxCalories: [
             '',
-            [Validators.required, Validators.pattern('^[0-9]*$')]
+            [Validators.required, Validators.pattern('^[0-9]*$')],
         ],
-        cheatDay: ''
+        cheatDay: '',
     });
     cheatDayOptions: SelectOption<DayOfWeek | 'none'>[] = [
         { id: 'none', text: 'No Cheat Day' },
@@ -29,7 +29,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         { id: 'thu', text: 'Thursday' },
         { id: 'fri', text: 'Friday' },
         { id: 'sat', text: 'Saturday' },
-        { id: 'sun', text: 'Sunday' }
+        { id: 'sun', text: 'Sunday' },
     ];
     subscriptions = new Subscription();
 
@@ -42,8 +42,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.subscriptions.add(
             this.store
-                .select(ConfigState.config)
-                .subscribe(config => this.configForm.patchValue(config))
+                .select(AppStore.selectConfig)
+                .subscribe((config) => this.configForm.patchValue(config))
         );
     }
 
@@ -54,9 +54,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     onSubmit() {
         const formValue = this.configForm.value;
         this.store.dispatch(
-            new SetConfig({
-                cheatDay: formValue.cheatDay,
-                maxCalories: +formValue.maxCalories
+            ConfigActions.setConfig({
+                config: {
+                    cheatDay: formValue.cheatDay,
+                    maxCalories: +formValue.maxCalories,
+                },
             })
         );
         this.router.navigate(['dashboard']);

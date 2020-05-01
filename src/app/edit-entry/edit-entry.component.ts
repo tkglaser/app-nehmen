@@ -1,24 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Store } from '@ngxs/store';
+import { Store } from '@ngrx/store';
 import { filter, map, pluck } from 'rxjs/operators';
+import { v4 as uuid } from 'uuid';
 
 import { EntryAddModel } from '../models';
-import { AddEntry, DeleteEntry, UpdateEntry } from '../store/entries.actions';
-import { EntriesState } from '../store/entries.state';
+import * as EntriesActions from '../store/entries.actions';
+import { selectEntryById } from '../store';
+import { snapshot } from '../utils/ngrx.utils';
 
 @Component({
     selector: 'app-edit-entry',
     templateUrl: './edit-entry.component.html',
-    styleUrls: ['./edit-entry.component.scss']
+    styleUrls: ['./edit-entry.component.scss'],
 })
 export class EditEntryComponent implements OnInit {
     entryForm = this.fb.group({
         id: '',
         calories: ['', [Validators.required, Validators.pattern('^[0-9]*$')]],
         description: ['', [Validators.required]],
-        exercise: false
+        exercise: false,
     });
 
     constructor(
@@ -30,12 +32,10 @@ export class EditEntryComponent implements OnInit {
         route.params
             .pipe(
                 pluck<Params, string>('id'),
-                map(id =>
-                    this.store.selectSnapshot(EntriesState.entryById(id))
-                ),
-                filter(e => !!e)
+                map((id) => snapshot(this.store, selectEntryById(id))),
+                filter((e) => !!e)
             )
-            .subscribe(entry => this.entryForm.patchValue(entry));
+            .subscribe((entry) => this.entryForm.patchValue(entry));
     }
 
     ngOnInit() {}
@@ -43,10 +43,13 @@ export class EditEntryComponent implements OnInit {
     onSubmit() {
         const formValue: any = this.entryForm.value;
         this.store.dispatch(
-            new UpdateEntry(formValue.id, {
-                calories: +formValue.calories,
-                description: formValue.description,
-                exercise: formValue.exercise
+            EntriesActions.updateEntry({
+                entryId: formValue.id,
+                updates: {
+                    calories: +formValue.calories,
+                    description: formValue.description,
+                    exercise: formValue.exercise,
+                },
             })
         );
         this.backToDash();
@@ -55,10 +58,13 @@ export class EditEntryComponent implements OnInit {
     onClone() {
         const formValue: EntryAddModel = this.entryForm.value;
         this.store.dispatch(
-            new AddEntry({
-                calories: +formValue.calories,
-                description: formValue.description,
-                exercise: formValue.exercise
+            EntriesActions.addEntry({
+                entry: {
+                    id: uuid(),
+                    calories: +formValue.calories,
+                    description: formValue.description,
+                    exercise: formValue.exercise,
+                },
             })
         );
         this.backToDash();
@@ -69,7 +75,9 @@ export class EditEntryComponent implements OnInit {
     }
 
     onDelete() {
-        this.store.dispatch(new DeleteEntry(this.entryForm.value.id));
+        this.store.dispatch(
+            EntriesActions.deleteEntry({ entryId: this.entryForm.value.id })
+        );
         this.backToDash();
     }
 

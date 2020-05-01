@@ -1,30 +1,28 @@
 import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngxs/store';
+import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
 import { EntryModel } from '../models';
-import { EntriesState } from '../store/entries.state';
 import { todayString } from '../utils';
+import { selectEntriesByDay } from '../store';
 
 @Component({
     selector: 'app-todays-entries',
     templateUrl: './todays-entries.component.html',
-    styleUrls: ['./todays-entries.component.scss']
+    styleUrls: ['./todays-entries.component.scss'],
 })
 export class TodaysEntriesComponent implements OnInit {
     displayedColumns: string[] = [
         'description',
         'calories',
         'timestamp',
-        'actions'
+        'actions',
     ];
     dataSource$: Observable<EntryModel[]>;
 
     constructor(private store: Store) {}
 
     ngOnInit() {
-        this.dataSource$ = this.store.select(
-            EntriesState.entriesByDay(todayString())
-        );
+        this.dataSource$ = this.store.select(selectEntriesByDay(todayString()));
     }
 }

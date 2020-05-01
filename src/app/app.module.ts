@@ -6,7 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { OAuthModule } from 'angular-oauth2-oidc';
+import { OAuthModule, OAuthStorage } from 'angular-oauth2-oidc';
 import { HttpClientModule } from '@angular/common/http';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
@@ -76,6 +76,7 @@ registerLocaleData(localeEnGb, 'en-GB');
             useClass: GlobalErrorHandler,
         },
         { provide: LOCALE_ID, useValue: 'en-GB' },
+        { provide: OAuthStorage, useValue: localStorage }
     ],
     bootstrap: [AppComponent],
     entryComponents: [TodaysEntriesComponent],

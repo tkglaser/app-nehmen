@@ -9,6 +9,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgxsModule } from '@ngxs/store';
 import { OAuthModule } from 'angular-oauth2-oidc';
 import { HttpClientModule } from '@angular/common/http';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreModule } from '@ngrx/store';
 
 import { environment } from '../environments/environment';
 import { AddEntryComponent } from './add-entry/add-entry.component';
@@ -28,6 +30,8 @@ import { SettingsComponent } from './settings/settings.component';
 import { ConfigState } from './store/config.state';
 import { EntriesState } from './store/entries.state';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
+import { reducers } from './store';
+import { LocalDbModule } from './local-db/local-db.module';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -64,7 +68,10 @@ registerLocaleData(localeEnGb, 'en-GB');
                 allowedUrls: ['https://localhost:5001/api'],
                 sendAccessToken: true,
             },
-        })
+        }),
+        LocalDbModule,
+        EffectsModule.forRoot(),
+        StoreModule.forRoot(reducers)
     ],
     providers: [
         ClockService,

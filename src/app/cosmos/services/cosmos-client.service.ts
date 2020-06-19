@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CosmosClient } from '@azure/cosmos';
 import { from } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 const dbName = 'AppNehmen';
 const containerName = 'Items';
@@ -10,9 +11,14 @@ const containerName = 'Items';
     providedIn: 'root',
 })
 export class CosmosClientService {
-    constructor() {}
+    constructor(private readonly http: HttpClient) {}
 
     getCollection() {
+        this.getResourceToken().pipe(
+            tap((token) => {
+                console.log(token);
+            })
+        ).subscribe();
         const client = new CosmosClient({
             endpoint: 'https://localhost:8081',
             key:
@@ -33,5 +39,9 @@ export class CosmosClientService {
             ),
             map(() => client.database(dbName).container(containerName))
         );
+    }
+
+    private getResourceToken() {
+        return this.http.get('https://app-nehmen.azure-api.net/api/v1/test');
     }
 }

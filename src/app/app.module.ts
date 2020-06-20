@@ -60,8 +60,8 @@ registerLocaleData(localeEnGb, 'en-GB');
         MaterialModule,
         OAuthModule.forRoot({
             resourceServer: {
-                allowedUrls: ['https://localhost:5001/api'],
-                sendAccessToken: true,
+                allowedUrls: [environment.apiEndpoint],
+                sendAccessToken: true
             },
         }),
         EffectsModule.forRoot(),

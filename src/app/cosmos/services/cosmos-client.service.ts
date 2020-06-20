@@ -4,6 +4,8 @@ import { from } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
+import { environment } from 'src/environments/environment';
+
 const dbName = 'AppNehmen';
 const containerName = 'Items';
 
@@ -14,11 +16,13 @@ export class CosmosClientService {
     constructor(private readonly http: HttpClient) {}
 
     getCollection() {
-        this.getResourceToken().pipe(
-            tap((token) => {
-                console.log(token);
-            })
-        ).subscribe();
+        this.getResourceToken()
+            .pipe(
+                tap((token) => {
+                    console.log(token);
+                })
+            )
+            .subscribe();
         const client = new CosmosClient({
             endpoint: 'https://localhost:8081',
             key:
@@ -42,6 +46,6 @@ export class CosmosClientService {
     }
 
     private getResourceToken() {
-        return this.http.get('https://app-nehmen.azure-api.net/api/v1/test');
+        return this.http.get(environment.apiEndpoint + 'v1/test');
     }
 }

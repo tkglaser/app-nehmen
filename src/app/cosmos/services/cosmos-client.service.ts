@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { CosmosClient } from '@azure/cosmos';
-import { from } from 'rxjs';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
 import { environment } from 'src/environments/environment';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 const dbName = 'AppNehmen';
 const containerName = 'Items';
@@ -13,39 +13,29 @@ const containerName = 'Items';
     providedIn: 'root',
 })
 export class CosmosClientService {
-    constructor(private readonly http: HttpClient) {}
+    constructor(
+        private readonly http: HttpClient,
+        private readonly oauthService: OAuthService
+    ) {}
 
     getCollection() {
-        this.getResourceToken()
-            .pipe(
-                tap((token) => {
-                    console.log(token);
-                })
-            )
-            .subscribe();
-        const client = new CosmosClient({
-            endpoint: 'https://localhost:8081',
-            key:
-                'C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==', // TODO: use resource tokens
-        });
-        // TODO: The container creation should really be part of a terraform script.
-        return from(
-            client.databases.createIfNotExists({
-                id: dbName,
-                throughput: 400,
+        return this.getResourceToken().pipe(
+            map((token) => {
+                const client = new CosmosClient({
+                    endpoint: environment.cosmosDbEndpoint,
+                    tokenProvider: async () => {
+                        const token = await this.getResourceToken().toPromise();
+                        console.log(token);
+                        return (token as any).token;
+                    },
+                });
+                return client.database(dbName).container(containerName);
             })
-        ).pipe(
-            switchMap(() =>
-                client.database(dbName).containers.createIfNotExists({
-                    id: containerName,
-                    partitionKey: { paths: ['/pk'] },
-                })
-            ),
-            map(() => client.database(dbName).container(containerName))
         );
     }
 
     private getResourceToken() {
-        return this.http.get(environment.apiEndpoint + 'v1/test');
+        console.log(this.oauthService.getIdentityClaims());
+        return this.http.get(environment.apiEndpoint + '/v1/data/token');
     }
 }

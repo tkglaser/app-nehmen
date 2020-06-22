@@ -17,7 +17,7 @@ export class CosmosDbService {
     ) {}
 
     getAllEntries() {
-        return this.query<CosmosEntryModel[]>(
+        return this.query<CosmosEntryModel>(
             'select * from c where c.type="caloriesEntry"'
         );
     }

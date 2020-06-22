@@ -1,12 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { switchMap } from 'rxjs/operators';
+import { startWith, switchMap, map } from 'rxjs/operators';
 
 import { CosmosDbService } from '../services/cosmos-db.service';
 import * as ConfigActions from '../../store/config.actions';
 
 @Injectable()
 export class ConfigEffects {
+    init$ = createEffect(() =>
+        this.actions$.pipe(
+            startWith({ type: 'BOOTSTRAP' }),
+            ofType('BOOTSTRAP'),
+            switchMap(() => this.db.getConfig()),
+            map((config) => ConfigActions.setConfig({ config }))
+        )
+    );
+
     setConfig$ = createEffect(
         () =>
             this.actions$.pipe(

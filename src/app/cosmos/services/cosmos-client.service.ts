@@ -11,19 +11,20 @@ const containerName = 'Items';
     providedIn: 'root',
 })
 export class CosmosClientService {
-    constructor(
-        private readonly http: HttpClient,
-    ) {}
+    private readonly client: CosmosClient;
 
-    getCollection() {
-        const client = new CosmosClient({
+    constructor(private readonly http: HttpClient) {
+        this.client = new CosmosClient({
             endpoint: environment.cosmosDbEndpoint,
             tokenProvider: async () => {
                 const token = await this.getResourceToken().toPromise();
                 return (token as any).token;
             },
         });
-        return client.database(dbName).container(containerName);
+    }
+
+    getCollection() {
+        return this.client.database(dbName).container(containerName);
     }
 
     private getResourceToken() {

@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { switchMap, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { from } from 'rxjs';
 
 import { CosmosClientService } from './cosmos-client.service';
 import { CosmosEntryModel } from 'src/app/models/cosmos-entry.model';
@@ -9,7 +11,10 @@ import { EntryModel, ConfigModel } from 'src/app/models';
     providedIn: 'root',
 })
 export class CosmosDbService {
-    constructor(private readonly clientService: CosmosClientService) {}
+    constructor(
+        private readonly clientService: CosmosClientService,
+        private readonly oauthService: OAuthService
+    ) {}
 
     getAllEntries() {
         return this.query<CosmosEntryModel[]>(
@@ -25,8 +30,8 @@ export class CosmosDbService {
         const currentUserId = this.getCurrentUserId();
         const item = {
             ...config,
-            id: `settings_${this.getCurrentUserId()}`,
-            pk: this.getCurrentUserId(),
+            id: `settings_${currentUserId}`,
+            pk: currentUserId,
             userId: currentUserId,
             type: 'settings',
         };
@@ -45,35 +50,34 @@ export class CosmosDbService {
     }
 
     private getCurrentUserId() {
-        return 'TODO';
+        const claims = this.oauthService.getIdentityClaims() as any;
+        return claims.sub;
     }
 
     private getItem<T>(id: string) {
-        return this.clientService.getCollection().pipe(
-            switchMap((collection) =>
-                collection.item(id, this.getCurrentUserId()).read<T>()
-            ),
+        const collection = this.clientService.getCollection();
+        return from(collection.item(id, this.getCurrentUserId()).read<T>()).pipe(
             map((result) => result.resource)
         );
     }
 
     private upsertItem<T>(item: T) {
-        return this.clientService.getCollection().pipe(
-            switchMap((collection) => collection.items.upsert<T>(item)),
+        const collection = this.clientService.getCollection();
+        return from(collection.items.upsert<T>(item)).pipe(
             map((result) => result.resource)
         );
     }
 
     private query<T>(query: string) {
-        return this.clientService.getCollection().pipe(
-            switchMap((collection) =>
-                collection.items
-                    .query<T>(query, {
-                        partitionKey: this.getCurrentUserId(),
-                    })
-                    .fetchAll()
-            ),
+        const collection = this.clientService.getCollection();
+        return from(
+            collection.items
+            .query<T>(query, {
+                partitionKey: this.getCurrentUserId(),
+            })
+            .fetchAll()
+        ).pipe(
             map((result) => result.resources)
-        );
+        )
     }
 }

@@ -66,8 +66,8 @@ registerLocaleData(localeEnGb, 'en-GB');
         }),
         EffectsModule.forRoot(),
         StoreModule.forRoot(reducers),
-        LocalDbModule,
-        // CosmosModule
+        // LocalDbModule,
+        CosmosModule
     ],
     providers: [
         ClockService,

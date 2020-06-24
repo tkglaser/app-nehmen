@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { from } from 'rxjs';
+import { from, of } from 'rxjs';
 
 import { CosmosClientService } from './cosmos-client.service';
 import { CosmosEntryModel } from 'src/app/models/cosmos-entry.model';
@@ -17,9 +17,13 @@ export class CosmosDbService {
     ) {}
 
     getAllEntries() {
-        return this.query<CosmosEntryModel>(
-            'select * from c where c.type="caloriesEntry"'
-        );
+        if (this.getCurrentUserId()) {
+            return this.query<CosmosEntryModel>(
+                'select * from c where c.type="caloriesEntry"'
+            );
+        } else {
+            return of([]);
+        }
     }
 
     getConfig() {
@@ -28,37 +32,45 @@ export class CosmosDbService {
 
     setConfig(config: ConfigModel) {
         const currentUserId = this.getCurrentUserId();
-        const item = {
-            ...config,
-            id: `settings_${currentUserId}`,
-            pk: currentUserId,
-            userId: currentUserId,
-            type: 'settings',
-        };
-        return this.upsertItem(item);
+        if (currentUserId) {
+            const item = {
+                ...config,
+                id: `settings_${currentUserId}`,
+                pk: currentUserId,
+                userId: currentUserId,
+                type: 'settings',
+            };
+            return this.upsertItem(item);
+        } else {
+            return of(null);
+        }
     }
 
     upsertEntry(entry: EntryModel) {
         const currentUserId = this.getCurrentUserId();
-        const item: CosmosEntryModel = {
-            ...entry,
-            pk: currentUserId,
-            userId: currentUserId,
-            type: 'caloriesEntry',
-        };
-        return this.upsertItem(item);
+        if (currentUserId) {
+            const item: CosmosEntryModel = {
+                ...entry,
+                pk: currentUserId,
+                userId: currentUserId,
+                type: 'caloriesEntry',
+            };
+            return this.upsertItem(item);
+        } else {
+            return of(null);
+        }
     }
 
     private getCurrentUserId() {
         const claims = this.oauthService.getIdentityClaims() as any;
-        return claims.sub;
+        return claims?.sub;
     }
 
     private getItem<T>(id: string) {
         const collection = this.clientService.getCollection();
-        return from(collection.item(id, this.getCurrentUserId()).read<T>()).pipe(
-            map((result) => result.resource)
-        );
+        return from(
+            collection.item(id, this.getCurrentUserId()).read<T>()
+        ).pipe(map((result) => result.resource));
     }
 
     private upsertItem<T>(item: T) {
@@ -72,12 +84,10 @@ export class CosmosDbService {
         const collection = this.clientService.getCollection();
         return from(
             collection.items
-            .query<T>(query, {
-                partitionKey: this.getCurrentUserId(),
-            })
-            .fetchAll()
-        ).pipe(
-            map((result) => result.resources)
-        )
+                .query<T>(query, {
+                    partitionKey: this.getCurrentUserId(),
+                })
+                .fetchAll()
+        ).pipe(map((result) => result.resources));
     }
 }

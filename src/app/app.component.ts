@@ -18,6 +18,7 @@ export class AppComponent {
     ) {
         this.configure();
         this.oauthService.tryLoginImplicitFlow();
+        this.oauthService.setupAutomaticSilentRefresh();
     }
 
     private configure() {

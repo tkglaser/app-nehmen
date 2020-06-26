@@ -16,4 +16,5 @@ export const authConfig: AuthConfig = {
   skipIssuerCheck: true,
   clearHashAfterLogin: true,
   oidc: true,
+  silentRefreshRedirectUri: window.location.origin + '/silent-refresh.html',
 }

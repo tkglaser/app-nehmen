@@ -4,8 +4,8 @@
 
 export const environment = {
     production: false,
-    apiEndpoint: 'https://app-nehmen.azure-api.net/api',
-    cosmosDbEndpoint: 'https://app-nehmen-db.documents.azure.com:443/'
+    apiEndpoint: 'https://localhost:5001/api',
+    cosmosDbEndpoint: 'https://localhost:8081'
 };
 
 /*

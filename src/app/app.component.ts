@@ -24,5 +24,8 @@ export class AppComponent {
         this.oauthService.configure(authConfig);
         this.oauthService.tokenValidationHandler = new NullValidationHandler();
         this.oauthService.loadDiscoveryDocument(DiscoveryDocumentConfig.url);
-      }
+        this.oauthService.events.subscribe((event) => {
+            console.log(event);
+        });
+    }
 }

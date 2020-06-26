@@ -16,17 +16,20 @@ export class AppComponent {
         private update: UpdateService,
         private oauthService: OAuthService
     ) {
-        this.configure();
-        this.oauthService.tryLoginImplicitFlow();
-        this.oauthService.setupAutomaticSilentRefresh();
+        this.configureAndLogin();
     }
 
-    private configure() {
-        this.oauthService.configure(authConfig);
-        this.oauthService.tokenValidationHandler = new NullValidationHandler();
-        this.oauthService.loadDiscoveryDocument(DiscoveryDocumentConfig.url);
+    private async configureAndLogin() {
         this.oauthService.events.subscribe((event) => {
             console.log(event);
         });
+        this.oauthService.configure(authConfig);
+        this.oauthService.tokenValidationHandler = new NullValidationHandler();
+        await this.oauthService.loadDiscoveryDocument(DiscoveryDocumentConfig.url);
+        await this.oauthService.tryLoginImplicitFlow();
+        if (!this.oauthService.hasValidAccessToken()) {
+            this.oauthService.initImplicitFlow();
+        }
+        this.oauthService.setupAutomaticSilentRefresh();
     }
 }

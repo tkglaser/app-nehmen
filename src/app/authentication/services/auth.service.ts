@@ -38,9 +38,6 @@ export class AuthService {
     }
 
     private async configureAndLogin() {
-        this.oauthService.events.subscribe((event) => {
-            console.log(event);
-        });
         this.oauthService.configure(authConfig);
         this.oauthService.tokenValidationHandler = new NullValidationHandler();
         await this.oauthService.loadDiscoveryDocument(

@@ -11,17 +11,29 @@ const containerName = 'Items';
     providedIn: 'root',
 })
 export class CosmosClientService {
-    private readonly client: CosmosClient;
+    private token: string;
+    private tokenExpires: number;
+    private _client: CosmosClient;
 
-    constructor(private readonly http: HttpClient) {
-        this.client = new CosmosClient({
-            endpoint: environment.cosmosDbEndpoint,
-            tokenProvider: async () => {
-                const token = await this.getResourceToken().toPromise();
-                return (token as any).token;
-            },
-        });
+    private get client() {
+        if (!this._client) {
+            this._client = new CosmosClient({
+                endpoint: environment.cosmosDbEndpoint,
+                tokenProvider: async () => {
+                    if (this.token && this.tokenExpires > Date.now()) {
+                        return this.token;
+                    }
+                    const token = await this.getResourceToken().toPromise();
+                    this.token = (token as any).token;
+                    this.tokenExpires = Date.now() + 30 * 60 * 1000; // 30min expiry
+                    return this.token;
+                },
+            });
+        }
+        return this._client;
     }
+
+    constructor(private readonly http: HttpClient) {}
 
     getCollection() {
         return this.client.database(dbName).container(containerName);

@@ -30,6 +30,7 @@ import { TodaysEntriesComponent } from './todays-entries/todays-entries.componen
 import { reducers } from './store';
 import { LocalDbModule } from './local-db/local-db.module';
 import { CosmosModule } from './cosmos/cosmos.module';
+import { AuthenticationModule } from './authentication/authentication.module';
 
 registerLocaleData(localeEnGb, 'en-GB');
 
@@ -51,6 +52,7 @@ registerLocaleData(localeEnGb, 'en-GB');
         HttpClientModule,
         AppRoutingModule,
         BrowserAnimationsModule,
+        AuthenticationModule,
         LayoutModule,
         ReactiveFormsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {

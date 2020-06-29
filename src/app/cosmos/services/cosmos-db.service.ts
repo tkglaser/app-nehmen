@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { from, of } from 'rxjs';
 
 import { CosmosClientService } from './cosmos-client.service';
 import { CosmosEntryModel } from 'src/app/models/cosmos-entry.model';
 import { EntryModel, ConfigModel } from 'src/app/models';
+import { AuthService } from 'src/app/authentication/services/auth.service';
 
 @Injectable({
     providedIn: 'root',
@@ -13,11 +13,11 @@ import { EntryModel, ConfigModel } from 'src/app/models';
 export class CosmosDbService {
     constructor(
         private readonly clientService: CosmosClientService,
-        private readonly oauthService: OAuthService
+        private readonly authService: AuthService
     ) {}
 
     getAllEntries() {
-        if (this.getCurrentUserId()) {
+        if (this.authService.userId) {
             return this.query<CosmosEntryModel>(
                 'select * from c where c.type="caloriesEntry"'
             );
@@ -27,11 +27,11 @@ export class CosmosDbService {
     }
 
     getConfig() {
-        return this.getItem<ConfigModel>(`settings_${this.getCurrentUserId()}`);
+        return this.getItem<ConfigModel>(`settings_${this.authService.userId}`);
     }
 
     setConfig(config: ConfigModel) {
-        const currentUserId = this.getCurrentUserId();
+        const currentUserId = this.authService.userId;
         if (currentUserId) {
             const item = {
                 ...config,
@@ -47,7 +47,7 @@ export class CosmosDbService {
     }
 
     upsertEntry(entry: EntryModel) {
-        const currentUserId = this.getCurrentUserId();
+        const currentUserId = this.authService.userId;
         if (currentUserId) {
             const item: CosmosEntryModel = {
                 ...entry,
@@ -61,15 +61,10 @@ export class CosmosDbService {
         }
     }
 
-    private getCurrentUserId() {
-        const claims = this.oauthService.getIdentityClaims() as any;
-        return claims?.sub;
-    }
-
     private getItem<T>(id: string) {
         const collection = this.clientService.getCollection();
         return from(
-            collection.item(id, this.getCurrentUserId()).read<T>()
+            collection.item(id, this.authService.userId).read<T>()
         ).pipe(map((result) => result.resource));
     }
 
@@ -85,7 +80,7 @@ export class CosmosDbService {
         return from(
             collection.items
                 .query<T>(query, {
-                    partitionKey: this.getCurrentUserId(),
+                    partitionKey: this.authService.userId,
                 })
                 .fetchAll()
         ).pipe(map((result) => result.resources));

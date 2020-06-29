@@ -1,9 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { MatSidenav } from '@angular/material/sidenav';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { AuthService } from '../authentication/services/auth.service';
 
 @Component({
     selector: 'app-main-nav',
@@ -19,9 +19,8 @@ export class MainNavComponent {
 
     constructor(
         private readonly breakpointObserver: BreakpointObserver,
-        private readonly oauthService: OAuthService
-    ) {
-    }
+        private readonly authService: AuthService
+    ) {}
 
     onNavClick() {
         if (this.drawer.mode === 'over') {
@@ -30,18 +29,18 @@ export class MainNavComponent {
     }
 
     onLogin() {
-        this.oauthService.initLoginFlow();
+        this.authService.login();
     }
 
     onLogout() {
-        this.oauthService.logOut();
+        this.authService.logout();
     }
 
     get isLoggedin() {
-        return !!this.oauthService.getAccessToken();
+        return this.authService.isLoggedin;
     }
 
     get username() {
-        return (this.oauthService.getIdentityClaims() as any)?.given_name;
+        return this.authService.username;
     }
 }

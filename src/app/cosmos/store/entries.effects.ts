@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { switchMap, map, startWith } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 
 import * as EntriesActions from '../../store/entries.actions';
+import * as AuthActions from '../../authentication/store/auth.actions';
 import { selectEntryById } from 'src/app/store';
 import { CosmosDbService } from '../services/cosmos-db.service';
 
@@ -11,8 +12,7 @@ import { CosmosDbService } from '../services/cosmos-db.service';
 export class EntriesEffects {
     init$ = createEffect(() =>
         this.actions$.pipe(
-            startWith({ type: 'BOOTSTRAP' }),
-            ofType('BOOTSTRAP'),
+            ofType(AuthActions.loginComplete),
             switchMap(() => this.db.getAllEntries()),
             map((entries) => EntriesActions.setAllEntries({ entries }))
         )

@@ -42,15 +42,14 @@ export class EntriesEffects {
         { dispatch: false }
     );
 
-    // TODO
-    // deleteEntry$ = createEffect(
-    //     () =>
-    //         this.actions$.pipe(
-    //             ofType(EntriesActions.deleteEntry),
-    //             switchMap(({ entryId }) => softDeleteEntry(db, entryId))
-    //         ),
-    //     { dispatch: false }
-    // );
+    deleteEntry$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(EntriesActions.deleteEntry),
+                switchMap(({ entryId }) => this.db.deleteEntry(entryId))
+            ),
+        { dispatch: false }
+    );
 
     constructor(
         private readonly actions$: Actions,

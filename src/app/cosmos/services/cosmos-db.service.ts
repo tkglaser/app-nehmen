@@ -61,6 +61,10 @@ export class CosmosDbService {
         }
     }
 
+    deleteEntry(entryId: string) {
+        return this.deleteItem(entryId);
+    }
+
     private getItem<T>(id: string) {
         const collection = this.clientService.getCollection();
         return from(
@@ -84,5 +88,10 @@ export class CosmosDbService {
                 })
                 .fetchAll()
         ).pipe(map((result) => result.resources));
+    }
+
+    private deleteItem(id: string) {
+        const collection = this.clientService.getCollection();
+        return from(collection.item(id, this.authService.userId).delete());
     }
 }

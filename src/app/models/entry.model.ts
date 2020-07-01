@@ -1,5 +1,3 @@
-import { SyncState } from './sync-state.model';
-
 export interface EntryModel {
     id: string;
     calories: number;
@@ -8,5 +6,4 @@ export interface EntryModel {
     exercise: boolean;
     created: number;
     modified: number;
-    sync_state: SyncState;
 }

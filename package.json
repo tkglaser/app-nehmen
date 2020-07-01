@@ -31,7 +31,6 @@
     "@ngrx/store": "^9.1.0",
     "angular-oauth2-oidc": "^9.2.1",
     "core-js": "^3.6.5",
-    "idb": "^3.0.2",
     "isomorphic-fetch": "^2.2.1",
     "moment": "~2.24.0",
     "rxjs": "~6.5.5",

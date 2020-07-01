@@ -28,7 +28,6 @@ import { UpdateService } from './services/update.service';
 import { SettingsComponent } from './settings/settings.component';
 import { TodaysEntriesComponent } from './todays-entries/todays-entries.component';
 import { reducers } from './store';
-import { LocalDbModule } from './local-db/local-db.module';
 import { CosmosModule } from './cosmos/cosmos.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 

@@ -1,11 +1,6 @@
 import { createReducer, on, Action } from '@ngrx/store';
 
-import {
-    EntryModel,
-    SyncState,
-    EntryAddModel,
-    EntryUpdateModel,
-} from '../models';
+import { EntryModel, EntryAddModel, EntryUpdateModel } from '../models';
 import * as EntriesActions from './entries.actions';
 import { dayString } from '../utils';
 
@@ -43,7 +38,6 @@ function fromCreateModel(entry: EntryAddModel): EntryModel {
         modified: now.getTime(),
         day: dayString(now),
         exercise: !!entry.exercise,
-        sync_state: SyncState.Dirty,
     };
 }
 
@@ -54,7 +48,6 @@ function fromUpdateModel(
     return {
         ...existingEntry,
         modified: new Date().getTime(),
-        sync_state: SyncState.Dirty,
         calories: +updates.calories,
         description: updates.description,
         exercise: !!updates.exercise,
